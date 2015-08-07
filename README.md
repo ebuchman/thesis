@@ -21,6 +21,10 @@ and include it here.
 A summary of how to make one blockchain aware of another, 
 and how to build channels of communication that work, securely and without trust in a third party, "off-chain"
 
+
+
+
+
 ## Technical Reviews
 
 ### Merkle state trees
@@ -34,6 +38,11 @@ as pertains to their overall structure, performance, and security.
 ### Distributed Consensus
 A technical comparison between the distributed consensus implementations in etcb (ie. Raft) and tendermint,
 as pertains to their performance and fault tolerance under various read/write/network environments.
+
+### Eth mining
+
+
+
 
 ## Implementations
 

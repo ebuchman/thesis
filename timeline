@@ -1,0 +1,30 @@
+Parts: 1(1-5), 2(1-2), 3(1-4)
+
+August 7
+----------
+- first pass merkle state tree technical review (2.1)
+- first pass p2p encryption technical review (2.2)
+
+August 31
+----------
+- more polished technical reviews (section 2)
+- specs for 3.2 (code already done basically)
+- first pass/outline of tendermint multichain (3.3)
+
+September 30
+------------
+- finalize section 2
+- polish 3.3
+- first pass 3.4
+
+October 30
+-----------
+- finalize section 3
+- start outlining section 1
+
+November 20
+-------------
+- pull it all together ...
+
+
+
