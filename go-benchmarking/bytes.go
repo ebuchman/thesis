@@ -4,29 +4,35 @@ import (
 	"bytes"
 	"crypto/sha256"
 	"fmt"
+	"io"
 	"testing"
 
-	. "github.com/tendermint/tendermint/common"
+	. "github.com/tendermint/go-common"
 
 	"code.google.com/p/go.crypto/ripemd160"
-	"github.com/tendermint/tendermint/vm/sha3"
-	"github.com/tendermint/tendermint/wire"
+	"github.com/tendermint/go-wire"
 
+	"github.com/ethereum/go-ethereum/crypto"
 	_ "github.com/ethereum/go-ethereum/trie"
 )
+
+var ()
 
 var result []byte // so the compiler doesnt get away with optimizing code away
 
 //------------------------------------------------------------------------------------------
 // benchmark functions that take a size
 
-func runBytesBenchmarksFunc(f func(b *testing.B, size int), name string) {
+func runBytesBenchmarksFunc(w io.Writer, f func(b *testing.B, size int), name string) {
 	fmt.Println("\nBenchmarking", name)
 	for _, size := range []int{20, 32, 64, 128, 256, 512, 1024, 2048, 4096, 8192} {
 		r := testing.Benchmark(func(b *testing.B) {
 			f(b, size)
 		})
 		fmt.Println(size, r)
+		if w != nil {
+			fmt.Fprintf(w, "%d,%d,%d,%d,%d,%d\n", size, r.N, r.T.Nanoseconds(), r.Bytes, r.MemAllocs, r.MemBytes)
+		}
 	}
 }
 
@@ -34,7 +40,7 @@ func runBytesBenchmarksFunc(f func(b *testing.B, size int), name string) {
 // benchmark copy byte slice
 
 func runCopyByteSliceBenchmarks() {
-	runBytesBenchmarksFunc(benchmarkCopyByteSlice, "CopyByteSlice")
+	runBytesBenchmarksFunc(nil, benchmarkCopyByteSlice, "CopyByteSlice")
 }
 
 func benchmarkCopyByteSlice(b *testing.B, size int) {
@@ -49,7 +55,7 @@ func benchmarkCopyByteSlice(b *testing.B, size int) {
 // benchmark write byte slice to buffer
 
 func runWriteByteSliceBenchmarks() {
-	runBytesBenchmarksFunc(benchmarkWriteByteSlice, "WriteByteSlice")
+	runBytesBenchmarksFunc(nil, benchmarkWriteByteSlice, "WriteByteSlice")
 }
 
 func benchmarkWriteByteSlice(b *testing.B, size int) {
@@ -65,12 +71,12 @@ func benchmarkWriteByteSlice(b *testing.B, size int) {
 // benchmark BasicCodec.Encode on byte slice
 
 func runBasicCodecEncodeBenchmarks() {
-	runBytesBenchmarksFunc(benchmarkBasicCodecEncode, "BasicCodecEncode")
+	runBytesBenchmarksFunc(nil, benchmarkBasicCodecEncode, "BasicCodecEncode")
 }
 
 func benchmarkBasicCodecEncode(b *testing.B, size int) {
 	var v = RandBytes(size)
-	var w, n, err = new(bytes.Buffer), new(int64), new(error)
+	var w, n, err = new(bytes.Buffer), new(int), new(error)
 	for i := 0; i < b.N; i++ {
 		w.Reset() // takes about 8 ns
 		wire.BasicCodec.Encode(v, w, n, err)
@@ -81,7 +87,7 @@ func benchmarkBasicCodecEncode(b *testing.B, size int) {
 // benchmark RandBytes
 
 func runRandBytesBenchmarks() {
-	runBytesBenchmarksFunc(benchmarkRandBytes, "RandBytes")
+	runBytesBenchmarksFunc(nil, benchmarkRandBytes, "RandBytes")
 }
 
 func benchmarkRandBytes(b *testing.B, size int) {
@@ -95,8 +101,8 @@ func benchmarkRandBytes(b *testing.B, size int) {
 //------------------------------------------------------------------------------------------
 // benchmark ripemd160
 
-func runRipemdHashBenchmarks() {
-	runBytesBenchmarksFunc(benchmarkRipemd160, "Ripemd160")
+func runRipemdHashBenchmarks(w io.Writer) {
+	runBytesBenchmarksFunc(w, benchmarkRipemd160, "Ripemd160")
 }
 
 var hashResult []byte
@@ -118,8 +124,8 @@ func benchmarkRipemd160(b *testing.B, size int) {
 //------------------------------------------------------------------------------------------
 // benchmark sha2
 
-func runSha256HashBenchmarks() {
-	runBytesBenchmarksFunc(benchmarkSha256, "Sha256")
+func runSha256HashBenchmarks(w io.Writer) {
+	runBytesBenchmarksFunc(w, benchmarkSha256, "Sha256")
 }
 
 func benchmarkSha256(b *testing.B, size int) {
@@ -139,8 +145,8 @@ func benchmarkSha256(b *testing.B, size int) {
 //------------------------------------------------------------------------------------------
 // benchmark sha3
 
-func runSha3HashBenchmarks() {
-	runBytesBenchmarksFunc(benchmarkSha3, "Sha3")
+func runSha3HashBenchmarks(w io.Writer) {
+	runBytesBenchmarksFunc(w, benchmarkSha3, "Sha3")
 }
 
 func benchmarkSha3(b *testing.B, size int) {
@@ -148,7 +154,7 @@ func benchmarkSha3(b *testing.B, size int) {
 	v := RandBytes(size)
 	var hash []byte
 	for i := 0; i < b.N; i++ {
-		hash = sha3.Sha3(v)
+		hash = crypto.Sha3(v)
 	}
 	hashResult = hash
 }
@@ -157,7 +163,7 @@ func benchmarkSha3(b *testing.B, size int) {
 // benchmark CompactHexDecode
 
 func runCompactHexDecodeBenchmarks() {
-	runBytesBenchmarksFunc(benchmarkCompactHexDecode, "CompactHexDecode")
+	runBytesBenchmarksFunc(nil, benchmarkCompactHexDecode, "CompactHexDecode")
 }
 
 func benchmarkCompactHexDecode(b *testing.B, size int) {

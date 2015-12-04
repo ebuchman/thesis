@@ -1,13 +1,24 @@
 package main
 
 import (
+	"fmt"
+	"io"
 	"net/http"
 	_ "net/http/pprof"
+	"os"
+	"path"
+	"runtime/pprof"
 
 	"github.com/eris-ltd/common/go/log"
 )
 
+var SAVE_RESULTS = false
+
 func init() {
+	saves := os.Getenv("GO_BENCHMARK_SAVE_RESULTS")
+	if saves != "" {
+		SAVE_RESULTS = true
+	}
 
 	go func() {
 		logger.Println(http.ListenAndServe("localhost:6060", nil))
@@ -15,27 +26,61 @@ func init() {
 
 }
 
+func openFileRunTest(f func(io.Writer), saveDir, p string) {
+	var w *os.File
+	var err error
+	if saveDir != "" {
+		w, err = os.Create(path.Join(saveDir, p))
+		ifExit(err)
+		defer w.Close()
+	}
+	f(w)
+}
+
 func main() {
+	f, _ := os.Create("cpu_file")
+	pprof.StartCPUProfile(f)
+
+	args := os.Args[1:]
+	if len(args) > 0 {
+		switch args[0] {
+		case "hash":
+			var saveDir string
+			if SAVE_RESULTS {
+				if len(args) < 2 {
+					exit("enter a directory to store the results")
+				} else {
+					saveDir = args[1]
+				}
+			}
+			openFileRunTest(runRipemdHashBenchmarks, saveDir, "ripemd160")
+			openFileRunTest(runSha256HashBenchmarks, saveDir, "sha256")
+			openFileRunTest(runSha3HashBenchmarks, saveDir, "sha3")
+		default:
+			fmt.Println(args[0])
+		}
+
+	}
 
 	//runCompactHexDecodeBenchmarks()
 	//	runIAVLUpdateHashBenchmarks()
 
 	//runIAVLHashBenchmarks()
 
-	runIAVLGetBenchmarks()
+	//	runIAVLGetBenchmarks()
 	//	runIAVLGetLoadBenchmarks()
 
-	runPatriciaGetBenchmarks()
+	//	runPatriciaGetBenchmarks()
 	//runPatriciaGetLoadBenchmarks()
 
 	//	runPatriciaGetLoadMemStats()
 	//	runIAVLGetLoadMemStats()
 
 	runIAVLSetRmBenchmarks()
-	runPatriciaSetRmBenchmarks()
+	//	runPatriciaSetRmBenchmarks()
 	//runIAVLSetRmLoadBenchmarks()
 	//runLevelDBSetRmBenchmarks()
-	//runMemDBSetRmBenchmarks()
+	//	runMemDBSetRmBenchmarks()
 
 	//runCopyByteSliceBenchmarks()
 	//runWriteByteSliceBenchmarks()
@@ -43,12 +88,9 @@ func main() {
 
 	//	runRandBytesBenchmarks()
 
-	/*
-		runRipemdHashBenchmarks()
-		runSha256HashBenchmarks()
-		runSha3HashBenchmarks()
-	*/
 	log.Flush()
+	pprof.StopCPUProfile()
+
 }
 
 /*
@@ -116,3 +158,18 @@ LevelDBEth GET
 100 32 256 0 [] 124.788µs
 
 */
+
+func exit(s string) {
+	fmt.Println(s)
+	log.Flush()
+	os.Exit(1)
+
+}
+
+func ifExit(err error) {
+	if err != nil {
+		fmt.Println(err)
+		log.Flush()
+		os.Exit(1)
+	}
+}

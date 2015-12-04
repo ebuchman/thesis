@@ -5,12 +5,13 @@ import (
 	"runtime"
 	"testing"
 
+	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/ethdb"
 	"github.com/ethereum/go-ethereum/trie"
-	. "github.com/tendermint/tendermint/common"
-	dbm "github.com/tendermint/tendermint/db"
-	"github.com/tendermint/tendermint/merkle"
-	"github.com/tendermint/tendermint/wire"
+	. "github.com/tendermint/go-common"
+	dbm "github.com/tendermint/go-db"
+	"github.com/tendermint/go-merkle"
+	"github.com/tendermint/go-wire"
 )
 
 //------------------------------------------------------------------------------------------
@@ -110,10 +111,11 @@ func initIAVLTree(data *Data, cacheSize int, db dbm.DB) *merkle.IAVLTree {
 
 func initPatriciaTree(data *Data, db *ethdb.LDBDatabase) *trie.Trie {
 	var t *trie.Trie
+	// no error for empty root
 	if db == nil { // or we'll be bit by the nil dog! TODO: shouldnt be true
-		t = trie.New(nil, nil)
+		t, _ = trie.New(common.Hash{}, nil)
 	} else {
-		t = trie.New(nil, db)
+		t, _ = trie.New(common.Hash{}, db)
 	}
 	for i := 0; i < data.N(); i++ {
 		t.Update(data.Keys[i], data.Values[i])

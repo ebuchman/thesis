@@ -5,8 +5,8 @@ import (
 	"runtime"
 	"testing"
 
-	"github.com/tendermint/tendermint/merkle"
-	"github.com/tendermint/tendermint/wire"
+	"github.com/tendermint/go-merkle"
+	"github.com/tendermint/go-wire"
 )
 
 //------------------------------------------------------------------------------------------

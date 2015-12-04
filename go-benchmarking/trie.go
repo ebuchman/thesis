@@ -5,6 +5,7 @@ import (
 	"runtime"
 	"testing"
 
+	"github.com/ethereum/go-ethereum/common"
 	_ "github.com/ethereum/go-ethereum/ethdb"
 	"github.com/ethereum/go-ethereum/trie"
 )
@@ -103,7 +104,9 @@ func runPatriciaGetLoadBenchmarks() {
 					db.Close()
 					data = nil
 					db = initLevelDBEth(dbData, c, "bench")
-					tree = trie.New(rootHash, db)
+					var err error
+					tree, err = trie.New(common.BytesToHash(rootHash), db)
+					ifExit(err)
 					r := testing.Benchmark(func(b *testing.B) {
 						benchmarkPatriciaGet(b, data, tree)
 					})
@@ -155,7 +158,9 @@ func runPatriciaSetRmLoadBenchmarks() {
 					tree := initPatriciaTree(preData, db)
 					tree.Commit()
 					rootHash := tree.Root()
-					tree = trie.New(rootHash, db)
+					var err error
+					tree, err = trie.New(common.BytesToHash(rootHash), db)
+					ifExit(err)
 					r := testing.Benchmark(func(b *testing.B) {
 						benchmarkPatriciaSetRm(b, data, tree)
 					})
@@ -212,7 +217,9 @@ func runPatriciaUpdateHashBenchmarks() {
 						tree := initPatriciaTree(preData, db)
 						tree.Commit()
 						rootHash := tree.Root()
-						tree = trie.New(rootHash, db)
+						var err error
+						tree, err = trie.New(common.BytesToHash(rootHash), db)
+						ifExit(err)
 						r := testing.Benchmark(func(b *testing.B) {
 							benchmarkPatriciaUpdateHash(b, data, tree, w)
 						})

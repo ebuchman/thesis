@@ -5,12 +5,12 @@ import (
 	"runtime"
 	"time"
 
-	"github.com/ethereum/go-ethereum/ethdb"
+	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/trie"
 
 	//dbm "github.com/tendermint/tendermint/db"
-	"github.com/tendermint/tendermint/merkle"
-	"github.com/tendermint/tendermint/wire"
+	"github.com/tendermint/go-merkle"
+	"github.com/tendermint/go-wire"
 )
 
 var MemStatsN = 100000
@@ -89,20 +89,22 @@ func runPatriciaGetLoadMemStats() {
 					reportMem("after clearing we have")
 					db = initLevelDBEth(emptyData, c, "bench")
 					reportMem("after reloading the db we have")
-					tree = trie.New(rootHash, db)
+					var err error
+					tree, err = trie.New(common.BytesToHash(rootHash), db)
+					ifExit(err)
 					reportMem("after reloading the tree we have")
 					time.Sleep(time.Second * 2)
 					reportMem("after sleeping for 2 seconds we have")
 
-					startTime := time.Now()
+					//startTime := time.Now()
 					for i := 0; i < MemStatsN; i++ {
 						im := i % MemStatsUnique
 						tree.Get(keys[im])
 					}
-					duration := time.Since(startTime)
+					//duration := time.Since(startTime)
 					reportMem("after fetching from the tree we have")
 
-					reportBenchmark(duration, ethdb.COUNT)
+					//reportBenchmark(duration, ethdb.COUNT)
 					logger.Println(x, y, z, c)
 					db.Close()
 					os.RemoveAll("bench")
