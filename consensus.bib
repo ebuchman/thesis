@@ -1,0 +1,306 @@
+
+@article{flp,
+  title={Impossibility of distributed consensus with one faulty process},
+  author={Fischer, Michael J and Lynch, Nancy A and Paterson, Michael S},
+  journal={Journal of the ACM (JACM)},
+  volume={32},
+  number={2},
+  pages={374--382},
+  year={1985},
+  publisher={ACM}
+  note={fully async deterministic consensus is impossible.
+	"no completely asynchronous consensus protocol can tolerate even a single unannounced process death" 
+  }
+}
+
+
+@inproceedings{free-choice,
+  title={Another advantage of free choice (extended abstract): Completely asynchronous agreement protocols},
+  author={Ben-Or, Michael},
+  booktitle={Proceedings of the second annual ACM symposium on Principles of distributed computing},
+  pages={27--30},
+  year={1983},
+  organization={ACM}
+  note={somehow this cites flp.
+  Can solve flp with probability 1 using non-determinism.
+  2t+1 for non-byzantine, 5t+1 for byzantine version.
+  "dont know whether N > 5t is best possible bound " ... :p
+
+  }
+}
+
+
+# a great history
+http://betathoughts.blogspot.ca/2007/06/brief-history-of-consensus-2pc-and.html
+
+@article{clocks,
+  title={Time, clocks, and the ordering of events in a distributed system},
+  author={Lamport, Leslie},
+  journal={Communications of the ACM},
+  volume={21},
+  number={7},
+  pages={558--565},
+  year={1978},
+  publisher={ACM} 
+  note={first consensus paper
+	relativity of concurrent processes
+  	ordering based on message passing.
+	introduces distribtued state machine
+  }
+}
+
+@article{pease1980reaching,
+  title={Reaching agreement in the presence of faults},
+  author={Pease, Marshall and Shostak, Robert and Lamport, Leslie},
+  journal={Journal of the ACM (JACM)},
+  volume={27},
+  number={2},
+  pages={228--234},
+  year={1980},
+  publisher={ACM}
+  note={ first to show that the best we can do in byzantine is 3t+1 
+	  statement of byzantine generals before it was called byzantine generals.
+	an algo where t faults requires t+1 rounds (ie. 1 fault requires 2 rounds ...)
+	howevver, if authentication is used, then we can tolerate an arbitrary number of byzantine faults t<=N given t+1 rounds
+
+  }
+}
+
+
+@article{lamport1982byzantine,
+  title={The Byzantine generals problem},
+  author={Lamport, Leslie and Shostak, Robert and Pease, Marshall},
+  journal={ACM Transactions on Programming Languages and Systems (TOPLAS)},
+  volume={4},
+  number={3},
+  pages={382--401},
+  year={1982},
+  publisher={ACM
+	  coins Byzantine and expands on pease1980reaching
+  
+  }
+}
+
+@article{paxos,
+  title={The part-time parliament},
+  author={Lamport, Leslie},
+  journal={ACM Transactions on Computer Systems (TOCS)},
+  volume={16},
+  number={2},
+  pages={133--169},
+  year={1998},
+  publisher={ACM}
+}
+
+
+@incollection{lampson1996paxos,
+  title={How to build a highly available system using consensus},
+  author={Lampson, Butler W},
+  booktitle={Distributed Algorithms},
+  pages={1--17},
+  year={1996},
+  publisher={Springer}
+  note={practical guide to using paxos}
+}
+
+@inproceedings{dynamo,
+  title={Dynamo: amazon's highly available key-value store},
+  author={DeCandia, Giuseppe and Hastorun, Deniz and Jampani, Madan and Kakulapati, Gunavardhan and Lakshman, Avinash and Pilchin, Alex and Sivasubramanian, Swaminathan and Vosshall, Peter and Vogels, Werner},
+  booktitle={ACM SIGOPS Operating Systems Review},
+  volume={41},
+  number={6},
+  pages={205--220},
+  year={2007},
+  organization={ACM}
+}
+
+@inproceedings{chubby,
+  title={The Chubby lock service for loosely-coupled distributed systems},
+  author={Burrows, Mike},
+  booktitle={Proceedings of the 7th symposium on Operating systems design and implementation},
+  pages={335--350},
+  year={2006},
+  organization={USENIX Association}
+}
+
+@inproceedings{zookeeper,
+  title={ZooKeeper: Wait-free Coordination for Internet-scale Systems.},
+  author={Hunt, Patrick and Konar, Mahadev and Junqueira, Flavio Paiva and Reed, Benjamin},
+  booktitle={USENIX Annual Technical Conference},
+  volume={8},
+  pages={9},
+  year={2010}
+}
+
+
+@article{rao2011using,
+  title={Using Paxos to build a scalable, consistent, and highly available datastore},
+  author={Rao, Jun and Shekita, Eugene J and Tata, Sandeep},
+  journal={Proceedings of the VLDB Endowment},
+  volume={4},
+  number={4},
+  pages={243--254},
+  year={2011},
+  publisher={VLDB Endowment}
+}
+
+
+
+@article{dls,
+  title={Consensus in the presence of partial synchrony},
+  author={Dwork, Cynthia and Lynch, Nancy and Stockmeyer, Larry},
+  journal={Journal of the ACM (JACM)},
+  volume={35},
+  number={2},
+  pages={288--323},
+  year={1988},
+  publisher={ACM}
+}
+
+@incollection{ppbft,
+  title={On the practicality of practical Byzantine fault tolerance},
+  author={Chondros, Nikos and Kokordelis, Konstantinos and Roussopoulos, Mema},
+  booktitle={Proceedings of ACM/IFIP/USENIX International Middleware Conference (MIDDLEWARE)},
+  pages={436--455},
+  year={2012},
+  publisher={Springer}
+}
+
+
+@inproceedings{pbft,
+	  title={Practical Byzantine fault tolerance},
+	  author={Castro, Miguel and Liskov, Barbara and others}
+	  booktitle={Proceedings of the Third Symposium on Operating Systems Design and Implementation}
+	  year={1999}
+	  notes={
+		  tolerates byzantine faults in asyncronous networks
+		  public keys only used when there are faults
+		  implemented NFS, performance on par UNIX
+		  "We  do  assume  that  the  adversary cannot delay correct nodes indefinitely. "
+		  "The algorithm does not rely on synchrony to provide safety.  Therefore, it must rely on synchrony to provide liveness; else violate FLP"
+		  	- delay(t) does not grow faster than t indefintely
+
+		  Protocol:
+		  	- "buffer requests and multicast as a group" as optimization -> ie. make blocks
+			- 3 steps: pre-prepare, prepare, commit
+			- "The pre-prepare and prepare phases are used to totally
+			order  requests  sent  in  the  same  view  even  when  the
+			primary,  which  proposes  the  ordering  of  requests,  is
+			faulty. The prepare and commit phases are used to ensure
+			that requests that commit are totally ordered across views"
+			- request not included in the pre-prepare: " decouples the  protocol to  totally  order
+			requests from the protocol to transmit the request to the
+			replicas"
+			- generate state proofs at checkpoints, say every 100 requests
+			- garbage collect messages upto checkpoints
+			- complicated view change semantics ...
+			- "We also believe that it is possible to reduce the number of copies of the state to but the details remain to be worked out"
+
+	  }
+}
+
+
+@article{miller2014anonymous,
+  title={Anonymous byzantine consensus from moderately-hard puzzles: A model for bitcoin},
+  author={Miller, Andrew and LaViola Jr, Joseph J},
+  journal={Retrieved from Anonymous Byzantine Consensus from Moderately-Hard Puzzles: A Model for Bitcoin},
+  year={2014}
+}
+
+
+@inproceedings{yin2003separating,
+  title={Separating agreement from execution for byzantine fault tolerant services},
+  author={Yin, Jian and Martin, Jean-Philippe and Venkataramani, Arun and Alvisi, Lorenzo and Dahlin, Mike},
+  booktitle={ACM SIGOPS Operating Systems Review},
+  volume={37},
+  number={5},
+  pages={253--267},
+  year={2003},
+  organization={ACM}
+  notes={
+	realized that we can have 3f+1 in agreement replicas and 2f+1 in executing replicas
+  }
+}
+
+@inproceedings{kotla2007zyzzyva,
+  title={Zyzzyva: speculative byzantine fault tolerance},
+  author={Kotla, Ramakrishna and Alvisi, Lorenzo and Dahlin, Mike and Clement, Allen and Wong, Edmund},
+  booktitle={ACM SIGOPS Operating Systems Review},
+  volume={41},
+  number={6},
+  pages={45--58},
+  year={2007},
+  organization={ACM}
+}
+
+
+
+@inproceedings{tsuchiya2007model,
+  title={Model Checking of Consensus Algorit},
+  author={Tsuchiya, Tatsuhiro and Schiper, Andr{\'e}},
+  booktitle={Reliable Distributed Systems, 2007. SRDS 2007. 26th IEEE International Symposium on},
+  pages={137--148},
+  year={2007},
+  organization={IEEE}
+  notes={
+	only uses model checking (ie temporal logic) to verify.
+ 	uses Heard-Of model, which captures synchrony degree and any type of non-malicious fault
+	"first time standard model checking allows one to completely verify asynchronous consensus algorithms"
+  }
+}
+
+@techreport{charron2006heard,
+  title={The heard-of model: Unifying all benign failures},
+  author={Charron-Bost, Bernadette and Schiper, Andr{\'e}},
+  year={2006}
+}
+
+
+@incollection{francalanza2007fault,
+  title={A fault tolerance bisimulation proof for consensus},
+  author={Francalanza, Adrian and Hennessy, Matthew},
+  booktitle={Programming Languages and Systems},
+  pages={395--410},
+  year={2007},
+  publisher={Springer}
+  notes={
+	fine tune bisimulation techniques for partial failure settings
+	some processes are reliable, thus immortal
+	decompose to two parts: non-fault tolerant basic correctness, correctness preservation given faults
+	based on riely1997distributed
+	"We view our calculus as a partial-failure calculus rather than a distributed calculus as it permits action synchronisations across locations. This implies a tighter synchronisation assumption between locations, which in our calculus merely embody units of failure."
+	op semantics are basic CCS plus perfect failure detection (susp) and dynamic failures (halt)
+
+  }
+}
+
+
+@book{riely1997distributed,
+  title={Distributed processes and location failures},
+  author={Riely, James and Hennessy, Matthew},
+  year={1997},
+  publisher={Springer}
+}
+
+
+@article{chandra1996unreliable,
+  title={Unreliable failure detectors for reliable distributed systems},
+  author={Chandra, Tushar Deepak and Toueg, Sam},
+  journal={Journal of the ACM (JACM)},
+  volume={43},
+  number={2},
+  pages={225--267},
+  year={1996},
+  publisher={ACM}
+}
+
+@inproceedings{chandra2007paxos,
+  title={Paxos made live: an engineering perspective},
+  author={Chandra, Tushar D and Griesemer, Robert and Redstone, Joshua},
+  booktitle={Proceedings of the twenty-sixth annual ACM symposium on Principles of distributed computing},
+  pages={398--407},
+  year={2007},
+  organization={ACM}
+  notes={ experience from building Chubby }
+}
+

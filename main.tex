@@ -1,17 +1,21 @@
 
 \documentclass[12pt]{report}
-\usepackage[utf8]{includeenc}
+\usepackage[utf8]{inputenc}
 \usepackage{graphicx}
 \graphicspath{ {images/} }
+
+\begin{document}
 
 \title{
 	{Tendermint: Byzantine Fault Tolerance in the Age of Blockchains}\\
 	{\large University of Guelph}\\
-	{\includegraphics{university.jpg}}
 }
 
 \author{Ethan Buchman}
 \date{\today}
+
+\maketitle
+
 
 \chapter*{Abstract}
 Abstract goes here
@@ -28,21 +32,22 @@ I want to thank...
 \listoftables
 \pagenumbering{arabic}
 
-\include{chapters/introduction.tex}
-\include{chapters/motivation.tex}
-\include{chapters/tendermint.tex}
-\include{chapters/apps.tex}
-\include{chapters/governance.tex}
-\include{chapters/clients.tex}
-\include{chapters/correctness.tex}
-\include{chapters/implementation.tex}
-\include{chapters/tolerance.tex}
-\include{chapters/performance.tex}
-\include{chapters/related.tex}
-\include{chapters/conclusion.tex}
+\include{chapters/introduction}
+\include{chapters/motivation}
+\include{chapters/tendermint}
+\include{chapters/apps}
+\include{chapters/governance}
+\include{chapters/clients}
+\include{chapters/correctness}
+\include{chapters/implementation}
+\include{chapters/tolerance}
+\include{chapters/performance}
+\include{chapters/related}
+\include{chapters/conclusion}
 
 
 \appendix
 \chapter{Appendix Title}
-\include{chapters/appendix.tex}
+\include{chapters/appendix}
 
+\end{document}
