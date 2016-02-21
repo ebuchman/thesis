@@ -1,0 +1,48 @@
+
+\documentclass[12pt]{report}
+\usepackage[utf8]{includeenc}
+\usepackage{graphicx}
+\graphicspath{ {images/} }
+
+\title{
+	{Tendermint: Byzantine Fault Tolerance in the Age of Blockchains}\\
+	{\large University of Guelph}\\
+	{\includegraphics{university.jpg}}
+}
+
+\author{Ethan Buchman}
+\date{\today}
+
+\chapter*{Abstract}
+Abstract goes here
+
+\chapter*{Preface}
+Preface
+
+\chapter*{Acknowledgements}
+I want to thank...
+
+\pagenumbering{roman}
+\tableofcontents
+\listoffigures
+\listoftables
+\pagenumbering{arabic}
+
+\include{chapters/introduction.tex}
+\include{chapters/motivation.tex}
+\include{chapters/tendermint.tex}
+\include{chapters/apps.tex}
+\include{chapters/governance.tex}
+\include{chapters/clients.tex}
+\include{chapters/correctness.tex}
+\include{chapters/implementation.tex}
+\include{chapters/tolerance.tex}
+\include{chapters/performance.tex}
+\include{chapters/related.tex}
+\include{chapters/conclusion.tex}
+
+
+\appendix
+\chapter{Appendix Title}
+\include{chapters/appendix.tex}
+
