@@ -4,7 +4,14 @@ Distributed consensus systems have become a critical component of modern interne
 
 \section{Distributed Consensus}
 
-The purpose of fault-tolerant distributed consensus is to co-ordinate a network of computers to 1) stay in sync while 2) providing a useful service.
+The most common paradigm for studying and implementing distributed consensus is that of the Replicated State Machine, 
+wherein a state machine is replicated across a set of nodes such that it functions as a single state machine despite the failure of some nodes.
+Typically, the data being replicated is a transaction log, and the consensus algorithm ensures that each node maintains an identical copy of 
+the ordered record of transactions.
+From the transaction log, each node can update their state machine to compute the current state.
+
+The purpose of a fault-tolerant distributed consensus system is to co-ordinate a network of computers to 1) stay in sync while 2) providing a useful service.
+Staying in sync amounts to replicating the transaction log successfully, and providing something useful entails keeping the state machine available for new transactions.
 These aspects of the system are traditionally known as safety and liveness, respectively.
 Colloquially, safty means nothing bad happens; liveness means that something good eventually happens.
 A violation of safety means there are two or more valid, competing orderings of events.
