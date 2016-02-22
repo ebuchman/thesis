@@ -1,10 +1,76 @@
 \chapter{Building Applications}
 
+Tendermint is designed to be a general purpose algorithm for replicating a deterministic state machine.
+It uses the Tendermint Socket Protocol (TMSP) to standardize communication between the consensus engine and the state machine,
+enabling application developers to build their state machines in any programming language, 
+and have it automatically replicated via Tendermint's BFT algorithm.
+
 \section{Background}
+
+Applications on the internet can in general be characterized as containing two fundamental components:
+
+\begin{itemize}
+\item{Engine: handles core security, networking, replication functionality. Typically a webserver, like Apache or NginX, when powering a web app, or a consensus algorithm when powering a distributed application}
+\item{State-machine: the actual application code that processes transactions received from the engine  and updates internal state}
+\end{itemize}
+
+This separation of concerns enables application developers to write state-machines in any programming language representing arbitrary applications,
+on top of an engine which may be specialized for its performance, security, useability, support, etc.
+
+Unlike web-servers and their applications, processes communicating over a socket via the Common Gateway Interface (CGI) protocol,
+consensus algorithms have traditionally had much less useable or less general purpose interfaces to build applications on top of.
+Some, like zookeeper, etcd, consul, and other distributed key-value stores, 
+provide HTTP interfaces to a particular instance of simple key-value application, 
+with some more interesting features like compare-and-swap operations and watch notificaitons.
+But they do not give the application developer control of the state-machine code itself.
+
+Demand for such a high-level of control over the state-machine running above a consensus engine has been driven primarily by the success of Bitcoin and the consequent interest in blockchain technology.
+By building more advanced applications directly into the consensus, 
+users, developers, regulators, etc. can achieve greater security gaurantees on arbitrary state-machines, 
+far beyond key-value stores, like currencies, exchanges, supply-chain management, governance, and so on.
+
+Tendermint aims to provide the fundamental interface and consensus engine upon which such applications might be built.
 
 \section{Tendermint Socket Protocol}
 
+The TMSP defines the core interface by which the consensus engine communicates with the application state machine.
+The interface definition consists of a number of message types, specified using Google's Protobuf \ref{protobuf}, 
+that are length-prefixed and transmitted over a socket.
+
+TMSP is implemented as a fully asynchronous server, 
+where message types come in pairs of request and response,
+and where a special message type, Flush, pushes any buffered messages over the connection and awaits all responses.
+
+At the core of the TMSP are two messages: AppendTx and Commit.
+Once a block is committed by the consensus, 
+the engine calls AppendTx on each transaction in the block, 
+passing it to the application state-machine to be processed.
+If the transaction is valid, it will result in a state-transition in the application.
+
+Once all AppendTx calls have returned, the consensus engine calls Commit,
+causing the application to commit to the latest state, and persist it to disk.
+
+\section{Separating Agreement and Execution}
+
+Using the TMSP affords us an explicit separation between consensus, or agreement on the order of transactions, 
+and their actual execution in the state-machine.
+In particular, we achieve consensus on the order first, and then execute the ordered transactions.
+This separation actual improves the systems fault tolerance \ref{yin2003separating}:
+while 3f+1 replicas are still needed for agreement to tolerate f Byzantine failures, 
+only 2f+1 replicas are needed for execution to tolerate f Byzantine failures.
+
+On the other hand, the fact that transactions are executed after they are ordered results in possibly invalid transactions,
+which can waste system resources. 
+This is solved using an additional TMSP message, CheckTx, which is called by the transaction pool,
+allowing it to check whether the transaction would be valid against the latest state.
+Note, however, that the fact that commits come in blocks at a time introduces complexity in the handling of CheckTx messages.
+In particular, applications are expected to maintain a second state-machine that executes only those rules of the main state-machine pertaining to a transactions validity. 
+This second state-machine is updated by CheckTx messages and is reset to the latest committed state after every commit.
+In essence, they describe the transaction pool's filter rules.
+
 \section{Microservice Architecture}
+
+
 
 \section{Correctness}
 
