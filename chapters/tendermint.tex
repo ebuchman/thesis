@@ -222,9 +222,43 @@ There are two rules of locking:
 \end{itemize}
 
 
-// TODO: more here
+These rules can be understood more intuitively by way of examples ...
+
 
 \section{Faults and Availability}
 
+As a BFT consensus algorithm, Tendermint can tolerate Byzantine failure in up to (but not including) one-third of validators.
+This means nodes can crash, send different and contradictory messages to different peers, refuse to relay messages, or otherwise behave arbitrarily,
+without compromising safety or liveness (with the usual FLP caveat for liveness).
+
+There are two places in the protocol where we can make optimizations for asynchrony by utilizing timeouts based on local clocks:
+after receiving two-thirds or more pre-votes, but not for a single block or nil, and after receiving two-thirds or more pre-commits, 
+but not for a single block or nil.
+In each case, we can sleep for some amount time to give slower or delayed votes a chance to be received,
+thereby reducing the likelihood of going to a new round without committing a block.
+Clocks do not need to be synced across validators, as they are reset each time a validator observes votes from two-thirds or more others.
+
+If a third or more of validators crash, the network halts, 
+as no validator is able to make progress without hearing from two-thirds or more of the validator set.
+The network remains available for reads, but no new commits can be made.
+As soon as validators come back on-line, they can carry on from where they left in a round. 
+The consensus state-machine should employ a write-ahead log (see LATER),
+such that a recovered validator can quickly return to the step it was in when it crashed.
+
+If a third or more of validators are Byzantine, they can compromise safety a number of ways, 
+for instance by proposing two blocks for the same round, and voting both of them through to commit, 
+or by pre-committing on two different blocks at the same height but in different rounds by violating the rules on locking.
+In each case, there is clear, identifiable evidence that certain validators misbehaved. 
+In the first instance, they signed two proposals at the same round, a clear violation of the rules.
+In the second, they may have pre-voted for a different block in round $R$ than they locked on in $R-1$, 
+a violation of the Prevote-the-Lock rule.
+
+When using economic and governance components to incentivize and manage the consensus (see LATER), 
+these additional accountability gaurantees become critical.
+
 \section{Conclusion}
+
+Tendermint is Awesome.
+
+
 
