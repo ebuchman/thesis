@@ -1,6 +1,19 @@
 \chapter{Fault Tolerance}
 
+Tendermint is designed as a Byzantine fault tolerant state-machine replication algorithm.
+It gaurantees safety so long as less than a third of validators are Byzantine, 
+and gaurantees liveness similarly, so long as network messages are eventually delivered.
+In this section, we evaluate Tendermint's fault tolerance empirically by injecting 
+crash faults, Byzantine faults, and arbitrary network delays.
+The goal is to show that the implementation of Tendermint consensus does not compromise safety in the event of such failures,
+that is suffers minimum performance impact, and that it is quick to recover.
+
 \section{Crash Failures}
+
+To evaluate the response to crash failures, 
+block commit times were recorded for each validator as up to one third of the validators are crashed,
+and as they are brought back online. 
+
 
 \section{Byzantine Failures}
 

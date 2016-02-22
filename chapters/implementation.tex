@@ -1,11 +1,57 @@
 \chapter{Implementation}
 
-\section{Concurrency}
+The reference implementation of Tendermint is written in Golang \ref{golang} and hosted at https://github.com/tendermint/tendermint.
+Golang is a C-like language with a rich standard library, concurrency primitives for light-weight massively concurrent executions,
+and a development environment optimized for simplicity and efficiency.
 
-\section{Data Store}
+\section{Libraries}
+
+The code uses a number of packages which are modular enough to be isolated as their own libraries.
+These packages were written in the most part by Jae Kwon, with bug fixes, tests, and the occasional feature contributed by the author.
+The most important of these packages are described in the following sub-sections.
+
+\subsection{Binary Serialization}
+\subsection{Cryptography}
+\subsection{Merkle Hash Tree}
+\subsection{P2P Networking}
+\subsection{RPC}
+
+\section{Reactors}
+
+The Tendermint node is composed of multiple concurrent reactors, 
+each managing a state machine sending and receiving messages to peers over the network.
+Reactors synchronize by locking shared datastructures, but the points of synchronization are kept to a minimum,
+so each reactor runs mostly concurrently with the others.
+
+\subsection{Mempool}
+
+The mempool reactor manages the mempool, 
+which caches transactions before they are packed in blocks and committed.
+The mempool state machine uses a subset of the application's state machine to check the validity of transactions ...
+
+\subsection{Consensus}
+
+The consensus reactor manages the consensus state machine, which handles proposals, voting, locking, 
+and the actually committing of blocks.
+The state machine is managed using a few persistent go-routines, 
+which order received messages and enable them to be played back deterministically to debug the state.
+These go-routines include the readLoop, for reading off the queue of receivied messages, 
+and the timeoutLoop, for registering and triggering timeout events. 
+
+Transitions in the consensus state machine are made either when a complete proposal and block are received,
+or when more than two-thirds of either pre-votes or pre-commits have been received at a given round.
+Transitions result in the broadcast of proposals, block data, or votes, which are queued on the internalReqQueue,
+and processed by the readLoop in serial with messages received from peers.
+This puts internal messages and peer messages on equal footing as far as being inputs to the consensus state machine, 
+but allows internal messages to be processed faster, as they don't sit in the same queue as those from peers.
+
+\subsection{Blockchain}
+
+The blockchain reactor syncs the blockchain using a much faster technique than the consensus reactor.
+Namely, validators request blocks of incrementing height until none of their peers have blocks of any higher height.
+Blocks are collected in a blockpool and synced to the blockchain by a worder routine that periodically takes blocks from the pool
+and validates them against the current chain.
+
+Once the blockchain reactor finishes syncing up, it turns on the consensus reactor to take over.
 
 \section{Other Considerations}
-
-
-
-

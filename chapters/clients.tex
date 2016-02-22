@@ -1,9 +1,55 @@
 \chapter{Client Considerations}
 
+As a generalized application platform, tendermint provides only a simple interface to clients for broadcasting transaction.
+The general paradigm is that a client connects to a Tendermint consensus network through a proxy, which is either run locally on its machine,
+or hosted by some other provider. The proxy functions as a non-validator node on the network, 
+which means it keeps up with the consensus and processes transactions, but does not sign votes.
+The proxy enables client transactions to be quickly broadcast to the whole network via the gossip layer.
+
 \section{Discovery}
+
+Network discovery occurs simply by dialing some set of seed nodes over tcp.
+The p2p network uses authenticated encryption, but the public keys of the validators must be verified somehow out of band.
+Indeed, in these systems, the genesis state itself must be communicated out of band, and ideally is the only thing that must be communicated, 
+as it should also contain the public keys used by validators for authenticated encryption, 
+which are different than those used for signing votes in consensus.
+
+For validator sets that may change over time, it is useful to register all validators via DNS, 
+and to register new validators before they actually become validators, and remove them after they are removed as validators.
+Alternatively, validator locations can be registered in another fault-tolerant distribtued data store, 
+including possibly another Tendermint cluster itself.
 
 \section{Broadcasting Transactions}
 
-\section{Mempool Dynamics}
+A node need only connect to one other node on the network to broadcast transactions, but by default will connect to many,
+minimizing the chances that the transaction will not be received.
+Transactions are passed into the mempool, 
+and gossipped through the mempool reactor to be cached in the mempool of all nodes, 
+so that eventually one of them will include it in a block. 
+
+It is not essential that a client connect to the current proposer, 
+as eventually any validator which has the transaction in its mempool may propose it.
+However, preferential broadcasting to the next proposer in line may lead to lower latency for the transaction
+in certain cases where the network is under high load. Otherwise, the transaction should be quickly gossiped to ever validator.
+
+\section{Mempool}
+
+\section{Semantics}
+
+Problem with duplicated transactions (at-least-once semantics)
+
+Semantics defined by application state based on the checks they perform on a transaction.
+Modules for incrementing client nonces (establishing forms of sessions) can be used to manage.
+Raft uses client sessions tracked in the transaction log itself, to provide linearizeable semantics.
+
+
+\section{Reads} 
 
 \section{Light Client Proofs}
+
+One of the major innovations of blockchains over traditional databases is their deliberate use of merkle hash trees to enable the production
+of compact proofs of system substates, so called light-client proofs.
+A light client proof is a path through a merkle tree that allows a client to verify that some key-value pair is in the merkle tree with a given root hash.
+The state's merkle root hash is included in the block header, such that it is sufficient for a client to have only the latest header to verify any component of the state.
+Of course, to know that the header itself is valid, they must have either validated the whole chain, 
+or kept up-to-date with validator set changes only and rely on economic gaurantees that the state transitions were correct (see LATER).
