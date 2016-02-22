@@ -70,8 +70,72 @@ In essence, they describe the transaction pool's filter rules.
 
 \section{Microservice Architecture}
 
+Adopting separation of concerns as a strategy in application design is generally considered wise practice.
+In particular, many large scale application deployments today adopt a microservice architecture,
+wherein each functional component is implemented as a standalone network service, 
+and typically encapsulated in a linux container (eg. using Docker) for efficient deployment, scalability, and upgradeability.
 
+Applications running above Tendermint consensus will often be decomposable into microservices.
+For instance, many applications will utilize a key-value store for storing state.
+Running the key-value store as an independent service is quite common, 
+in order to take advantage of the data stores specialized features, such as high-performance data types or merklization.
 
-\section{Correctness}
+Another important microservice for applications is a governance module, 
+which manages a certain subset of TMSP messages, enabling the application to control validator set changes.
+Such a module can become a powerful paradigm for governance in BFT systems.
 
-\section{Fault Tolerance}
+Some applications may utilize a native currency or account structure for users.
+It may thus be useful to provide a module which supports basic elements of eg. handling digital signatures and managing account dynamics.
+
+The list of possible microservices to compose a complex TMSP application goes on. 
+
+\section{Determinism}
+
+The most critical caveat about building applications using TMSP is that they must be deterministic.
+That is, for the replicated state-machine to not compromise safety, 
+every node must obtain the same result when executing the same transaction against the same state.
+
+There are many sources of non-determinism in programming languages, most obviously via random numbers and time,
+but also, for instance, via the use of floats, and by iteration over hash tables.
+The strict restriction on determinism, and its notable lacking from every major programming language,
+prompted Ethereum to develop its own, Turing-complete, fully deterministic virtual machine,
+which forms the platform for application developers to build applications above the Ethereum blockchain.
+While deterministic, it has many quirks, such as 32-byte stack words, storage keys, and storage values,
+and no support for byte-shifting operations - everything is big number arithmetic.
+
+Deterministic programming is not unprecedented, and is in fact well studied in the world of real-time, lockstep, multi-party gaming.
+Such games constitute another example of replicated state machines, and are quite similar in many ways to consensus algorithms.
+Application developers building with TMSP are encouraged to study their methods, and to take care when implementing their application.
+On the one hand, the use of functional programming languages and proof methods can enable the construction of correct programs.
+On the other, compilers are being built to translate possibly non-deterministic programs to canonically deterministic ones \ref{deterministicjs}
+
+\section{Termination}
+
+If determinism is critical for preserving safety, termination of transaction execution is critical for preserving liveness.
+It is, however, not in general possible to determine whether a given program halts for even a single input, let alone all of them,
+a problem known as the Halting Problem \ref{halting}.
+
+Ethereum's virtual machine solves the problem by chargin for each operation in the execution.
+This way, a transaction is gauranteed to terminate when the sender runs out of funds.
+Such metering may be possible in a more general case, 
+via compilers that compile programs to metered versions of themselves.
+
+It is difficult to solve this problem without significant overhead.
+In essence, a validator cannot tell if an execution is in an infinite loop or is just slow, but nearly complete.
+It may be possible to use the Tendermint consensus protocol to decide on transaction timeouts, 
+such that more than two-thirds of validators must agree that a transaction timed out and is thus considered invalid (ie. having no effect on the state)
+However, we do not pursue the idea further here, leaving it to future work. 
+In the meantime, it is expected that applications will undergo thorogh testing before being deployed in any consensus system.
+
+\section{Examples}
+
+TODO: dummy, counter, basecoin, merkleeyes, eris-db, geth, etcd
+
+\section{Conclusion}
+
+TMSP provides a simple yet flexible means to build arbitrary applications,
+in any programming language,
+that inherit BFT state-machine replication from the Tendermint consensus algorithm.
+It plays much the same role for a consensus engine and an application that, for instance, CGI plays for Apache and Wordpress.
+However, application developers must take special care to ensure their applications are deterministic, and that transaction executions terminate.
+
