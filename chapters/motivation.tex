@@ -2,13 +2,16 @@
 
 Distributed consensus systems have become a critical component of modern internet infrastructure, powering every major internet application at some level or another.
 
-\section{Distributed Consensus}
-
 The most common paradigm for studying and implementing distributed consensus is that of the Replicated State Machine, 
 wherein a state machine is replicated across a set of nodes such that it functions as a single state machine despite the failure of some nodes.
 Typically, the data being replicated is a transaction log, and the consensus algorithm ensures that each node maintains an identical copy of 
 the ordered record of transactions.
 From the transaction log, each node can update their state machine to compute the current state.
+
+Tendermint was motivated from the desire to create a general purpose, high-performance, secure, replicated state machine.
+
+
+\section{Distributed Consensus}
 
 The purpose of a fault-tolerant distributed consensus system is to co-ordinate a network of computers to 1) stay in sync while 2) providing a useful service.
 Staying in sync amounts to replicating the transaction log successfully, and providing something useful entails keeping the state machine available for new transactions.

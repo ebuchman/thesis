@@ -8,6 +8,7 @@ Tendermint consensus is an algorithm for the secure replication of a state machi
 The algorithm is summarized in \ref{fig:tendermint_summary}, it's key properties as a replicated state machine are summarized in \ref{fig:tendermint_gaurantees}, and its key security properties are summarized in \ref{fig:tendermint_security}.
 
 \begin{figure}[]
+	\textbf{Tendermint Safety Guarantees}
 	\begin{description}
 	  \item[Proposer Safety] \hfill \\
 		There is at most one valid proposer for every term.
@@ -25,6 +26,7 @@ The algorithm is summarized in \ref{fig:tendermint_summary}, it's key properties
 \end{figure}
 
 \begin{figure}[]
+	\textbf{Tendermint Security Guarantees}
 	\begin{description}
 	  \item[Byzantine Fault Tolerance] \hfill \\
 		All properties in \ref{fig:tendermint_gaurantees} are satisfied so long as fewer than one-third of validators are Byzantine
