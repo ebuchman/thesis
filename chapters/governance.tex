@@ -1,3 +1,28 @@
 \chapter{Governance}
 
+So far, this thesis has reviewed the basic elements of the Tendermint consensus protocol and application environment.
+Critical elements of operating the system in the real world, such as managing validator set changes
+and recovering from crisis, have not yet been discussed. 
 
+This chapter proposes an approach to these problems that formalizes the role of governance in a consensus system.
+As validator sets come to encompass more decentralized sets of agents, competent governance systems 
+for maintaining the network will be increasingly paramount to success.
+
+\section{Governmint}
+
+The basic functionality of governance is to filter proposals for action, typically through a form of voting.
+The most basic implementation of governance as software is a module that enables users to make proposals,
+vote on them, and tally the votes. Most proposals may be related to things outside the reach of the software.
+Others might be within the reach of the software, and hence potentially executable.
+
+To enable certain actions in Tendermint, such as changing the validator set or upgrading the software,
+a governance module has been implemented, called Governmint.
+Governmint is a minimum viable governance application with support for multiple groups of entities,
+each of which can vote internally on proposals, some of which may result in programmatic execution of actions,
+like changing the validator set, or upgrading governmint itself (for instance to add new proposal types or other voting mechanisms).
+
+\section{Validator Set Changes}
+
+\section{Software Upgrades}
+
+\section{Crisis Recovery}

@@ -1,10 +1,6 @@
 \chapter{Client Considerations}
 
-As a generalized application platform, tendermint provides only a simple interface to clients for broadcasting transaction.
-The general paradigm is that a client connects to a Tendermint consensus network through a proxy, which is either run locally on its machine,
-or hosted by some other provider. The proxy functions as a non-validator node on the network, 
-which means it keeps up with the consensus and processes transactions, but does not sign votes.
-The proxy enables client transactions to be quickly broadcast to the whole network via the gossip layer.
+This chapter reviews some considerations pertaining to clients that interact with an application hosted on Tendermint.
 
 \section{Discovery}
 
@@ -21,29 +17,74 @@ including possibly another Tendermint cluster itself.
 
 \section{Broadcasting Transactions}
 
+As a generalized application platform, tendermint provides only a simple interface to clients for broadcasting transaction.
+The general paradigm is that a client connects to a Tendermint consensus network through a proxy, which is either run locally on its machine,
+or hosted by some other provider. The proxy functions as a non-validator node on the network, 
+which means it keeps up with the consensus and processes transactions, but does not sign votes.
+The proxy enables client transactions to be quickly broadcast to the whole network via the gossip layer.
+
 A node need only connect to one other node on the network to broadcast transactions, but by default will connect to many,
 minimizing the chances that the transaction will not be received.
 Transactions are passed into the mempool, 
 and gossipped through the mempool reactor to be cached in the mempool of all nodes, 
 so that eventually one of them will include it in a block. 
 
+Note that the transaction does not execute against the state until it gets into a block,
+so the client does not get a result back right away, other than confirmation that it was accepted into the mempool and broadcast to other peers.
+Clients should register with the proxy to receive the result as a push notification when it is computed during the commit of a block.
+
 It is not essential that a client connect to the current proposer, 
 as eventually any validator which has the transaction in its mempool may propose it.
 However, preferential broadcasting to the next proposer in line may lead to lower latency for the transaction
-in certain cases where the network is under high load. Otherwise, the transaction should be quickly gossiped to ever validator.
+in certain cases where the network is under high load. Otherwise, the transaction should be quickly gossiped to every validator.
 
 \section{Mempool}
 
+The mempool is responsible for caching transactions in memory before they are included in blocks.
+It's behaviour is subtle, and forms a number of challenges for the overall system architecture.
+First and foremost, caching arbitrary numbers of transactions in the mempool is a direct denial of service attack
+that could trivially cripple the network. Most blockchains solve this problem using their native currency,
+and permitting only transactions which spend a certain fee to reside in the mempool.
+
+In a more generalized system, like Tendermint, where there is not necessarily a currency to pay fees with,
+the system must establish stricter filtering rules and rely on more intelligent clients to resubmit transactions that are dropped.
+The situation is even more subtle, however, because the ruleset for filtering transactions in the mempool must be a function of the application itself.
+Thus, TMSP includes an additional message type, CheckTx, 
+which the mempool can use to run a transaction against a transient state of the application to determine if it should be kept around or dropped.
+
+Handling the transient state is non-trivial, and is something left to the application developer, 
+though examples are provided in the many example applications. 
+In any case, clients must monitor the state of the mempool (ie. the unconfirmed transactions) to determine if they need to rebroadcast their transactions,
+which may occur in highly concurrent settings where the validity of one transactions depends on having processed another.
+
 \section{Semantics}
 
-Problem with duplicated transactions (at-least-once semantics)
+Tendermint's core consensus algorithm provides only \emph{at-least-once semantics}, which means ... ,
+but can lead to problems where the same transaction may be applied to the state twice!
+However, many users and applications expect stronger gaurantees from a database system.
+The flexibility of the Tendermint system leaves the strictness of these semantics up to the application developer.
+By utilizing the CheckTx message, and by adequately managing state in the application, 
+application developers can provide the database semantics that suit them and their users' needs.
 
-Semantics defined by application state based on the checks they perform on a transaction.
+For instance, serializabikity ....
+
 Modules for incrementing client nonces (establishing forms of sessions) can be used to manage.
 Raft uses client sessions tracked in the transaction log itself, to provide linearizeable semantics.
 
-
 \section{Reads} 
+
+Clients issue read requests to the same proxy node they use for broadcasting transactions (writes).
+The proxy is always available for reads, even if the network halts.
+However, in the event of a partition, the proxy may be partitioned from the rest of the network, which continues making blocks.
+In that case, reads from the proxy might be stale.
+
+To avoid stale reads, the read request can be sent as a transaction, presuming the application permits such queries.
+By using transactions, reads are gauranteed to return the latest committed state, ie. when the read transaction is committed in the next block.
+This is of course much more expensive than simply querying the proxy for the state.
+It is possible to use heuristics to determine if a read will be stale,
+such as if the proxy is well-connected to its peers and is making blocks, 
+or if it's stuck in a round with votes from one-third or more of validators,
+but there is no substitute for performing an actual transaction.
 
 \section{Light Client Proofs}
 
