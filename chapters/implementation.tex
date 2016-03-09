@@ -1,7 +1,7 @@
 \chapter{Implementation}
 \label{ch:implementation}
 
-The reference implementation of Tendermint is written in Golang \ref{golang} and hosted at https://github.com/tendermint/tendermint.
+The reference implementation of Tendermint is written in Golang \cite{golang} and hosted at https://github.com/tendermint/tendermint.
 Golang is a C-like language with a rich standard library, concurrency primitives for light-weight massively concurrent executions,
 and a development environment optimized for simplicity and efficiency.
 
@@ -20,13 +20,13 @@ Tendermint uses a simple binary serialization algorithm for packing memory objec
 \subsection{Merkle Hash Tree}
 \subsection{P2P Networking}
 
-The P2P networking used by Tendermint is described more fully in Chapter \ref{ch:networking}.
+The P2P networking used by Tendermint is described more fully in Chapter \cite{ch:networking}.
 
 \subsection{RPC}
 
 \section{Reactors}
 
-NOTE: this should be moved to Chapter \ref{ch:networking}
+NOTE: this should be moved to Chapter \cite{ch:networking}
 
 The Tendermint node is composed of multiple concurrent reactors, 
 each managing a state machine sending and receiving messages to peers over the network.

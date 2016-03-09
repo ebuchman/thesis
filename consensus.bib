@@ -7,8 +7,8 @@
   number={2},
   pages={374--382},
   year={1985},
-  publisher={ACM}
-  note={fully async deterministic consensus is impossible.
+  publisher={ACM},
+  annote={fully async deterministic consensus is impossible.
 	"no completely asynchronous consensus protocol can tolerate even a single unannounced process death" 
   }
 }
@@ -20,8 +20,8 @@
   booktitle={Proceedings of the second annual ACM symposium on Principles of distributed computing},
   pages={27--30},
   year={1983},
-  organization={ACM}
-  note={somehow this cites flp.
+  organization={ACM},
+  annote={somehow this cites flp.
   Can solve flp with probability 1 using non-determinism.
   2t+1 for non-byzantine, 5t+1 for byzantine version.
   "dont know whether N > 5t is best possible bound " ... :p
@@ -41,8 +41,8 @@ http://betathoughts.blogspot.ca/2007/06/brief-history-of-consensus-2pc-and.html
   number={7},
   pages={558--565},
   year={1978},
-  publisher={ACM} 
-  note={first consensus paper
+  publisher={ACM},
+  annote={first consensus paper
 	relativity of concurrent processes
   	ordering based on message passing.
 	introduces distribtued state machine
@@ -57,8 +57,8 @@ http://betathoughts.blogspot.ca/2007/06/brief-history-of-consensus-2pc-and.html
   number={2},
   pages={228--234},
   year={1980},
-  publisher={ACM}
-  note={ first to show that the best we can do in byzantine is 3t+1 
+  publisher={ACM},
+  annote={ first to show that the best we can do in byzantine is 3t+1 
 	  statement of byzantine generals before it was called byzantine generals.
 	an algo where t faults requires t+1 rounds (ie. 1 fault requires 2 rounds ...)
 	howevver, if authentication is used, then we can tolerate an arbitrary number of byzantine faults t<=N given t+1 rounds
@@ -99,8 +99,8 @@ http://betathoughts.blogspot.ca/2007/06/brief-history-of-consensus-2pc-and.html
   booktitle={Distributed Algorithms},
   pages={1--17},
   year={1996},
-  publisher={Springer}
-  note={practical guide to using paxos}
+  publisher={Springer},
+  annote={practical guide to using paxos}
 }
 
 @inproceedings{dynamo,
@@ -169,10 +169,10 @@ http://betathoughts.blogspot.ca/2007/06/brief-history-of-consensus-2pc-and.html
 
 @inproceedings{pbft,
 	  title={Practical Byzantine fault tolerance},
-	  author={Castro, Miguel and Liskov, Barbara and others}
-	  booktitle={Proceedings of the Third Symposium on Operating Systems Design and Implementation}
-	  year={1999}
-	  notes={
+	  author={Castro, Miguel and Liskov, Barbara and others},
+	  booktitle={Proceedings of the Third Symposium on Operating Systems Design and Implementation},
+	  year={1999},
+	  annote={
 		  tolerates byzantine faults in asyncronous networks
 		  public keys only used when there are faults
 		  implemented NFS, performance on par UNIX
@@ -216,8 +216,8 @@ http://betathoughts.blogspot.ca/2007/06/brief-history-of-consensus-2pc-and.html
   number={5},
   pages={253--267},
   year={2003},
-  organization={ACM}
-  notes={
+  organization={ACM},
+  annote={
 	realized that we can have 3f+1 in agreement replicas and 2f+1 in executing replicas
   }
 }
@@ -241,8 +241,8 @@ http://betathoughts.blogspot.ca/2007/06/brief-history-of-consensus-2pc-and.html
   booktitle={Reliable Distributed Systems, 2007. SRDS 2007. 26th IEEE International Symposium on},
   pages={137--148},
   year={2007},
-  organization={IEEE}
-  notes={
+  organization={IEEE},
+  annote={
 	only uses model checking (ie temporal logic) to verify.
  	uses Heard-Of model, which captures synchrony degree and any type of non-malicious fault
 	"first time standard model checking allows one to completely verify asynchronous consensus algorithms"
@@ -262,8 +262,8 @@ http://betathoughts.blogspot.ca/2007/06/brief-history-of-consensus-2pc-and.html
   booktitle={Programming Languages and Systems},
   pages={395--410},
   year={2007},
-  publisher={Springer}
-  notes={
+  publisher={Springer},
+  annote={
 	fine tune bisimulation techniques for partial failure settings
 	some processes are reliable, thus immortal
 	decompose to two parts: non-fault tolerant basic correctness, correctness preservation given faults
@@ -300,7 +300,7 @@ http://betathoughts.blogspot.ca/2007/06/brief-history-of-consensus-2pc-and.html
   booktitle={Proceedings of the twenty-sixth annual ACM symposium on Principles of distributed computing},
   pages={398--407},
   year={2007},
-  organization={ACM}
-  notes={ experience from building Chubby }
+  organization={ACM},
+  annote={ experience from building Chubby }
 }
 

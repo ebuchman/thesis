@@ -41,18 +41,18 @@ In asynchronous environments, where messages can be arbitrarily delayed, relying
 can lead to a fork in the transaction log.
 Relying on synchrony to ensure liveness can cause the consensus to halt, and the service to become unresponsive.
 The former case is usually considered more severe, as reconcilling conflicting logs can be a daunting or impossible task. 
-On the other-hand, the need for synchrony can be abolished by using non-determinism in a way that guarantees consensus, eventually, with probability 1 \ref{}.
+On the other-hand, the need for synchrony can be abolished by using non-determinism in a way that guarantees consensus, eventually, with probability 1 \cite{}.
 
 In the early 90's, Lamport broke new ground with the Paxos algorithm for efficient, deterministic, consensus in asyncronous environments.
-Due to the algorithm's complexity and the difficulty of understanding it, it was not published until years later \ref{paxos}.
+Due to the algorithm's complexity and the difficulty of understanding it, it was not published until years later \cite{paxos}.
 Paxos simultaneously empowered and confused the displine of consensus science,
 on the one hand by providing the first real-world, practical, asyncronous fault-tolerant consensus algorithm,
 and on the other by being so difficult to understand and explain.
-Others attempted to explain the algorithm with moderate success \ref{}, and Lamport published a simplied version 
-a few years after the original \ref{}
+Others attempted to explain the algorithm with moderate success \cite{}, and Lamport published a simplied version 
+a few years after the original \cite{}
 We present an explanation in \ref{fig:paxos}.
 
-Paxos became the staple consensus algorithm for industry, upon which the likes of Amazon \ref{dynamo}, Google \ref{chubby}, and others would build out highly available global internet services.
+Paxos became the staple consensus algorithm for industry, upon which the likes of Amazon \cite{dynamo}, Google \cite{chubby}, and others would build out highly available global internet services.
 The paxos consensus would sit at the bottom of the application stack, providing a consistent interface to resource management and allocation operating at much slower time scales than the highly-available applications facing the users.
 However, there has always been an understanding in the field that implementing Paxos is somewhat of a black art,
 permeated by tricks for two main things: maintaining liveness in the face of asyncrony, and achieving consensus on more than one bit at a time.
@@ -63,11 +63,11 @@ Hence a variety of so called Multi-Paxos have been proposed, but no single appro
 and each implementation diverges in its own unique ways. 
 The resulting software ecosystem is clumsy, difficult to navigate, and in some cases overly liable to contain bugs.
 
-Seeking to remedy this situation, in 2013, Ongaro and Ousterhout published the Raft algorithm \ref{raft},
+Seeking to remedy this situation, in 2013, Ongaro and Ousterhout published the Raft algorithm \cite{raft},
 an algorithm for consensus in asyncronous environments whose motivating design goal was understandability.
 Raft is much simpler to understand than Paxos, and is explained in \ref{fig:raft}. 
-It has seen tremendous adoption in the open source community, with implementations in virtually ever major language \ref{raft.github.io},
-and use as the backbone in major projects, including CoreOs's distributed Linux distribution \ref{coreos_raft} and the open source time-series database InfluxDB \ref{influxdb_raft}.
+It has seen tremendous adoption in the open source community, with implementations in virtually ever major language \cite{raft.github.io},
+and use as the backbone in major projects, including CoreOs's distributed Linux distribution \cite{coreos_raft} and the open source time-series database InfluxDB \cite{influxdb_raft}.
 
 Raft's major divergent design decisions from Paxos was to focus on the transaction-log first, rather than a single bit,
 and to allow a leader to persist in committing transactions until he goes down, at which point leadership election can kick in. 
@@ -76,11 +76,11 @@ though the major advantage of blockchains is the ability to tolerate a different
 
 \section{Byzantine Fault Tolerance}
 
-Blockchains have been described as "trust machines" \ref{economist_blockchains} on account of the way they reduce counter party risk through the decentralization of responsibility over a shared database.
+Blockchains have been described as "trust machines" \cite{economist_blockchains} on account of the way they reduce counter party risk through the decentralization of responsibility over a shared database.
 Bitcoin, in particular, is noted for its ability to withstand attacks and malicious behaviour by any of the participants. 
 Traditionally, consensus protocols tolerant of malicious behaviour were known as Byzantine Fault Tolerant (BFT) consensus protocols.
 The term Byzantine was used due to the similarity of the problem to that faced by generals of the Byzantine army attempting to co-ordinate themselves to attack Rome using only messengers,
-where one of the generals may be a traitor \ref{lamport1982byzantine}.
+where one of the generals may be a traitor \cite{lamport1982byzantine}.
 
 In a crash fault, a process simply halts. In a Byzantine fault, it can behave arbitrarily.
 Crash faults are easier to handle, as no process can "lie" to another process.
@@ -99,12 +99,12 @@ Hence, the upper bound on faults tolerated by a Byzantine system is strictly low
 
 TODO: figure!
 
-In fact, it can be shown that the upper limit on $f$ for Byzantine faults is $f < N/3$ \ref{pease1980reaching}.
+In fact, it can be shown that the upper limit on $f$ for Byzantine faults is $f < N/3$ \cite{pease1980reaching}.
 Thus, to tolerate a single byzantine process, we require at least $N=4$. 
 Then the faulty process can't split the vote the way it was able to when $N=3$.
 
 A number of approaches have been proposed for BFT consensus in the academic literature.
-The first generally accepted solution was the DLS algorithm, named after it's inventors \ref{dls}, and described in \ref{fig:dls}.
+The first generally accepted solution was the DLS algorithm, named after it's inventors \cite{dls}, and described in \ref{fig:dls}.
 DLS introduced an assumption of partial synchrony as a compromise between synchronous and asyncronous networks.
 Partial synchrony can be defined one of two ways: 
 messages are gauranteed to be delivered within some fixed but unknown amount of time,
@@ -113,13 +113,13 @@ This assumption allowed them to circumvent the FLP result, yielding a consensus 
 The original Tendermint was effectively a modified version of the DLS algorithm, inheritting its partial synchrony approach.
 The problem, however, was that in practice, recovering from crash faults could be extremely slow due to the dependence on time and the required time for nodes to sync (TODO improve this sentence)
 
-In 1999, Castro and Liskov published Practical Byzantine Fault Tolerance \ref{pbft}, or \emph{PBFT}, 
+In 1999, Castro and Liskov published Practical Byzantine Fault Tolerance \cite{pbft}, or \emph{PBFT}, 
 which provided the first optimal byzantine fault tolerant algorithm in asynchronous networks.
 It set a new precedent for the practicallity of byzantine fault tolerance in industrial systems by being capable of 
 tens of thousands of null transactions per second.
 Despite this success, byzantine fault tolerance was still considered expensive and largely unecessary, 
-and the most popular implementation was difficult to build on top of \ref{ppbft}.
-Hence, despite a resurgence in academic interest, including numerous improved variations \ref{yin2003separating, kotla2007zyzzyva}
+and the most popular implementation was difficult to build on top of \cite{ppbft}.
+Hence, despite a resurgence in academic interest, including numerous improved variations \cite{yin2003separating, kotla2007zyzzyva}
 not much progress was made in the way of implementations and deployment.
 Furthermore, PBFT provides no gaurantees in the face of a complete Byzantine failure, where a third or more of the network is malicious.
 

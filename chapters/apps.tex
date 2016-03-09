@@ -40,7 +40,7 @@ Tendermint aims to provide the fundamental interface and consensus engine upon w
 \section{Tendermint Socket Protocol}
 
 The Tendermint Socket Protocol (TMSP) defines the core interface by which the consensus engine communicates with the application state machine.
-The interface definition consists of a number of message types, specified using Google's Protobuf \ref{protobuf}, 
+The interface definition consists of a number of message types, specified using Google's Protobuf \cite{protobuf}, 
 that are length-prefixed and transmitted over a socket \ref{fig:TMSP}.
 
 TMSP is implemented as a fully asynchronous server, 
@@ -61,7 +61,7 @@ causing the application to commit to the latest state, and persist it to disk.
 Using the TMSP affords us an explicit separation between consensus, or agreement on the order of transactions, 
 and their actual execution in the state-machine.
 In particular, we achieve consensus on the order first, and then execute the ordered transactions.
-This separation actually improves the system's fault tolerance \ref{yin2003separating}:
+This separation actually improves the system's fault tolerance \cite{yin2003separating}:
 while 3f+1 replicas are still needed for agreement to tolerate f Byzantine failures, 
 only 2f+1 replicas are needed for execution to tolerate f Byzantine failures.
 That is, while we still need a two-thirds majority for ordering, we only need a one-half majority for execution.
@@ -81,7 +81,7 @@ before the transaction of interest is committed.
 This sort of optimistic execution is the focus of an approach to scalable BFT systems which can work quite well for particular applications where write conflicts
 are rare. 
 At the same time, it adds additional complexity to the client, by virtue of needing to handle possibly invalid results.
-The approach is discussed further in Chapter \ref{ch:related}.
+The approach is discussed further in Chapter \cite{ch:related}.
 
 \section{Microservice Architecture}
 
@@ -107,9 +107,9 @@ In fact, one might even build an application which can launch sub-applications u
 for instance the hash of a docker image that could be pulled from some file-storage backend and run as a sub-application such that 
 future transactions in the consensus could cause it to execute. 
 This is the approach of ethereum, 
-which allows developers to deploy bits of code to the network that can be triggered to run within the ethereum virtual machine by future transactions \ref{ethereum},
+which allows developers to deploy bits of code to the network that can be triggered to run within the ethereum virtual machine by future transactions \cite{ethereum},
 and of IBM's recent OpenBlockChain (OBC) project, which allows developers to send full docker contexts in transactions, 
-defining containers that run arbitrary code in response to transactions addressed to them \ref{obc}.
+defining containers that run arbitrary code in response to transactions addressed to them \cite{obc}.
 
 \section{Determinism}
 
@@ -134,18 +134,18 @@ Deterministic programming is well studied in the world of real-time, lockstep, m
 Such games constitute another example of replicated state machines, and are quite similar in many ways to consensus algorithms.
 Application developers building with TMSP are encouraged to study their methods, and to take care when implementing an application.
 On the one hand, the use of functional programming languages and proof methods can enable the construction of correct programs.
-On the other, compilers are being built to translate possibly non-deterministic programs to canonically deterministic ones \ref{deterministicjs}.
+On the other, compilers are being built to translate possibly non-deterministic programs to canonically deterministic ones \cite{deterministicjs}.
 
 \section{Termination}
 
 If determinism is critical for preserving safety, termination of transaction execution is critical for preserving liveness.
 It is, however, not in general possible to determine whether a given program halts for even a single input, let alone all of them,
-a problem known as the Halting Problem \ref{halting}.
+a problem known as the Halting Problem \cite{halting}.
 
 Ethereum's virtual machine solves the problem by \emph{metering}, that is, charging for each operation in the execution.
 This way, a transaction is gauranteed to terminate when the sender runs out of funds.
 Such metering may be possible in a more general case, 
-via compilers that compile programs to metered versions of themselves \ref{} (CITE GREG).
+via compilers that compile programs to metered versions of themselves \cite{} (CITE GREG).
 
 It is difficult to solve this problem without significant overhead.
 In essence, a validator cannot tell if an execution is in an infinite loop or is just slow, but nearly complete.
