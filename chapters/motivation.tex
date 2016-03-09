@@ -1,9 +1,10 @@
 \chapter{Motivation}
+\label{ch:motivation}
 
 Distributed consensus systems have become a critical component of modern internet infrastructure, powering every major internet application at some level or another.
 
 The most common paradigm for studying and implementing distributed consensus is that of the Replicated State Machine, 
-wherein a state machine is replicated across a set of nodes such that it functions as a single state machine despite the failure of some nodes.
+wherein a \emph{deterministic} state machine is replicated across a set of nodes such that it functions as a single state machine despite the failure of some nodes.
 Typically, the data being replicated is a transaction log, and the consensus algorithm ensures that each node maintains an identical copy of 
 the ordered record of transactions.
 From the transaction log, each node can update their state machine to compute the current state.
@@ -14,20 +15,18 @@ Tendermint was motivated from the desire to create a general purpose, high-perfo
 \section{Distributed Consensus}
 
 The purpose of a fault-tolerant distributed consensus system is to co-ordinate a network of computers to 1) stay in sync while 2) providing a useful service.
-Staying in sync amounts to replicating the transaction log successfully, and providing something useful entails keeping the state machine available for new transactions.
+Staying in sync amounts to replicating the transaction log successfully; providing a useful service amounts to keeping the state machine available for new transactions.
 These aspects of the system are traditionally known as safety and liveness, respectively.
 Colloquially, safty means nothing bad happens; liveness means that something good eventually happens.
-A violation of safety means there are two or more valid, competing orderings of events.
-Violating liveness means the network has become unresponsive.
+A violation of safety implies two or more valid, competing orderings of events.
+Violating liveness implies an unresponsive network.
 
 It is trivial to satisfy liveness by accepting all writes. And it is trivial to satisfy safety by accepting no writes.
 Hence, consensus algorithms can be seen to operate on a spectrum defined by these extremes.
-Writes are typically differentiated using an incrementing index.
-Nodes can propose new writes, with an index larger than any yet seen,
-and require some threshold of received information from other nodes before the write is committed.
+Typically, nodes require some threshold of received information from other nodes before they commit a new write.
 In syncronous environments, where we make assumptions about the maximum delay of network messages or the maximum speed of processor clocks,
  it is easy enough to take turns proposing new writes, poll for a majority vote, 
-and skip a proposer's turn if they don't propose within the bounds of the syncrony assumptions.
+and skip a proposer's turn if they don't propose within the bounds of the synchrony assumptions.
 
 In asyncronous environments, where no such assumptions about network delays or processor speeds are warranted,
 the tradeoff is much more difficult to manage.
@@ -37,20 +36,21 @@ The proof amounts to showing that, because processes can fail,
 there are valid executions of the protocol in which processes fail at the exact opportune times to prevent consensus.
 Hence, we have no gaurantee of consensus.
 
-Relying on synchrony to ensure safety can lead to a fork in the transaction log.
+Typically, synchrony in a protocol is reflected by the use of timeouts to manage certain transitions.
+In asynchronous environments, where messages can be arbitrarily delayed, relying on synchrony (timeouts) for safety
+can lead to a fork in the transaction log.
 Relying on synchrony to ensure liveness can cause the consensus to halt, and the service to become unresponsive.
-Typically, the former case is considered more severe, as reconcilling conflicting logs can be a daunting or impossible task. 
-Furthermore, by incorporating non-determinism in the protocol, the possibility of halting can be reduced,
-such that relying on synchrony for liveness is much less risky than doing so for safety. 
+The former case is usually considered more severe, as reconcilling conflicting logs can be a daunting or impossible task. 
+On the other-hand, the need for synchrony can be abolished by using non-determinism in a way that guarantees consensus, eventually, with probability 1 \ref{}.
 
-In the early 90's, Lamport broke new ground with the Paxos algorithm for efficient consensus in asyncronous environments.
+In the early 90's, Lamport broke new ground with the Paxos algorithm for efficient, deterministic, consensus in asyncronous environments.
 Due to the algorithm's complexity and the difficulty of understanding it, it was not published until years later \ref{paxos}.
 Paxos simultaneously empowered and confused the displine of consensus science,
 on the one hand by providing the first real-world, practical, asyncronous fault-tolerant consensus algorithm,
 and on the other by being so difficult to understand and explain.
 Others attempted to explain the algorithm with moderate success \ref{}, and Lamport published a simplied version 
 a few years after the original \ref{}
-We present an explanation in \ref{figure_paxos}.
+We present an explanation in \ref{fig:paxos}.
 
 Paxos became the staple consensus algorithm for industry, upon which the likes of Amazon \ref{dynamo}, Google \ref{chubby}, and others would build out highly available global internet services.
 The paxos consensus would sit at the bottom of the application stack, providing a consistent interface to resource management and allocation operating at much slower time scales than the highly-available applications facing the users.
@@ -65,7 +65,7 @@ The resulting software ecosystem is clumsy, difficult to navigate, and in some c
 
 Seeking to remedy this situation, in 2013, Ongaro and Ousterhout published the Raft algorithm \ref{raft},
 an algorithm for consensus in asyncronous environments whose motivating design goal was understandability.
-Raft is much simpler to understand than Paxos, and is explained in \ref{figure_raft}. 
+Raft is much simpler to understand than Paxos, and is explained in \ref{fig:raft}. 
 It has seen tremendous adoption in the open source community, with implementations in virtually ever major language \ref{raft.github.io},
 and use as the backbone in major projects, including CoreOs's distributed Linux distribution \ref{coreos_raft} and the open source time-series database InfluxDB \ref{influxdb_raft}.
 
@@ -77,7 +77,7 @@ though the major advantage of blockchains is the ability to tolerate a different
 \section{Byzantine Fault Tolerance}
 
 Blockchains have been described as "trust machines" \ref{economist_blockchains} on account of the way they reduce counter party risk through the decentralization of responsibility over a shared database.
-Bitcoin, in particular, is noted for its ability to withstand attacks and malicious behaviour. 
+Bitcoin, in particular, is noted for its ability to withstand attacks and malicious behaviour by any of the participants. 
 Traditionally, consensus protocols tolerant of malicious behaviour were known as Byzantine Fault Tolerant (BFT) consensus protocols.
 The term Byzantine was used due to the similarity of the problem to that faced by generals of the Byzantine army attempting to co-ordinate themselves to attack Rome using only messengers,
 where one of the generals may be a traitor \ref{lamport1982byzantine}.
@@ -99,23 +99,23 @@ Hence, the upper bound on faults tolerated by a Byzantine system is strictly low
 
 TODO: figure!
 
-In fact, it can be shown that the upper limit on $f$ for Byzantine faults is such that $N > 3f$ \ref{pease1980reaching}.
+In fact, it can be shown that the upper limit on $f$ for Byzantine faults is $f < N/3$ \ref{pease1980reaching}.
 Thus, to tolerate a single byzantine process, we require at least $N=4$. 
 Then the faulty process can't split the vote the way it was able to when $N=3$.
 
 A number of approaches have been proposed for BFT consensus in the academic literature.
-The first generally accepted solution was the DLS algorithm, named after it's inventors \ref{dls}.
+The first generally accepted solution was the DLS algorithm, named after it's inventors \ref{dls}, and described in \ref{fig:dls}.
 DLS introduced an assumption of partial synchrony as a compromise between synchronous and asyncronous networks.
 Partial synchrony can be defined one of two ways: 
 messages are gauranteed to be delivered within some fixed but unknown amount of time,
 or they will be delivered within some known amount of time, beginning an unknown amount of time in the future.
 This assumption allowed them to circumvent the FLP result, yielding a consensus algorithm that was also optimally byzantine tolerant.
 The original Tendermint was effectively a modified version of the DLS algorithm, inheritting its partial synchrony approach.
-The problem, however, was that in practice, recovering from crash faults could be extremely slow due to the dependence on time and the required time for nodes to sync their round.
+The problem, however, was that in practice, recovering from crash faults could be extremely slow due to the dependence on time and the required time for nodes to sync (TODO improve this sentence)
 
 In 1999, Castro and Liskov published Practical Byzantine Fault Tolerance \ref{pbft}, or \emph{PBFT}, 
 which provided the first optimal byzantine fault tolerant algorithm in asynchronous networks.
-It set a new precedent for the practically of byzantine fault tolerance in industrial systems by being capable of 
+It set a new precedent for the practicallity of byzantine fault tolerance in industrial systems by being capable of 
 tens of thousands of null transactions per second.
 Despite this success, byzantine fault tolerance was still considered expensive and largely unecessary, 
 and the most popular implementation was difficult to build on top of \ref{ppbft}.
@@ -126,14 +126,18 @@ Furthermore, PBFT provides no gaurantees in the face of a complete Byzantine fai
 \section{The Need For Tendermint}
 
 The success of Bitcoin and its derrivatives, especially Ethereum, and their promise of secure, autonomous, distributed, fault-tolerant execution of arbitrary code has caused virtually every major financial institution on the planet to start paying attention to the blockchain phenomenon. 
-In particular, there has emerged a understanding of two forms of the technology:
+In particular, there has emerged an understanding of two forms of the technology:
 On the one hand are the public blockchains, known affectionately as the Big Bad Public Blockchains or BBPBs, 
 whose protocols are dominated by in-built economic incentives bootstrapped by a native currency.
-On the other are so called private blockchains, which are effectively improvements on traditional consensus and BFT algorithms through the use of hash trees, digital signatures, peer-to-peer networking, and enhanced accountability.
+On the other are so called private blockchains, which might more accurately be called "consortia blockchains",
+and which are effectively improvements on traditional consensus and BFT algorithms through the use of hash trees, digital signatures, 
+peer-to-peer networking, and enhanced accountability.
 
-As the infrastructure of our societies decentralizes, and as the nature of business becomes more inter-organizational,
-there is increasing need for a solution which is transparent, accountable, high performance BFT systems, which can support applications from finance to domain registration to electronic voting,
+As the infrastructure of our societies continues to decentralize, and as the nature of business becomes more inter-organizational,
+there is increasing need for a transparent, accountable, high performance BFT system, which can support applications from finance to domain registration to electronic voting,
 and which comes equipped with advanced mechanisms for governance and evolution into the future.
 Tendermint is that solution, optimized for consortia, or inter-organizational logic, but flexible enough to accomodate anyone from private enterprise to global currency,
 and high-performance enough to compete with the major, non-BFT, consensus solutions available today, such as etcd, consul, and zookeeper, while providing greater resilience, security gaurantees, and application developer flexibility.
+
+A more comprehensive discussion of consensus science and related algorithms is reserved for Chapter 10.
 

@@ -1,4 +1,5 @@
 \chapter{Governance}
+\label{ch:governance}
 
 So far, this thesis has reviewed the basic elements of the Tendermint consensus protocol and application environment.
 Critical elements of operating the system in the real world, such as managing validator set changes
@@ -23,6 +24,21 @@ like changing the validator set, or upgrading governmint itself (for instance to
 
 \section{Validator Set Changes}
 
+Validator set changes are a critical component of real world consensus algorithms that many previous approaches have failed to specify, 
+or have been left as a black art. 
+Raft took pains to expound a sound protocol for validator set changes which required the change pass through consensus, as would any other transaction.
+Tendermint takes a similar approach. 
+A change to the validator set comes in the form of a transaction committed in a block that instructs the application to inform the consensus engine of the change.
+
+This mechanism is implemented as a new TMSP message, called \emph{EndBlock}, which is run at the end of every block, after all the AppendTx,
+but before the Commit. The EndBlock message gives the application the opportunity to make certain state machine transitions at the same frequency the blocks are committed.
+The response value for the EndBlock message contains a list of validators, some of whom are new and being added, some of whom are known and being removed.
+The validator set is thus updated for the next block.
+
+Note concerns about who the next proposer is, edge cases, etc.
+
 \section{Software Upgrades}
 
 \section{Crisis Recovery}
+
+\section{Conclusion}

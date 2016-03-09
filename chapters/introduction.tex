@@ -1,4 +1,5 @@
 \chapter{Introduction}
+\label{ch:intro}
 
 The cold, hard truth about computer engineering today is that computers are faulty - 
 they crash, corrupt, slow down, perform voodoo. 
@@ -10,14 +11,14 @@ to stay in sync while providing a useful service.
 In essence, to make a reliable system from unreliable parts.
 
 In an increasingly digital and globalized world, however, 
-systems must not only be reliable in the face of unreliable parts, but in the face of deliberately malicious ones.
+systems must not only be reliable in the face of unreliable parts, but in the face of malicious or "Byzantine" ones.
 Over the last decade, major components of critical infrastructure have been ported to networked systems,
-as have vast components of the world's financial system.
-In response, there has been an explosion of cyber warfare and wide-spread fraud,
+as have vast components of the world's finances.
+In response, there has been an explosion of cyber warfare and financial fraud,
 and a complete distortion of economic and political fundamentals.
 
-In 2009, an anonymous sofware developer known only as Satoshi Nakamoto introduced an approach to the resolution of these issues that was simultaneously an experiment in computer science, 
-economics, and politics. 
+In 2009, an anonymous sofware developer known only as Satoshi Nakamoto introduced an approach to the resolution of these issues 
+that was simultaneously an experiment in computer science, economics, and politics. 
 It was a digital currency called Bitcoin.
 Bitcoin was the first protocol to solve the problem of fault tolerant distribtued computing in the face of malicious adversaries in a public setting.
 The solution, dubbed a "blockchain", hosts a digital currency, 
@@ -32,14 +33,16 @@ evaluating only a single function, distributed across a few large data centers r
 Not to mention it takes up to an hour to confirm transactions, is difficult to build on top of, and does not scale in a way which preserves it's security guarantees.
 
 Despite it's success, there is growing awareness of the need for alternatives to Bitcoin, and especially of systems which can work to complement it.
-In response, we've seen the emergence of alternatives, specializing in this or that aspect of the problem, such as culture, finance, or computation itself.
+In response, we've seen the emergence of alternatives, specializing in this or that aspect of the problem, such as culture (eg. Dogecoin), finance (eg. Ripple), 
+or computation itself (eg. Ethereum).
 All of these suffer in one way or another from unecessary costs, poor economics, and/or suspect security models.
-In respsone, in 2014, Jae Kwon began the development of Tendermint, which sought to combine blockchain design with classic academic approaches to distribtued fault tolerance.
+In respsone, in 2014, Jae Kwon began the development of Tendermint, which sought to combine blockchain design with classic academic approaches to byzantine fault tolerance.
 The author joined him in 2015, in an effort led by Eris Industries to bring a practical blockchain solution to industry.
 
 The result of that collaboration is the Tendermint platform, consisting of a consensus protocol, a high-performance implementation in golang, 
 a flexible interface for building arbitrary applications above the consensus, and a suite of tools for deployments and their management.
-We believe Tendermint achieves a superior design and implementation compared to previous approaches, such as PBFT on the one hand, and Bitcoin and its derrivations on the other,
+We believe Tendermint achieves a superior design and implementation compared to previous approaches, 
+including that of the classical academic literature as well as Bitcoin and its derrivatives,
 by combining the right elements of each to achieve a practical balance of security, performance, and simplicity.
 We have since started a company to pursue the deployment of the platform at an enterprise level, and have seen tremendous interest.
 
@@ -50,9 +53,9 @@ The primary contributions of this dissertation are as follows:
 
     \item A complete description of the Tendermint consensus algorithm and platform architecture. Tendermint provides provably optimal Byzantine Fault Tolerant consensus, is easy to understand and reason about, flexible to build on top of, and provides a foundation for advanced and secure socio-political and economic systems. 
 
-    \item Significant contributions to a high performance implementation of the consensus algorithm in Golang, most notably a refactor of the core consensus state machine to be deterministic, more understandable, and robust to crash faults. 
+    \item Significant contributions to a high performance implementation of the consensus algorithm in Golang, most notably a refactor of the core consensus state machine to be more robust, deterministic, and understandable.
 
-    \item Evaluation of the implementation's performance and characteristics in normal, faulty, and malicious conditions on large deployments. Tendermint consensus is fully asynchronous, with no dependence on synchronized clocks, and can tolerate up to a third of its node's behaving arbitrarily. 
+    \item Evaluation of the implementation's performance and characteristics in normal, faulty, and malicious conditions on large deployments. Tendermint consensus is mostly asynchronous, with minimal dependence on synchronized clocks, and can tolerate up to a third of its node's behaving arbitrarily. 
 
     \item Discussion and contributions to implementation of many other elements necessary for a complete system, such as membership changes, crisis recovery, client design, and security.
 

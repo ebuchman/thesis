@@ -1,8 +1,13 @@
 \chapter{Performance}
+\label{ch:performance}
 
 Performance of the Tendermint algorithm can be evaluated in a few key ways.
 The most obvious measures are the block commit time, which is a measure of finalization latency, 
 and transaction throughput, which measures the network's capacity.
+We collect measurements for each on networks with validators distribtued over the globe, 
+where the number of validators ranges, in multiples of 2, from 1 to 1024.
+
+Experiments are also run for a select few applications on validator sets of size 4, 32, and 128.
 
 \section{Transaction Throughput}
 

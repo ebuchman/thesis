@@ -1,4 +1,5 @@
 \chapter{Client Considerations}
+\label{ch:clients}
 
 This chapter reviews some considerations pertaining to clients that interact with an application hosted on Tendermint.
 
@@ -17,7 +18,7 @@ including possibly another Tendermint cluster itself.
 
 \section{Broadcasting Transactions}
 
-As a generalized application platform, tendermint provides only a simple interface to clients for broadcasting transaction.
+As a generalized application platform, tendermint provides only a simple interface to clients for broadcasting transactions.
 The general paradigm is that a client connects to a Tendermint consensus network through a proxy, which is either run locally on its machine,
 or hosted by some other provider. The proxy functions as a non-validator node on the network, 
 which means it keeps up with the consensus and processes transactions, but does not sign votes.

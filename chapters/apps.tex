@@ -1,4 +1,5 @@
 \chapter{Building Applications}
+\label{ch:apps}
 
 Tendermint is designed to be a general purpose algorithm for replicating a deterministic state machine.
 It uses the Tendermint Socket Protocol (TMSP) to standardize communication between the consensus engine and the state machine,
@@ -17,11 +18,11 @@ Applications on the internet can in general be characterized as containing two f
 This separation of concerns enables application developers to write state-machines in any programming language representing arbitrary applications,
 on top of an engine which may be specialized for its performance, security, useability, support, etc.
 
-Unlike web-servers and their applications, processes communicating over a socket via the Common Gateway Interface (CGI) protocol,
+Unlike web-servers and their applications, which often take the form of processes communicating over a socket via the Common Gateway Interface (CGI) protocol,
 consensus algorithms have traditionally had much less useable or less general purpose interfaces to build applications on top of.
 Some, like zookeeper, etcd, consul, and other distributed key-value stores, 
-provide HTTP interfaces to a particular instance of simple key-value application, 
-with some more interesting features like compare-and-swap operations and watch notificaitons.
+provide HTTP interfaces to a particular instance of a simple key-value application, 
+with some more interesting features like atomic compare-and-swap operations and push notificaitons.
 But they do not give the application developer control of the state-machine code itself.
 
 Demand for such a high-level of control over the state-machine running above a consensus engine has been driven primarily by the success of Bitcoin and the consequent interest in blockchain technology.
@@ -29,19 +30,24 @@ By building more advanced applications directly into the consensus,
 users, developers, regulators, etc. can achieve greater security gaurantees on arbitrary state-machines, 
 far beyond key-value stores, like currencies, exchanges, supply-chain management, governance, and so on.
 
+What has so captured the attention of so many is the potential of a system which permits collective enforcement of the execution of code.
+It is practically a re-invention of many dimensions of the legal system, using distribtued consensus algorithms and deterministically executable contracts,
+rather than policemen, lawyers, judges, juries, and the like.
+The ramifications for the development of human society are expolisive, much as the introduction of the democratic rule of law was in the first place.
+
 Tendermint aims to provide the fundamental interface and consensus engine upon which such applications might be built.
 
 \section{Tendermint Socket Protocol}
 
-The TMSP defines the core interface by which the consensus engine communicates with the application state machine.
+The Tendermint Socket Protocol (TMSP) defines the core interface by which the consensus engine communicates with the application state machine.
 The interface definition consists of a number of message types, specified using Google's Protobuf \ref{protobuf}, 
-that are length-prefixed and transmitted over a socket.
+that are length-prefixed and transmitted over a socket \ref{fig:TMSP}.
 
 TMSP is implemented as a fully asynchronous server, 
 where message types come in pairs of request and response,
 and where a special message type, Flush, pushes any buffered messages over the connection and awaits all responses.
 
-At the core of the TMSP are two messages: AppendTx and Commit.
+At the core of the TMSP are two messages: \emph{AppendTx} and \emph{Commit}.
 Once a block is committed by the consensus, 
 the engine calls AppendTx on each transaction in the block, 
 passing it to the application state-machine to be processed.
@@ -55,18 +61,27 @@ causing the application to commit to the latest state, and persist it to disk.
 Using the TMSP affords us an explicit separation between consensus, or agreement on the order of transactions, 
 and their actual execution in the state-machine.
 In particular, we achieve consensus on the order first, and then execute the ordered transactions.
-This separation actual improves the systems fault tolerance \ref{yin2003separating}:
+This separation actually improves the system's fault tolerance \ref{yin2003separating}:
 while 3f+1 replicas are still needed for agreement to tolerate f Byzantine failures, 
 only 2f+1 replicas are needed for execution to tolerate f Byzantine failures.
+That is, while we still need a two-thirds majority for ordering, we only need a one-half majority for execution.
 
 On the other hand, the fact that transactions are executed after they are ordered results in possibly invalid transactions,
 which can waste system resources. 
-This is solved using an additional TMSP message, CheckTx, which is called by the transaction pool,
+This is solved using an additional TMSP message, \emph{CheckTx}, which is called by the mempool,
 allowing it to check whether the transaction would be valid against the latest state.
 Note, however, that the fact that commits come in blocks at a time introduces complexity in the handling of CheckTx messages.
-In particular, applications are expected to maintain a second state-machine that executes only those rules of the main state-machine pertaining to a transactions validity. 
+In particular, applications are expected to maintain a second state-machine that executes only those rules of the main state-machine pertaining to a transaction's validity. 
 This second state-machine is updated by CheckTx messages and is reset to the latest committed state after every commit.
-In essence, they describe the transaction pool's filter rules.
+In essence, the second state machine describes the transaction pool's filter rules.
+
+To some extent, CheckTx can be used as an optimistic execution, 
+returning a result to the transaction sender with the caveat that the result may be wrong if a block is committed with a conflicting transaction
+before the transaction of interest is committed.
+This sort of optimistic execution is the focus of an approach to scalable BFT systems which can work quite well for particular applications where write conflicts
+are rare. 
+At the same time, it adds additional complexity to the client, by virtue of needing to handle possibly invalid results.
+The approach is discussed further in Chapter \ref{ch:related}.
 
 \section{Microservice Architecture}
 
@@ -78,7 +93,7 @@ and typically encapsulated in a linux container (eg. using Docker) for efficient
 Applications running above Tendermint consensus will often be decomposable into microservices.
 For instance, many applications will utilize a key-value store for storing state.
 Running the key-value store as an independent service is quite common, 
-in order to take advantage of the data stores specialized features, such as high-performance data types or merklization.
+in order to take advantage of the data store's specialized features, such as high-performance data types or merklization.
 
 Another important microservice for applications is a governance module, 
 which manages a certain subset of TMSP messages, enabling the application to control validator set changes.
@@ -88,6 +103,13 @@ Some applications may utilize a native currency or account structure for users.
 It may thus be useful to provide a module which supports basic elements of eg. handling digital signatures and managing account dynamics.
 
 The list of possible microservices to compose a complex TMSP application goes on. 
+In fact, one might even build an application which can launch sub-applications using data sent in transactions,
+for instance the hash of a docker image that could be pulled from some file-storage backend and run as a sub-application such that 
+future transactions in the consensus could cause it to execute. 
+This is the approach of ethereum, 
+which allows developers to deploy bits of code to the network that can be triggered to run within the ethereum virtual machine by future transactions \ref{ethereum},
+and of IBM's recent OpenBlockChain (OBC) project, which allows developers to send full docker contexts in transactions, 
+defining containers that run arbitrary code in response to transactions addressed to them \ref{obc}.
 
 \section{Determinism}
 
@@ -95,19 +117,24 @@ The most critical caveat about building applications using TMSP is that they mus
 That is, for the replicated state-machine to not compromise safety, 
 every node must obtain the same result when executing the same transaction against the same state.
 
+This is not a unique requirement for Tendermint. Bitcoin, Raft, Ethereum, any other distributed consensus algorithm,
+and applications like lock-step multiplayer gaming must all be strictly deterministic, lest a consensus failure arise,
+or a desynchronisation, as its called in the gaming world.
+
 There are many sources of non-determinism in programming languages, most obviously via random numbers and time,
-but also, for instance, via the use of floats, and by iteration over hash tables.
+but also, for instance, via the use of floats, and by iteration over hash tables 
+(some languages, such as Go, enforce randomized iteration over hash tables to force programmers to be explicit about when they need ordered data structures).
 The strict restriction on determinism, and its notable lacking from every major programming language,
-prompted Ethereum to develop its own, Turing-complete, fully deterministic virtual machine,
-which forms the platform for application developers to build applications above the Ethereum blockchain.
+prompted ethereum to develop its own, Turing-complete, fully deterministic virtual machine,
+which forms the platform for application developers to build applications above the ethereum blockchain.
 While deterministic, it has many quirks, such as 32-byte stack words, storage keys, and storage values,
 and no support for byte-shifting operations - everything is big number arithmetic.
 
-Deterministic programming is not unprecedented, and is in fact well studied in the world of real-time, lockstep, multi-party gaming.
+Deterministic programming is well studied in the world of real-time, lockstep, multi-party gaming.
 Such games constitute another example of replicated state machines, and are quite similar in many ways to consensus algorithms.
-Application developers building with TMSP are encouraged to study their methods, and to take care when implementing their application.
+Application developers building with TMSP are encouraged to study their methods, and to take care when implementing an application.
 On the one hand, the use of functional programming languages and proof methods can enable the construction of correct programs.
-On the other, compilers are being built to translate possibly non-deterministic programs to canonically deterministic ones \ref{deterministicjs}
+On the other, compilers are being built to translate possibly non-deterministic programs to canonically deterministic ones \ref{deterministicjs}.
 
 \section{Termination}
 
@@ -115,17 +142,18 @@ If determinism is critical for preserving safety, termination of transaction exe
 It is, however, not in general possible to determine whether a given program halts for even a single input, let alone all of them,
 a problem known as the Halting Problem \ref{halting}.
 
-Ethereum's virtual machine solves the problem by chargin for each operation in the execution.
+Ethereum's virtual machine solves the problem by \emph{metering}, that is, charging for each operation in the execution.
 This way, a transaction is gauranteed to terminate when the sender runs out of funds.
 Such metering may be possible in a more general case, 
-via compilers that compile programs to metered versions of themselves.
+via compilers that compile programs to metered versions of themselves \ref{} (CITE GREG).
 
 It is difficult to solve this problem without significant overhead.
 In essence, a validator cannot tell if an execution is in an infinite loop or is just slow, but nearly complete.
 It may be possible to use the Tendermint consensus protocol to decide on transaction timeouts, 
 such that more than two-thirds of validators must agree that a transaction timed out and is thus considered invalid (ie. having no effect on the state)
 However, we do not pursue the idea further here, leaving it to future work. 
-In the meantime, it is expected that applications will undergo thorogh testing before being deployed in any consensus system.
+In the meantime, it is expected that applications will undergo thorogh testing before being deployed in any consensus system,
+and that monitoring and governance mechanisms will be used to resurrect the system in the event of consensus failure.
 
 \section{Examples}
 
