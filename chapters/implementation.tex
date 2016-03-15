@@ -13,11 +13,51 @@ The most important of these packages are described in the following sub-sections
 
 \subsection{Binary Serialization}
 
-Tendermint uses a simple binary serialization algorithm for packing memory objects into byte arrays and back.
+Tendermint uses a binary serialization algorithm optimized for simplicity and determinism.
+It supports all integer types (including varints, which are encoded with a one-byte length prefix),
+strings, byte arrays, and time (unix time with millisecond precision).
+It also supports arrays of any type and structs (encoded as a list of ordered values, ignoring keys).
+It is somewhat inspired by Go's type system, especially its use of interface types, 
+which can be implemented as one of many concrete types.
+Interfaces can be registered and each concrete implementation given a leading type-byte in its encoding.
 
+See github.com/tendermint/go-wire for more details.
 
 \subsection{Cryptography}
+
+Consensus algorithms such as tendermint use three primary cryptographic primitives: digital signatures, hash functions, and authenticated encryption.
+While many implementations exist of numerous different signatures and hash functions, 
+choosing a cryptography library for enterprise software is no trivial task, given especially the profound insecurity of the world's most used security library 
+(ie. OpenSSL \ref{openssl_insecurity}).
+
+Contributing to the insecurity of cryptographic systems is the potential deliberate undermining of their security properties by government agencies 
+such as the NSA, who, in collaboration with the NIST, have designed and standardized many of the most popular cryptographic algorithms in use today. 
+Given the apparent unlawfulness of such agencies, as popularized by Edward Snowden \ref{snowden}, 
+many in the cryptography community, including at Tendermint, prefer to use algorithms designed in an open, academic environment.
+
+Tendermint uses RIPEMD160 as its hashing algorithm, which produces 20-byte outputs. 
+It is used in the merkle trees of transactions and validator signatures, and for computing the block hash.
+Go provides an implemention in its extended library. RIPEMD160 is also used as one of two hashing functions by Bitcoin in the derrivation of addresses from public keys.
+
+As it's digital signature scheme, Tendermint uses Schnorr signatures over the ED25519 elliptic curve. 
+ED25519 was designed in the open by Dan Bernstein \ref{ed25519}, with the intention of being high performance and easy to implement without introducing vulnerabities.
+
+In response to the failure of the cryptography community to provide cryptography libraries that are sufficiently easy to use without introducing vulnerabilites,
+Bernstein also introduced NaCl, a high level library for doing authenticated encryption. Tendermint uses the implemention provided by Go in its extended library.
+
 \subsection{Merkle Hash Tree}
+
+Merkle trees function much like other tree based data-structures, 
+with the additional feature that it is possible to produce a proof of membership of a key in the tree that is logarithmic in the size of the tree.
+This is done by recursively concatenating and hashing keys in pairs until only a single hash is left, the root hash of the tree.
+For any leaf in the tree, a trail of hashes leading from it to the root serves as proof of its membership \ref{fig:merkletree}.
+This makes merkle trees particularly useful for p2p file-sharing applications, where pieces of a large file can be verified as belonging to the file without
+having all the pieces. Tendermint uses this mechanism to gossip block parts on the network, where the root hash is included in the block proposal.
+
+Tendermint also provides an self-balancing, merklized binary tree, modelled after the AVL tree \ref{avl}, as a tmsp service called merkleeyes.
+Merklization is used to trivially implement copy-on-write, yielding an immutable AVL tree, or IAVL tree.
+The IAVL tree can be used for storing state of dynamic size, allowing lookups, inserts, and removals in logarithmic time.
+
 \subsection{P2P Networking}
 
 The P2P networking used by Tendermint is described more fully in Chapter \cite{ch:networking}.

@@ -1,5 +1,14 @@
-\chapter{Performance}
+\chapter{Performance and Fault Tolerance}
 \label{ch:performance}
+
+Tendermint is designed as a Byzantine fault tolerant state-machine replication algorithm.
+It gaurantees safety so long as less than a third of validators are Byzantine, 
+and gaurantees liveness similarly, so long as network messages are eventually delivered,
+with weak assumptions about network synchrony for gossipping proposals.
+In this section, we evaluate Tendermint's fault tolerance empirically by injecting 
+crash faults, Byzantine faults, and arbitrary network delays.
+The goal is to show that the implementation of Tendermint consensus does not compromise safety in the event of such failures,
+that it suffers minimum performance impact, and that it is quick to recover.
 
 Performance of the Tendermint algorithm can be evaluated in a few key ways.
 The most obvious measures are the block commit time, which is a measure of finalization latency, 
@@ -7,17 +16,68 @@ and transaction throughput, which measures the network's capacity.
 We collect measurements for each on networks with validators distribtued over the globe, 
 where the number of validators ranges, in multiples of 2, from 1 to 1024.
 
-Experiments are also run for a select few applications on validator sets of size 4, 32, and 128.
+We also study how performance is impacted by various kinds of faults.
+In particular, we look at single node crash faults, crash faults of up to 1/3 of the validators,
+recovery time following crash failure of 1/3 or more validators, randomized network delays,
+and byzantine faults via double signing proposals and votes and violating locking rules.
 
-\section{Transaction Throughput}
+Experiments are also run for a select few applications on validator sets of choice size.
+
+\section{Throughput and Latency}
+
+\subsection{Single Node}
+
+\subsection{Single Datacenter}
+
+\subsection{Multi Datacenter}
 
 Plot transaction throughput vs number of validators, for a couple of apps, intra and inter datacenter
 
-\section{Commit Times}
+\begin{figure}[]
+	\includegraphics[width=\linewidth,height=\textheight,keepaspectratio]{figures/throughputs.png}
+    	\centering
+	\label{fig:tx_throughput}
+\end{figure}
 
 Plot block commit times vs number of validators, for different values of ProposeTimeout, intra and inter datacenter.
 
+\begin{figure}[]
+	\includegraphics[width=\linewidth,height=\textheight,keepaspectratio]{figures/latencies.png}
+    	\centering
+	\label{fig:block_latencies}
+\end{figure}
 
-It may make sense to unify this chapter with the Fault Tolerance chapter.
+\section{Crash Failures and Asynchrony}
+
+To evaluate the response to crash failures, 
+block commit times were recorded as up to one third of the validators are crashed,
+and as they are brought back online. 
+
+\subsection{Repeated single node crashes}
+
+\subsection{Random network delays}
+
+\subsection{Recovery from more than 1/3 crash}
+
+
+\section{Byzantine Failures}
+
+To evaluate the response to crash failures, 
+block commit times were recorded as up to one third of the validators behave arbitrarily.
+Since its infeasible to capture every instance of arbitrary behaviour,
+a few implementations are provided which cover some important cases, namely:
+network fuzzing, double signing proposals or votes, and violating locking rules.
+
+\subsection{Network fuzzing}
+
+\subsection{Double proposals}
+
+\subsection{Bad blocks}
+
+\subsection{Double signing}
+
+\subsection{Violated locking rules}
+
+
 
 \section{Related Work}
