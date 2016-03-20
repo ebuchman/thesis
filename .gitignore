@@ -2,3 +2,12 @@
 *.log
 *.out
 *.pdf
+auto/
+chapters/auto/
+*.bbl
+*.blg
+*.fdb_latexmk
+*.fls
+*.lof
+*.lot
+*.toc
