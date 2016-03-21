@@ -22,7 +22,7 @@ The algorithm is summarized in \ref{fig:tendermint_summary}, it's key properties
 	  \item[State Machine Safety] \hfill \\
 		If a validator has applied a block at a given height to its state machine, no other validator will ever apply a different block for the same height.
 	\end{description}
-  	\caption{Tendermint gaurantees that all of these properties are true, at all times, within the security gaurantee. This set of properties was taken practically verbatim from \cite{raft_thesis}}
+  	\caption[Tendermint Safety Guarantees]{Tendermint gaurantees that all of these properties are true, at all times, within the security gaurantee. This set of properties was taken practically verbatim from \cite{raft_thesis}}
 	\label{fig:tendermint_gaurantees}
 \end{figure}
 
@@ -35,7 +35,7 @@ The algorithm is summarized in \ref{fig:tendermint_summary}, it's key properties
 		If one-third or more of validators, but less than half, are Byzantine, and thereby compromise safety, 
 		they can be specifically identified and held accountable to their actions.
 	\end{description}
-  	\caption{Tendermint gaurantees these security properties, making it more suitable than algorithms like Raft and Paxos, and even other BFT algorithms like PBFT, for consortia with potentially malicious or untrusted actors}
+  	\caption[Tendermint Security Guarantees]{Tendermint gaurantees these security properties, making it more suitable than algorithms like Raft and Paxos, and even other BFT algorithms like PBFT, for consortia with potentially malicious or untrusted actors}
 	\label{fig:tendermint_security}
 \end{figure}
 
