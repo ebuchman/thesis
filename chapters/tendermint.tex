@@ -137,9 +137,9 @@ Using blocks results in two primary optimizations, which give us more throughput
 Blocks induce another effect as well, which is more subtle but potentially important. 
 They increase the minimum latency of a transaction to that of the whole block, which for tendermint is on the order of hundreds of milliseconds to seconds.
 Traditional serializable database systems provide commit latencies on the order of milliseconds to tens of milliseconds.
-Since the increased latency of tendermint is distributed over all transactions in a block, the average latency, 
-ie. block time divided by transaction throughput, is actually comparable, if not significantly better than traditional systems.
-Furthermore, unlike the fast commit times interupted by leader elections in other consensus algorithms,
+They are able to do this because they are not Byzantine Fault Tolerant, requiring only one round of communication (instead of two)
+and responses from over half of the replicas (instead of two-thirds).
+However, unlike the fast commit times interupted by leader elections in other consensus algorithms,
 Tendermint provides a more regular pulse that is more responsive to the overall health of the network, in terms of node failures and asynchrony.
 
 What role such pulses might play in the coherence of communicating autonomous systems on the internet is yet to be determined.
@@ -184,12 +184,12 @@ The core consensus algorithm, however, consists of just two messages:
 \item{VoteMsg: a signed vote for a proposal}
 \end{itemize}
 
-In practice, we use additional messages to optimize the gossiping of block data and votes, as discussed LATER.
+In practice, we use additional messages to optimize the gossiping of block data and votes, as discussed in Chapter \ref{ch:subprotocols}
 
 \section{Proposals}
 
 Each round begins with a proposal. 
-The propser for the given round takes a batch of recently received transactions from its local cache (the Mempool, see LATER), 
+The propser for the given round takes a batch of recently received transactions from its local cache (the Mempool, see Chapter \ref{ch:subprotocols}),
 composes a block, and broadcasts a signed ProposalMsg containing the block.
 If the proposer is Byzantine, it might broadcast different proposals to different validators.
 
@@ -266,8 +266,8 @@ it moves on to the next round.
 Ensuring safety across rounds can be tricky, 
 as circumstances must be avoided which would provide justification for two different blocks to be committed at two different rounds at the same height, 
 In Tendermint, this problem is solved via a \emph{locking} mechanism.
-In essence, once a pre-commit is cast, a validator is \emph{locked} on the associated block.
-There are two rules of locking:
+In essence, once a pre-commit is cast, a validator is \emph{locked} on the associated block, and must follow certain locking rules.
+There are three rules of locking:
 
 \begin{itemize}
 \item{Prevote-the-Lock: a validator must pre-vote for the block they are locked on. 
@@ -276,11 +276,12 @@ There are two rules of locking:
 	thereby compromising safety.}
 \item{Release-Lock-on-Polka: a validator may only release a lock after seeing a polka or nil-polka at a round greater than that at which it locked.
 	This allows validators to unlock if they pre-committed something the rest of the network doesn't want to commit,
-	thereby protecting liveness, but does it in a way that does not compromise safety.
-	This is because unlocking is only permitted if there has been a polka, which doesn't include the locked validator,
-	in a round after that in which the pre-commit was made that locked the validator.}
+	thereby protecting liveness, but does it in a way that does not compromise safety,
+	by only allowing unlocking if there has been a polka in a round after that in which the validator became locked.}
 \end{itemize}
 
+
+For simplicity, a validator is considered to have locked on nil at round -1 at each height, so that Release-Lock-on-Polka implies that a validator cannot precommit at all at a new height until they see a polka.
 
 These rules can be understood more intuitively by way of examples. 
 Consider again our four validators, and suppose there is a proposal for $blockA$ at round $R$. 
