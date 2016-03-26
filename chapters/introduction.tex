@@ -24,20 +24,32 @@ Bitcoin was the first protocol to solve the problem of fault tolerant distribtue
 The solution, dubbed a "blockchain", hosts a digital currency, 
 where consent on the order of transactions is negotiated via an economically incentivized cryptographic random lottery based on partial hash collisions.
 In essence, transactions are ordered in batches (blocks) by those who find partial hash collisions of the transaction data, 
-in such a way that the correct order is the one with partial hash collisions of the greatest cumulative difficulty.
+in such a way that the correct ordering is the one where the collisions have the greatest cumulative difficulty.
+The solution was dubbed Proof-of-Work (PoW).
 
-Bitcoin's subtle brilliance was to invent a currency, and to issue it to those solving the hash collisions, in reward for their help securing the transaction log,
-reasoning that the capacity to solve such problems would be distribtued as computing power is, and anyone with a CPU could participate.
+Bitcoin's subtle brilliance was to invent a currency, a cryptocurrency, and to issue it to those solving the hash collisions, 
+in exchange for their doing such an expensive thing as solve partial hash collisions \ref{cost_of_mining}.
+In spirit, it might be assumed that the capacity to solve such problems would be distribtued as computing power is, 
+such that anyone with a CPU could participate.
 Unfortunately, the reality is that the Bitcoin network has grown into the largest supercomputing entity on the planet, greater than all others combined,
-evaluating only a single function, distributed across a few large data centers running application specific integrated circuits (ASICs) produced by a small number of primarily Chinese companies, and consuming on the order of X kW per transaction.
+evaluating only a single function, distributed across a few large data centers running Application Specific integrated circuits (ASICs) produced by a small number of primarily Chinese companies, and consuming on the order of X kW per transaction.
 Not to mention it takes up to an hour to confirm transactions, is difficult to build on top of, and does not scale in a way which preserves it's security guarantees.
+This is not to mention the internal bout of political struggles resulting from the immaturity of the Bitcoin community's governance mechaninisms.
 
-Despite it's success, there is growing awareness of the need for alternatives to Bitcoin, and especially of systems which can work to complement it.
-In response, we've seen the emergence of alternatives, specializing in this or that aspect of the problem, such as culture (eg. Dogecoin), finance (eg. Ripple), 
-or computation itself (eg. Ethereum).
-All of these suffer in one way or another from unecessary costs, poor economics, and/or suspect security models.
-In respsone, in 2014, Jae Kwon began the development of Tendermint, which sought to combine blockchain design with classic academic approaches to byzantine fault tolerance.
-The author joined him in 2015, in an effort led by Eris Industries to bring a practical blockchain solution to industry.
+Despite these troubles, Bitcoin, astonishingly, continues to churn,
+and its technology, 
+of cryptography and distributed databases and co-operative economics,
+continues to attract billions in investment capital,
+both in the form of new companies and new cryptocurrencies,
+each diverging from Bitcoin in its own unique way.
+
+In 2014, Jae Kwon began the development of Tendermint, which sought to solve the consensus problem,
+of ordering a set of transactions in an adversarial environment, 
+by modernizing solutions to the problem that have existed for decades,
+but have lacked the social context to be deployed widely until now.
+
+In early 2015, in an effort led by Eris Industries to bring a practical blockchain solution to industry,
+the author joined Jae Kwon in the development of the Tendermint software and protocols.
 
 The result of that collaboration is the Tendermint platform, consisting of a consensus protocol, a high-performance implementation in golang, 
 a flexible interface for building arbitrary applications above the consensus, and a suite of tools for deployments and their management.
@@ -46,7 +58,7 @@ including that of the classical academic literature as well as Bitcoin and its d
 by combining the right elements of each to achieve a practical balance of security, performance, and simplicity.
 We have since started a company to pursue the deployment of the platform at an enterprise level, and have seen tremendous interest.
 
-The primary contributions of this dissertation are as follows:
+The primary contributions of this thesis are as follows:
 
 
 \begin{itemize}  
