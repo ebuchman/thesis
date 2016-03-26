@@ -25,9 +25,51 @@
   Can solve flp with probability 1 using non-determinism.
   2t+1 for non-byzantine, 5t+1 for byzantine version.
   "dont know whether N > 5t is best possible bound " ... :p
-
+  each node flips a coin locally and broadcasts result - if enough of them, its the common coin.
+  number of rounds to reach consensus is exponential in async case
   }
 }
+
+
+@inproceedings{rabin1983randomized,
+	title={Randomized byzantine generals},
+	author={Rabin, Michael O},
+	booktitle={Foundations of Computer Science, 1983., 24th Annual Symposium on},
+	pages={403--409},
+	year={1983},
+	organization={IEEE}
+	annote={
+		use shamir secret sharing to distribute the coin.
+		requires trusted dealer for initial setup.
+		constant time. expected number of rounds is O(T(n)).
+	}
+}
+
+@article{chor1985simple,
+  title={A simple and efficient randomized byzantine agreement algorithm},
+  author={Chor, Benny and Coan, Brian A},
+  journal={Software Engineering, IEEE Transactions on},
+  number={6},
+  pages={531--539},
+  year={1985},
+  publisher={IEEE}
+  annote={synchronous only. small set of size g flip, terminates in 2t/g rounds with a common coin.
+	no crypto, less redundnacy requires than BenOr
+}
+
+
+@incollection{draper_lab,
+  title={The evolution of fault tolerant computing at the Charles Stark Draper Laboratory, 1955--85},
+  author={Hopkins Jr, Albert L and Lala, Jaynarayan H and Smith III, T Basil},
+  booktitle={The Evolution of fault-tolerant computing},
+  pages={121--140},
+  year={1987},
+  publisher={Springer}
+  annoted={early days for aviation}
+}
+
+
+
 
 
 # a great history

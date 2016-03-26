@@ -111,10 +111,10 @@ messages are gauranteed to be delivered within some fixed but unknown amount of 
 or they will be delivered within some known amount of time, beginning an unknown amount of time in the future.
 This assumption allowed them to circumvent the FLP result, yielding a consensus algorithm that was also optimally byzantine tolerant.
 The original Tendermint was effectively a modified version of the DLS algorithm, inheritting its partial synchrony approach.
-The problem, however, was that in practice, recovering from crash faults could be extremely slow due to the dependence on time and the required time for nodes to sync (TODO improve this sentence)
+The problem, however, was that in practice, recovering from crash faults could be extremely slow.
 
 In 1999, Castro and Liskov published Practical Byzantine Fault Tolerance \cite{pbft}, or \emph{PBFT}, 
-which provided the first optimal byzantine fault tolerant algorithm in asynchronous networks.
+which provided the first optimal byzantine fault tolerant algorithm in weakly synchronous networks.
 It set a new precedent for the practicallity of byzantine fault tolerance in industrial systems by being capable of 
 tens of thousands of null transactions per second.
 Despite this success, byzantine fault tolerance was still considered expensive and largely unecessary, 
@@ -139,5 +139,5 @@ and which comes equipped with advanced mechanisms for governance and evolution i
 Tendermint is that solution, optimized for consortia, or inter-organizational logic, but flexible enough to accomodate anyone from private enterprise to global currency,
 and high-performance enough to compete with the major, non-BFT, consensus solutions available today, such as etcd, consul, and zookeeper, while providing greater resilience, security gaurantees, and application developer flexibility.
 
-A more comprehensive discussion of consensus science and related algorithms is reserved for Chapter 10.
+A more comprehensive discussion of consensus science and related algorithms is reserved for Chapter \ref{ch:related}
 

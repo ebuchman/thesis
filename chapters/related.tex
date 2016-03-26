@@ -1,25 +1,57 @@
 \chapter{Related Work}
 \label{ch:related}
 
-\section{History of Consensus}
+Byzantine consensus has a rich history that spans cryptography, distributed computing, and economics,
+but the socio-economic context for its products to be deployed in industry has not existed until recently,
+at least not outside of traditionally critical real-time systems like air-craft control \ref{draper_lab}.
+On the one hand, the invention of Bitcoin and the coining of the term "blockchain" popularized the notion
+of a distributed ledger not controlled by a single entity, using cryptography and aligned economic incentives to 
+preserve safety in the face of Byzantine faults.
+On the other, the continued commoditization of servers, in the form of "The Cloud", and the invention of Raft, 
+have popularized distributed computing in mainstream developer culture, 
+and brought renewed attention to distributed consensus algorithms as co-ordination hubs in large-scale deployments. 
 
-\section{Raft}
+At the intersection are a collection of solutions, typically geared for banking and financial applications,
+but also for governance, logistics, and other general forms of co-ordination, 
+that draw on classic academic BFT modified and modernized in various ways.
+This chapter reviews the history and diversity of these ideas, with the goal of providing a rich context within which to 
+understand the blockchain phenomenon.
 
-Description of raft: leader election, log replication, safety.
-Discussion of subtleties, lack of BFT
+\section{Beginnings}
+\subsection{Faulty Things}
+	- nasa, aircraft
+\subsection{Clocks}
+	- lamport clocks
+	- time
+\subsection{FLP}
+	- flp
+	- ben or
+\subsection{Broadcast Protocols}
 
-\section{PBFT}
+\section{Byzantine}
+	\subsection{Byzantine Generals}
+	\subsection{Randomized Consensus}
+	\subsection{DLS}
+	\subsection{PBFT}
+		- pbft: pre-prepare, prepare, commit; view changes; lack of gaurantees.
+	\subsection{PBFT Derivatives} 
+		- pbft improvements
 
-Description of pbft: pre-prepare, prepare, commit; view changes; lack of gaurantees.
+\section{Non-Byzantine}
+	\subsection{spanner}
+	\subsection{paxos}
+	\subsection{zab}
+	\subsection{riak}
+	\subsection{raft} leaderelection, log replication, safety. subtleties. no bft
 
-\section{Bitcoin}
+\section{Blockchain}
+	\subsection{bitcoin} Incentive incompatibility issues, attempts to scale, sidechains, lightning, seg-wit, Bitcoin-NG,
+	treeee signatures, ghost, etc.
+	\subsection{ethereum}
+	\subsection{proof of stake}
+	\subsection{juno, sieve}
+	\subsection{honeybadger}
 
-Incentive incompatibility issues, attempts to scale, sidechains, lightning, seg-wit, Bitcoin-NG,
-tree signatures, ghost, etc.
-
-\section{Proof of Stake}
-
-\section{Non-Deterministic BFT}
 
 \section{Conclusion}
 
