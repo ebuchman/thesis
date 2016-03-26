@@ -9,6 +9,62 @@ Tendermint consensus is an algorithm for the secure replication of a state machi
 The algorithm is summarized in \ref{fig:tendermint_summary}, it's key properties as a replicated state machine are summarized in \ref{fig:tendermint_gaurantees}, and its key security properties are summarized in \ref{fig:tendermint_security}.
 
 \begin{figure}[]
+	\underline{Consensus State}
+		\begin{description}
+			\item[ValidatorSet:] ordered list of validators. There is at most one valid proposer for every term.
+			\item[LastCommit:] set of $+\frac{2}{3}$ precommits for last block. Empty for first block.
+			\item[Height:] strictly increasing from 0. One unique block per height.
+			\item[Round:] resets to zero at each height. Accommodates asynchrony. 
+			\item[Proposal:] signed proposal of block to commit at next height.
+			\item[VoteSet:] set of votes from validators on proposals (or nil) for any round at the current height.
+			\item[LockedBlock:] last block precommitted.
+			\item[LockedRound:] first round the LockedBlock was precommitted by this validator.
+		\end{description}
+
+	\underline{Proposal Message}
+		\begin{description}
+			\item[Broadcast by next proposer in round-robin.]
+			\item[Only one valid proposer (and message) at each round.]
+			\item[Arguments:] Height, Round, BlockHash, Signature
+		\end{description}
+
+	\underline{Vote Message}
+		\begin{description}
+			\item[Broadcast by validators in response to proposals and other votes.]
+			\item[Two types: prevote and precommit.]
+			\item[Arguments:] Height, Round, Type, BlockHash, Signature
+		\end{description}
+
+	\caption[Summary of tendermint protocol]{Summary of data types in the tendermint protocol}
+	\label{fig:tendermint_summary}
+\end{figure}
+
+
+\begin{figure}[]
+	\underline{Consensus State Rules}
+		\begin{description}
+			\item[Proposal:] Wait up to TimeoutPropose for a proposal from the correct validator for the current height and round.
+			\item[Prevote:]  If a proposal comes with a valid signature from the correct proposer for a validator’s current height and round, and the validator is not locked, it should prevote for the proposal block. Else, prevote nil.
+			\item[Precommit:] If a validator receives prevotes from $+\frac{2}{3}$ validators for the same block, it should precommit for that block. If the $+\frac{2}{3}$ prevotes are not for the same block, it should wait TimeoutPrevote, and then precommit nil.
+			\item[Commit:] If a validator receives precommits from $+\frac{2}{3}$ validators for the same block, it should commit that block, and go to the next height.  If the $+\frac{2}{3}$ prevotes are not for the same block, it should wait TimeoutPrecommit, and then go to the next round.
+		\end{description}
+
+	\underline{Broadcast Rules}
+		\begin{description}
+			\item[No Double Signing:] a validator only signs for each message type (proposal, prevote, precommit) once at a given height and round.
+			\item[Prevote The Lock:] A validator is locked on the last block they precommitted, and must prevote for that block in future rounds at that height.
+			\item[Unlock On Polka:] a validator may only unlock if there have been $+\frac{2}{3}$ prevotes at a round after they locked. 
+		\end{description}
+		Violation of any of the Broadcast Rules is detectable and should be punished.
+
+	\caption[Summary of tendermint protocol rules]{Summary of rules in the tendermint protocol}
+	\label{fig:tendermint_summary}
+\end{figure}
+
+
+
+
+\begin{figure}[]
 	\textbf{Tendermint Safety Guarantees}
 	\begin{description}
 	  \item[Proposer Safety] \hfill \\
