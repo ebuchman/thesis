@@ -18,15 +18,81 @@ This chapter reviews the history and diversity of these ideas, with the goal of 
 understand the blockchain phenomenon.
 
 \section{Beginnings}
+
+\subsection{Distributed Computing}
+
+Distribtued algorithms first emerged in the late 19th century in the telecommunications and railroad industries,
+in attempts to effectively handle multiple concurrent message streams in a transmission, 
+or multiple trains on the same set of tracks. ... semaphores
+
+Academic work on the subject appears to have been launched officially by the seminal work
+of Edsger Dijkstra on the mutual exclusion problem \ref{mutex}, and of Tony Hoare on models for describing communicating processes.\ref{csp}, 
+
+
+host of problems: cigarette smokers (1971), dinning philosophers (1965)
+
 \subsection{Faulty Things}
-	- nasa, aircraft
+
+
+Fault tolerant distributed computing effectively emerged in the late seventies out of the effort to utilize microprocessors for aircraft control, resulting in a number of systems \ref{sift}, 
+
+
 \subsection{Clocks}
-	- lamport clocks
-	- time
+
+The problem of distribtued consensus, however, did not formally emerge until Leslie Lemport introduced it in his 
+"Time, clocks, and the ordering of events in a distribetud system" \ref{clocks}.
+In that work, Lamport demonstrated how a partial ordering of events emerges from a definition of causality based on communication \ref{clocks}.
+That is, events occuring in concurrent processes, between communication events, effectively happen at the same time, as they cannot influence one another.
+Thus, a system of logical clocks can be defined based on the individual sequential processes and the fact that messages are sent before they are received.
+Events can then be totally ordered by assigning any arbitrary but consistent total ordering above the partial ordering,
+for instance by assigning each process in the system an index and ordering events which happen at the same logical time by the
+index of the process in which they happen.
+The algorithm is quite simple, requiring each process to hear from each other process in order to determine the order of events.
+
+Lamport's work established time as a principle obstacle to designing fault tolerant distributed systems,
+as synchronizing clocks across geographical locations requires the communication of messages which is ultimately limited by the speed of light.
+This formulation of the problem has close ties to the relativism of modern physics,
+wherein frames of reference are relative to an observer and the speed of light imposes a constraint on information propogation.
+
 \subsection{FLP}
-	- flp
-	- ben or
+As discussed in Chapter \ref{ch:motivation}, one of the primary factors in designing consensus algorithms are assumptions made about network and/or processor synchrony. A synchronous network is one in which messages are delivered within some fixed, known amount of time. Similarly, synchronous processors are one whose clocks stay within some fixed, known number of ticks of eachother.
+In the early days of consensus research, the distinction was not well characterized, though the close relationship between asynchrony and crash failures is apparent \ref{clocks}.
+Lamports original consensus algorithm is able to operate in asynchronous environments, 
+so long as all messages are eventually delivered from each process.
+However, the algorithm is obviously not fault tolerant as the failure of just a single process can halt the algorithm forever.
+
+The intuition behind a single failure thwarting a consensus protocol was given formal ground by Fischer, Lynch, and Patterson,
+who proved the impossibility of deterministic distribtued consensus in asynchronous environments if even a single process can fail \ref{flp}.
+The result does not apply to synchronous contexts, as assumptions about network synchrony allow processors to detect failures using timeouts, such that if a process does not respond within some given amount of time it is assumed to have crashed.
+Furthermore, the result applies to deterministic consensus protocols only, 
+as its proof relies on the moment when the network goes deterministically from a bivalent state, 
+where not all processes hold the same value, to a univalent one, where they do.
+Since the point of transition is a deterministic point in time, 
+the algorithm fails if a single processes crashes at that opportune moment.
+
+\subsection{Common Coin}
+
+The FLP result became something of a warning bell to distributed systems scientists, 
+establishing a clear impossibility result at the heart of the emerging field.
+Later, the approach would be generalized to derrive many more impossibility results \ref{impossibility},
+and significant academic effort would be expended on relaxing either the synchrony or determinism assumptions to derrive algorithms which circumvent the result.
+
+In particular, in a short note, Ben Or demonstrated how an algorithm which includes a simple amount of non-determinism can circumvent the FLP result \ref{free-choice}.
+The algorithm is tolerant to faults of up to half of the processes in asynchronous environments.
+Essentially, in trying to reach consensus on the value of a single bit, 
+if a process does not receive votes from a majority for the same value it randomly changes the value it votes for the next round.
+With everyone changing values, eventually more than half of them will vote the same value.
+This approach came to be known as a "common coin", 
+due to the resemblance of the procedure to communally flipping a coin to obtain a shared value.
+
+\subsection{}
+
+\subsection{Transaction Processing}
+jim gray (acid, wal). atomic commit, 2pc, 3pc, database replication
+transaction serializability (Eswar 76)
+
 \subsection{Broadcast Protocols}
+reliable broadcast, atomic broadcast
 
 \section{Byzantine}
 	\subsection{Byzantine Generals}
@@ -38,11 +104,16 @@ understand the blockchain phenomenon.
 		- pbft improvements
 
 \section{Non-Byzantine}
-	\subsection{spanner}
+	\subsection{view stamped replication}
 	\subsection{paxos}
 	\subsection{zab}
+	\subsection{spanner}
 	\subsection{riak}
 	\subsection{raft} leaderelection, log replication, safety. subtleties. no bft
+
+\section{P2P}
+	napster, bittorent, kademlia, chord, tahoe-lafs, ipfs
+	boinc, seti, folding@home
 
 \section{Blockchain}
 	\subsection{bitcoin} Incentive incompatibility issues, attempts to scale, sidechains, lightning, seg-wit, Bitcoin-NG,
