@@ -8,9 +8,13 @@ wherein a \emph{deterministic} state machine is replicated across a set of nodes
 such that it functions as a single state machine despite the failure of some nodes.
 The state machine is driven by a set of inputs, known as \emph{transactions}, 
 where each transaction may or may not, depending on its validity, cause a state transition and return a result.
+The state transition logic is governed by the state machine's state transition function,
+which maps a transaction and the current state to a new state and a return value.
+The state transition function is also sometimes referred to as \emph{application logic}, 
+
 It is the responsibility of the consensus protocol to order the transactions so that the resulting 
 \emph{transaction log} is replicated exactly on every node.
-Requiring that the state machine be deterministic implies that 
+Requiring that the state transition function be deterministic implies that 
 every node will compute the same state given the same transaction log.
 
 Tendermint was motivated from the desire to create a general purpose, high-performance, secure, and robust replicated state machine.
@@ -129,8 +133,8 @@ The problem, however, was that in practice, recovering from crash faults could b
 
 In 1999, Castro and Liskov published Practical Byzantine Fault Tolerance \cite{pbft}, or \emph{PBFT}, 
 which provided the first optimal Byzantine fault tolerant algorithm in weakly synchronous networks.
-It set a new precedent for the practicality of Byzantine fault tolerance in industrial systems by being capable of 
-tens of thousands of null transactions per second.
+It set a new precedent for the practicality of Byzantine fault tolerance in industrial systems by being capable 
+of processing tens of thousands of transactions per second.
 Despite this success, Byzantine fault tolerance was still considered expensive and largely unecessary, 
 and the most popular implementation was difficult to build on top of \cite{ppbft}.
 Hence, despite a resurgence in academic interest, including numerous improved variations \cite{yin2003separating, kotla2007zyzzyva}
