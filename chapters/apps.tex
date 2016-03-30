@@ -62,8 +62,8 @@ Using the TMSP affords us an explicit separation between consensus, or agreement
 and their actual execution in the state-machine.
 In particular, we achieve consensus on the order first, and then execute the ordered transactions.
 This separation actually improves the system's fault tolerance \cite{yin2003separating}:
-while 3f+1 replicas are still needed for agreement to tolerate f Byzantine failures, 
-only 2f+1 replicas are needed for execution to tolerate f Byzantine failures.
+while $3f+1$ replicas are still needed for agreement to tolerate $f$ Byzantine failures, 
+only $2f+1$ replicas are needed for execution.
 That is, while we still need a two-thirds majority for ordering, we only need a one-half majority for execution.
 
 On the other hand, the fact that transactions are executed after they are ordered results in possibly invalid transactions,
@@ -76,16 +76,17 @@ This second state-machine is updated by CheckTx messages and is reset to the lat
 In essence, the second state machine describes the transaction pool's filter rules.
 
 To some extent, CheckTx can be used as an optimistic execution, 
-returning a result to the transaction sender with the caveat that the result may be wrong if a block is committed with a conflicting transaction
+returning a result to the transaction sender with the caveat that 
+the result may be wrong if a block is committed with a conflicting transaction
 before the transaction of interest is committed.
-This sort of optimistic execution is the focus of an approach to scalable BFT systems which can work quite well for particular applications where write conflicts
-are rare. 
+This sort of optimistic execution is the focus of an approach to scalable BFT systems 
+that can work quite well for particular applications where conflicts between transactions are rare. 
 At the same time, it adds additional complexity to the client, by virtue of needing to handle possibly invalid results.
-The approach is discussed further in Chapter \cite{ch:related}.
+The approach is discussed further in Chapter \ref{ch:related}.
 
 \section{Microservice Architecture}
 
-Adopting separation of concerns as a strategy in application design is generally considered wise practice.
+Adopting separation of concerns as a strategy in application design is generally considered wise practice \ref{hursch1995separation}.
 In particular, many large scale application deployments today adopt a microservice architecture,
 wherein each functional component is implemented as a standalone network service, 
 and typically encapsulated in a linux container (eg. using Docker) for efficient deployment, scalability, and upgradeability.
@@ -100,11 +101,13 @@ which manages a certain subset of TMSP messages, enabling the application to con
 Such a module can become a powerful paradigm for governance in BFT systems.
 
 Some applications may utilize a native currency or account structure for users.
-It may thus be useful to provide a module which supports basic elements of eg. handling digital signatures and managing account dynamics.
+It may thus be useful to provide a module which supports basic elements of, for instance,
+handling digital signatures and managing account dynamics.
 
-The list of possible microservices to compose a complex TMSP application goes on. 
-In fact, one might even build an application which can launch sub-applications using data sent in transactions,
-for instance the hash of a docker image that could be pulled from some file-storage backend and run as a sub-application such that 
+The list of possible microservices to compose a complex TMSP applications goes on. 
+In fact, one might even build an application which can launch sub-applications using data sent in transactions.
+For instance, including the hash of a docker image in a transaction,
+such that the image could be pulled from some file-storage backend and run as a sub-application where
 future transactions in the consensus could cause it to execute. 
 This is the approach of ethereum, 
 which allows developers to deploy bits of code to the network that can be triggered to run within the ethereum virtual machine by future transactions \cite{ethereum},

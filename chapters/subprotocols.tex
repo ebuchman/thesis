@@ -7,7 +7,7 @@ and other peer information.
 This was done in order to focus in on the consensus protocol itself, 
 without distraction from the hydra of practical software engineering.
 This chapter describes one particular approach to filling in these details,
-by implementing components as relatively independent reactors that are multiplexed over a single connection.
+by implementing components as relatively independent reactors that are multiplexed over each peer connection.
 
 \section{P2P-Networking}
 
@@ -23,7 +23,7 @@ in order to stay connected to some minimum number of other peers.
 \section{Consensus Gossip}
 
 The consensus reactor wraps the consensus state machine, 
-from which each node broadcasts to all peers its current state every time it changes.
+and ensures each node broadcasts to all peers its current state every time it changes.
 In this way, each node keeps track of the consensus state of all its peers, 
 allowing it to optimize the gossipping of messages to only send peers information they need at the very moment,
 and that they don't already have.
@@ -34,60 +34,67 @@ gossip efficiency and minimize the chance that some information becomes unavaila
 
 
 \subsection{Block Data}
-In the previous section, it was assumed that proposal messages include the block.
+In Chapter \ref{ch:tendermint}, it was assumed that proposal messages include the block.
 However, since blocks emerge from a single source and can be quite large, 
 this puts undue pressure on the block proposer to upload the data to all other nodes;
 blocks can be disseminated much more quickly if they are split into parts and gossipped.
 
-A common approach to securely gossipping data, as popularized by BitTorrent, is to use a merkle tree,
+A common approach to securely gossipping data, as popularized by various p2p protocols \ref{bittorrent,libswift}, 
+is to use a merkle tree \ref{merkle1987digital},
 allowing each piece of the data to be accompanied by a short proof (logarithmic in the size of the data)
 that the piece is a part of the whole. 
-To use this approach, blocks are serialized and split into chunks of an appropriate size for the expected block size and number of validators,
-and chunks are hashed into a merkle tree. The signed proposal, instead of including the entire block, includes just the merkle root hash,
+To use this approach, 
+blocks are serialized and split into chunks of an appropriate size 
+for the expected block size and number of validators,
+and chunks are hashed into a merkle tree. 
+The signed proposal, instead of including the entire block, includes just the merkle root hash,
 allowing the network to co-operate in gossipping the chunks.
-A node informs its peers every time it receives a chunk, in order to minimize the bandwidth wasted transmitted the same chunk to the same node more than once.
+A node informs its peers every time it receives a chunk, 
+in order to minimize the bandwidth wasted transmitted the same chunk to the a node more than once.
 
 Once all the chunks are received, the block is deserialized and validated to ensure it refers correctly to the previous 
 block, and that its various checksums, implemented as merkle trees, are correct. 
 While it was previously assumed that a validator does not prevote until the proposal (including the block) is received,
 some performance benefit may be obtained by allowing validators to prevote after receiving a proposal, 
 but before receiving the full block. This would imply that it is okay to prevote for what turns out to be an invalid block.
-However, precommittng for an invalid block must of course be considered Byzantine.
+However, precommittng for an invalid block must always be considered Byzantine.
 
 Peers that are catching up (i.e. are on an earlier height) are sent chunks for the height they are on,
 and progress one block at a time.
 
 \subsection{Votes}
 
-At each step in the consensus state machine, a node is waiting for votes (or a local timeout) to progress.
+At each step in the consensus state machine, after the proposal, a node is waiting for votes (or a local timeout) to progress.
 If a peer has just entered a new height, it is sent precommits from the previous block,
-so it may include them in the next blocks LastValidation if its a proposer.
+so it may include them in the next blocks LastValidation if it's a proposer.
 If a peer has prevoted but has yet to precommit, or has precommitted, but has yet to go to the next round,
 it is sent prevotes or precommits, respectively.
-If a peer is catching up, it is sent the precommits for the committed block at the peer's height.
+If a peer is catching up, it is sent the precommits for the committed block at its current height.
 
 \section{Mempool}
 
-The previous chapter made little to any mention of transactions, 
-despite the purpose of a consensus algorithm being to order transactions,
-as the consensus algorithm operates on blocks, and doesn't care about transactions,
+Chapter \ref{ch:tendermint} made little mention of transactions, 
+despite the purpose of a consensus algorithm being to order and execute transactions,
+as Tendermint operates on blocks on a time, and has no concern for particular transactions,
 so long as their checksum in the block is correct.
 
 Transactions are managed independently in an in-memory cache, 
-which, following Bitcoin, has come to be known as the mempool. 
-Transactions are validated when they are received and, if valid, added to the mempool and gossipped using an ordered multicast algorithm.
-A node maintains a routine for each peer which ensures that transactions in the mempool are sent to the peer in the same order in which they were processed by the node
+which, following Bitcoin, has come to be known as the \emph{mempool}.
+Transactions are validated when they are received and, if valid, 
+added to the mempool and gossipped using an ordered multicast algorithm.
+A node maintains a routine for each peer which ensures that transactions 
+in the mempool are sent to the peer in the same order in which they were processed by the node.
 
 Proposers reap transactions from the ordered list in the mempool for new block proposals.
 Once a block is committed, all transactions included in the block are removed from the mempool,
-and the remaining transactions are re-validateid,
-as their validity may have changed on account of other transactions, which the node did not have in its mempool, being committed. 
-
+and the remaining transactions are re-validated,
+as their validity may have changed on account of other transactions being committed, 
+which the node may not have had in its mempool.
 
 \section{Syncing the Blockchain}
 
 The consensus reactor provides a relatively slow means of synching with the latest state of the blockchain,
-as it was designed for real time consensus,
+as it was designed for real-time consensus,
 meaning peers wait to receive all information to commit a single block before worrying about the next block.
 To accomodate peers that may be more than just a few blocks behind, 
 an additional reactor, the blockhain reactor, allows peers to download many blocks in parallel,
@@ -98,10 +105,9 @@ The node will request blocks, in order, beginning with its current height,
 from all peers that self-reported higher heights, and download the blocks concurrently, adding them to the block pool.
 Another routine continuously attempts to remove blocks from the pool and add them to the blockchain by validating and executing them, 
 two blocks at a time, against the latest state of the blockchain.
-Blocks must be validated two blocks at a time because the commit for one block is included as the LastValidation data in the next one
+Blocks must be validated two blocks at a time because the commit for one block is included as the LastValidation data in the next one.
 
 The node continuously queries its peers for their current height, 
 and continues to concurrently request blocks until it has caught up to the heighest height among its peers, 
 at which point it stops making requests for peer heights and starts the consensus reactor.
-
 

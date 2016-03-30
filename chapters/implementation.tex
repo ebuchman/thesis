@@ -64,12 +64,12 @@ and are necessary for receiving events.
 
 \section{P2P Networking}
 
-The P2P subprotocols used by Tendermint is described more fully in Chapter \cite{ch:subprotocols}.
+The P2P subprotocols used by Tendermint is described more fully in Chapter \ref{ch:subprotocols}.
 
 \section{Reactors}
 
 The Tendermint node is composed of multiple concurrent reactors, 
-each managing a state machine sending and receiving messages to peers over the network, as described in Chapter {ch:subprotocols}.
+each managing a state machine sending and receiving messages to peers over the network, as described in Chapter \ref{ch:subprotocols}.
 Reactors synchronize by locking shared datastructures, but the points of synchronization are kept to a minimum,
 so each reactor runs mostly concurrently with the others.
 
