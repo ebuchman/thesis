@@ -4,9 +4,9 @@
 The cold, hard truth about computer engineering today is that computers are faulty - 
 they crash, corrupt, slow down, perform voodoo. 
 What's worse, we're typically interested in connecting computers over a network (like the internet),
-and networks can be more undpredictable than the computers themselves.
+and networks can be more unpredictable than the computers themselves.
 These challenges are primarily the concern of "fault tolerant distributed computing",
-whose aim is to discover princpled protocol designs enabling faulty computers communicating over a faulty network 
+whose aim is to discover principled protocol designs enabling faulty computers communicating over a faulty network 
 to stay in sync while providing a useful service.
 In essence, to make a reliable system from unreliable parts.
 
@@ -20,7 +20,7 @@ and a complete distortion of economic and political fundamentals.
 In 2009, an anonymous sofware developer known only as Satoshi Nakamoto introduced an approach to the resolution of these issues 
 that was simultaneously an experiment in computer science, economics, and politics. 
 It was a digital currency called Bitcoin.
-Bitcoin was the first protocol to solve the problem of fault tolerant distribtued computing in the face of malicious adversaries in a public setting.
+Bitcoin was the first protocol to solve the problem of fault tolerant distributed computing in the face of malicious adversaries in a public setting.
 The solution, dubbed a "blockchain", hosts a digital currency, 
 where consent on the order of transactions is negotiated via an economically incentivized cryptographic random lottery based on partial hash collisions.
 In essence, transactions are ordered in batches (blocks) by those who find partial hash collisions of the transaction data, 
@@ -29,11 +29,11 @@ The solution was dubbed Proof-of-Work (PoW).
 
 Bitcoin's subtle brilliance was to invent a currency, a cryptocurrency, and to issue it to those solving the hash collisions, 
 in exchange for their doing such an expensive thing as solve partial hash collisions \ref{cost_of_mining}.
-In spirit, it might be assumed that the capacity to solve such problems would be distribtued as computing power is, 
+In spirit, it might be assumed that the capacity to solve such problems would be distributed as computing power is, 
 such that anyone with a CPU could participate.
 Unfortunately, the reality is that the Bitcoin network has grown into the largest supercomputing entity on the planet, greater than all others combined,
 evaluating only a single function, distributed across a few large data centers running Application Specific integrated circuits (ASICs) produced by a small number of primarily Chinese companies, and consuming on the order of X kW per transaction.
-Not to mention it takes up to an hour to confirm transactions, is difficult to build on top of, and does not scale in a way which preserves it's security guarantees.
+Not to mention it takes up to an hour to confirm transactions, is difficult to build on top of, and does not scale in a way which preserves its security guarantees.
 This is not to mention the internal bout of political struggles resulting from the immaturity of the Bitcoin community's governance mechaninisms.
 
 Despite these troubles, Bitcoin, astonishingly, continues to churn,
@@ -54,7 +54,7 @@ the author joined Jae Kwon in the development of the Tendermint software and pro
 The result of that collaboration is the Tendermint platform, consisting of a consensus protocol, a high-performance implementation in golang, 
 a flexible interface for building arbitrary applications above the consensus, and a suite of tools for deployments and their management.
 We believe Tendermint achieves a superior design and implementation compared to previous approaches, 
-including that of the classical academic literature as well as Bitcoin and its derrivatives,
+including that of the classical academic literature as well as Bitcoin and its derivatives,
 by combining the right elements of each to achieve a practical balance of security, performance, and simplicity.
 We have since started a company to pursue the deployment of the platform at an enterprise level, and have seen tremendous interest.
 
@@ -67,19 +67,19 @@ The primary contributions of this thesis are as follows:
 
     \item Significant contributions to a high performance implementation of the consensus algorithm in Golang, most notably a refactor of the core consensus state machine to be more robust, deterministic, and understandable.
 
-    \item Evaluation of the implementation's performance and characteristics in normal, faulty, and malicious conditions on large deployments. Tendermint consensus is mostly asynchronous, with minimal dependence on synchronized clocks, and can tolerate up to a third of its node's behaving arbitrarily. 
+    \item Evaluation of the implementation's performance and characteristics in normal, faulty, and malicious conditions on large deployments. Tendermint consensus is mostly asynchronous, with minimal dependence on synchronized clocks, and can tolerate up to a third of its nodes behaving arbitrarily. 
 
     \item Discussion and contributions to implementation of many other elements necessary for a complete system, such as membership changes, crisis recovery, client design, and security.
 
-    \item An informal proof of correctness and directions for more formal approaches
+    \item An informal proof of correctness and directions for more formal approaches.
 
-    \item An explanation of blockchains and the Tendermint consensus algorithm in the context of classical academic consensus research 
+    \item An explanation of blockchains and the Tendermint consensus algorithm in the context of classical academic consensus research.
 \end{itemize}
 
 All code is available open source at https://github.com/tendermint/tendermint, and in associated repositories at https://github.com/tendermint. 
 The core is licensed GPLv3 and most of the libraries are Apache 2.0.
 
-The remainder of this dissertation introduces the consensus problem, classic solutions, and motivates Tendermint;
+The remainder of this thesis introduces the consensus problem, classic solutions, and motivates Tendermint;
 presents the Tendermint consensus algorithm, the peer-to-peer network, the interface for building arbitrary applications on top,  
 mechanisms for governance and membership changes, and how clients interact with Tendermint;
 outlines the implementation in Golang and evaluates its fault tolerance and performance;
