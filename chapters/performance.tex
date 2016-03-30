@@ -14,7 +14,7 @@ Performance of the Tendermint algorithm can be evaluated in a few key ways.
 The most obvious measures are the block commit time, which is a measure of finalization latency, 
 and transaction throughput, which measures the network's capacity.
 We collect measurements for each on networks with validators distribtued over the globe, 
-where the number of validators ranges, in multiples of 2, from 1 to 64.
+where the number of validators ranges, in multiples of 2, from 2 to 64.
 
 \section{Overview}
 
@@ -38,6 +38,8 @@ and the network\_testing repository provides some tools which take advantage of 
 to perform actions on docker containers on many remote machines at once.
 
 Each validator connects directly to each other to avoid confounding effects of network topology.
+
+For experiments involving crash faults or byzantine behaviour, the number of faulty nodes is given by $N_{fault} = (N-1)/3$.
 
 \section{Throughput and Latency}
 
@@ -84,8 +86,8 @@ demonstrate that much higher throughputs are possible. We leave further investig
 
 \section{Crash Failures and Asynchrony}
 
-To evaluate the performance due to crash failures, every three seconds up to one-third of randomly selected validators
-(i.e. $(nVal - 1) / 3$) are stopped and restarted three seconds later.
+To evaluate the performance due to crash failures, every three seconds $N_{fault}$ validators are randomly selected,
+stopped, and restarted three seconds later.
 Experiments are run for validator set sizes doubling from 2 to 64, for varying values of TimeoutPropose.
 In each experiment, the block size is 2048.
 
@@ -108,13 +110,20 @@ network fuzzing, double signing proposals or votes, and violating locking rules.
 
 \subsection{Network fuzzing}
 
-\subsection{Double proposals}
-
-\subsection{Bad blocks}
+To simulate network fuzzing, $N_{fault}$ validators randomly corrupt 25\% of the bytes in 10\% of the messages they send.
 
 \subsection{Double signing}
 
-\subsection{Violated locking rules}
+To simulate a more determined byzantine adversary, the consensus state machine is augmented to allow explicit byzantine behaviour.
+In particular, for this experiment, a byzantine validator makes the following changes.
+
+\begin{itemize}
+\item{Conflicting proposals: during its time to propose, a byzantine validator signs two conflicting proposals and broadcasts each, along with a prevote and precommit, to separate halves of its connected peers.} 
+\item{No nil votes: a byzantine validator signs no nil-votes, no matter what}
+\item{Sign every proposal: a byzantine validator submits a prevote and a precommit for every proposal it sees, as soon as it sees it}
+\end{itemize}
+
+Taken together, these behaviours explicilty violate the double signing and locking rules. 
 
 \section{A real application: ErisDB}
 
