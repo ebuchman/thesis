@@ -124,8 +124,15 @@ The consensus algorithm can be roughly divided into the following, somewhat orth
 As will be seen, Tendermint affords an ability to identify and hold accountable malicious validators, thus providing greater security guarantees than competing algorithms in the event that one-third or more Byzantine validators compromise safety.
 
 \section{Blockchain}
+
+Tendermint consensus operates on batches (blocks) of transactions at a time.
+Continuity is maintained from one block to the next by explicitly linking each block to the one before it,
+forming a blockchain. 
+The blockchain contains the ordered transaction log and evidence,
+in the form of a hash tree of digital signatures,
+that a correct set of validators committed each block.
+
 \subsection{Why Blocks?}
-Tendermint is designed specifically to work with batches, or blocks, of transactions at a time.
 Most consensus algorithms commit transactions one at a time by design, and implement batching after the fact.
 Using blocks results in two primary optimizations, which give us more throughput and fault-tolerance:
 
@@ -148,6 +155,7 @@ What role such pulses might play in the coherence of communicating autonomous sy
 \subsection{Block Structure}
 
 TODO
+
 
 \section{Tendermint Basics}
 
