@@ -171,7 +171,53 @@ and that monitoring and governance mechanisms will be used to resurrect the syst
 
 \section{Examples}
 
-TODO: dummy, counter, basecoin, merkleeyes, eris-db, geth, etcd
+\subsection{Merkleeyes}
+
+A simple example of a tmsp application is a merklized key-value store. 
+Tendermint provides merkleeyes, a tmsp application which wraps a self-balancing, merkle binary search tree.
+The first byte of a transaction determines if the transation is a get, set, or remove operation. 
+For get and remove operations, the remaining bytes are the key. 
+For the set operation, the remaining bytes are a serialized list containing the key and value.
+Merkleeyes may utilize a simple implementation of CheckTx that only decodes the transaction,
+to ensure it is properly formatted.
+One could also make a more advanced CheckTx, where get and remove operations on unknown keys are invalid.
+Once Commit is called, the latest updates are added into the merkle tree, all hashes are computed, 
+and the latest state of the tree is committed to disk.
+
+Note that Merkleeyes was designed to be a module used by other tmsp applications for a merklized key-value store,
+rather than a stand alone tmsp application, though the simplicity of the tmsp interface makes it ammenable to both.
+
+\subsection{Basecoin}
+
+A more complete example is a simple currency, 
+using an account structure pioneered by Ethereum, 
+where each user has a public key and an account with the balance for that public key.
+The account also contains a sequence number, which is equal to the number of transactions sent by the account.
+Transactions can send funds from the account if they include the correct sequence number
+and are signed by the correct private key.
+Without the sequence number, the system would be susceptible to replay attacks,
+where a signed transaction debitting an account could be replayed, 
+causing the debit to occur multiple times.
+
+An application supporting a currency has naturally more logic than a simple key-value store.
+In particular, certain transactions are distinctly invalid, 
+such as those with an invalid signature, incorrect sequence number,
+or sending an amount greater than the sender's account balance.
+These conditions can be checked in CheckTx.
+
+Furthermore, a suplementary application state must be maintained for CheckTx 
+in order to update sequence numbers and account balances 
+when there are multiple transactions involving the same accounts in the mempool at once.
+When commit is called, the suplementary application state is reset to the latest committed state.
+Any transactions still in the mempool can be replayed via CheckTx against the latest state.
+
+\subsection{Ethereum}
+
+Ethereum uses the mechanisms already described to filter transactions out of the mempool,
+but it also runs some transactions in a virtual machine, 
+which updates state and returns results.
+The virtual machine execution is not done in CheckTx, 
+as it is much more expensive and depends heavily on the ultimate order of transactions as they are included in blocks.
 
 \section{Conclusion}
 
