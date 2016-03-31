@@ -41,7 +41,18 @@ Tendermint aims to provide the fundamental interface and consensus engine upon w
 
 The Tendermint Socket Protocol (TMSP) defines the core interface by which the consensus engine communicates with the application state machine.
 The interface definition consists of a number of message types, specified using Google's Protobuf \cite{protobuf}, 
-that are length-prefixed and transmitted over a socket \ref{fig:TMSP}.
+that are length-prefixed and transmitted over a socket \ref{fig:tmsp}.
+
+\begin{figure}[]
+	\includegraphics[width=\linewidth,height=\textheight,keepaspectratio]{figures/tmsp.png}
+    	\centering
+	\label{fig:tmsp}
+	\caption[TMSP Architecture]{
+The consensus logic communicates with the application logic via TMSP, a socket protocol. 
+Two sockets are maintained, one for the mempool to check the validity of new transactions,
+and one for the consensus to execute newly committed blocks.
+}
+\end{figure}
 
 TMSP is implemented as a fully asynchronous server, 
 where message types come in pairs of request and response,
