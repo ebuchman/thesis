@@ -11,7 +11,7 @@ by implementing components as relatively independent reactors that are multiplex
 
 \section{P2P-Networking}
 
-On startup, each tendermint node receives an initial list of peers to dial.
+On startup, each Tendermint node receives an initial list of peers to dial.
 For each peer, a node maintains a persistent TCP connection over which multiple subprotocols are multiplexed in a rate-limited fashion.
 Messages are serialized into a compact binary representation to be sent on the wire, and 
 connections are encrypted via an authenticated encryption protocol \ref{authenticated_encryption}.
@@ -26,10 +26,10 @@ The consensus reactor wraps the consensus state machine,
 and ensures each node broadcasts to all peers its current state every time it changes.
 In this way, each node keeps track of the consensus state of all its peers, 
 allowing it to optimize the gossipping of messages to only send peers information they need at the very moment,
-and that they don't already have.
+and which they don't already have.
 For each peer, a node maintains two routines which continuously check for new information to send the peer,
 namely, proposals and votes. 
-Information should be gossipped in a "rarest first" manner in order to maximize 
+Information should be gossipped in a ``rarest first'' manner in order to maximize 
 gossip efficiency and minimize the chance that some information becomes unavailable \ref{rarest_first}
 
 
@@ -39,8 +39,8 @@ However, since blocks emerge from a single source and can be quite large,
 this puts undue pressure on the block proposer to upload the data to all other nodes;
 blocks can be disseminated much more quickly if they are split into parts and gossipped.
 
-A common approach to securely gossipping data, as popularized by various p2p protocols \ref{bittorrent,libswift}, 
-is to use a merkle tree \ref{merkle1987digital},
+A common approach to securely gossipping data, as popularized by various p2p protocols \cite{bittorrent,libswift}, 
+is to use a merkle tree \cite{merkle1987digital},
 allowing each piece of the data to be accompanied by a short proof (logarithmic in the size of the data)
 that the piece is a part of the whole. 
 To use this approach, 
@@ -50,7 +50,7 @@ and chunks are hashed into a merkle tree.
 The signed proposal, instead of including the entire block, includes just the merkle root hash,
 allowing the network to co-operate in gossipping the chunks.
 A node informs its peers every time it receives a chunk, 
-in order to minimize the bandwidth wasted transmitted the same chunk to the a node more than once.
+in order to minimize the bandwidth wasted by transmitting the same chunk to the a node more than once.
 
 Once all the chunks are received, the block is deserialized and validated to ensure it refers correctly to the previous 
 block, and that its various checksums, implemented as merkle trees, are correct. 
@@ -59,14 +59,14 @@ some performance benefit may be obtained by allowing validators to prevote after
 but before receiving the full block. This would imply that it is okay to prevote for what turns out to be an invalid block.
 However, precommittng for an invalid block must always be considered Byzantine.
 
-Peers that are catching up (i.e. are on an earlier height) are sent chunks for the height they are on,
+Peers that are catching up (i.e.~are on an earlier height) are sent chunks for the height they are on,
 and progress one block at a time.
 
 \subsection{Votes}
 
 At each step in the consensus state machine, after the proposal, a node is waiting for votes (or a local timeout) to progress.
 If a peer has just entered a new height, it is sent precommits from the previous block,
-so it may include them in the next blocks LastValidation if it's a proposer.
+so it may include them in the next blocks \emph{LastValidation} if it's a proposer.
 If a peer has prevoted but has yet to precommit, or has precommitted, but has yet to go to the next round,
 it is sent prevotes or precommits, respectively.
 If a peer is catching up, it is sent the precommits for the committed block at its current height.
@@ -75,7 +75,7 @@ If a peer is catching up, it is sent the precommits for the committed block at i
 
 Chapter \ref{ch:tendermint} made little mention of transactions, 
 despite the purpose of a consensus algorithm being to order and execute transactions,
-as Tendermint operates on blocks on a time, and has no concern for particular transactions,
+as Tendermint operates on blocks on a time, and has no concern for individual transactions,
 so long as their checksum in the block is correct.
 
 Transactions are managed independently in an in-memory cache, 
@@ -93,7 +93,7 @@ which the node may not have had in its mempool.
 
 \section{Syncing the Blockchain}
 
-The consensus reactor provides a relatively slow means of synching with the latest state of the blockchain,
+The consensus reactor provides a relatively slow means of syncing with the latest state of the blockchain,
 as it was designed for real-time consensus,
 meaning peers wait to receive all information to commit a single block before worrying about the next block.
 To accomodate peers that may be more than just a few blocks behind, 
