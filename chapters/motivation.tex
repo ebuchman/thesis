@@ -10,12 +10,28 @@ The state machine is driven by a set of inputs, known as \emph{transactions},
 where each transaction may or may not, depending on its validity, cause a state transition and return a result.
 The state transition logic is governed by the state machine's state transition function,
 which maps a transaction and the current state to a new state and a return value.
-The state transition function is also sometimes referred to as \emph{application logic}, 
+The state transition function is also sometimes referred to as \emph{application logic}.
 
 It is the responsibility of the consensus protocol to order the transactions so that the resulting 
 \emph{transaction log} is replicated exactly on every node.
-Requiring that the state transition function be deterministic implies that 
+Using a deterministic state transition function implies that 
 every node will compute the same state given the same transaction log.
+
+A summary of the replicated state machine architecture is given in Figure \ref{fig:replicated_state_machine}.
+
+\begin{figure}[]
+	\includegraphics[width=\linewidth,height=\textheight,keepaspectratio]{figures/state_machine.png}
+    	\centering
+	\label{fig:replicated_state_machine}
+	\caption[Overview of replicated state machine architecture]{
+A replicated state machine replicates a transaction log and resulting state across multiple machines. 
+Transactions are received from the client, 
+run through the consensus protocol, 
+ordered in the transaction log,
+and executed against the state. 
+In the figure, each diamond represents a single machine, 
+with dotted lines representing communication between machines to carry out the consensus protocol for ordering transactions.}
+\end{figure}
 
 Tendermint was motivated from the desire to create a general purpose, high-performance, secure, and robust replicated state machine.
 
@@ -109,13 +125,21 @@ If the number of failures the system can tolerate is $f$, such systems must have
 Byzantine failures are more complicated. In a system of $2f+1$ processes, if $f$ are Byzantine, 
 they can co-ordinate to say arbitrary things to the other $f+1$ processes.
 For instance, suppose we are trying to agree on the value of a single bit, 
-and $f=1$, so we have $N=3$ processes, $A$, $B$, and $C$, where $C$ is Byzantine.
+and $f=1$, so we have $N=3$ processes, $A$, $B$, and $C$, where $C$ is Byzantine, as in Figure \ref{fig:byzantine}.
 $C$ can tell $A$ that the value is $0$ and tell $B$ that it's $1$. 
 If $A$ agrees that its $0$, and $B$ agrees that its $1$, then they will both think they have a majority and commit, 
 thereby violating the safety condition.
 Hence, the upper bound on faults tolerated by a Byzantine system is strictly lower than a non-Byzantine one.
 
-TODO: figure!
+\begin{figure}[]
+	\includegraphics[width=\linewidth,height=\textheight,keepaspectratio]{figures/byzantine.png}
+    	\centering
+	\label{fig:byzantine}
+	\caption[Byzantine nodes tell lies]{
+A Byzantine node, C, tells A one thing and B another, causing them to come to different conclusions about the network.
+Here, simple majority vote results in a violation of safety due to only a single Byzantine node.}
+\end{figure}
+
 
 In fact, it can be shown that the upper limit on $f$ for Byzantine faults is $f < N/3$ \cite{pease1980reaching}.
 Thus, to tolerate a single Byzantine process, we require at least $N=4$. 
