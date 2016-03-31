@@ -91,7 +91,7 @@ stopped, and restarted three seconds later.
 Experiments are run for validator set sizes doubling from 2 to 64, for varying values of TimeoutPropose.
 In each experiment, the block size is 2048.
 
-The results in Figure \ref{fig:exp_crash_failure} demonstrate that performance under this crash failure scenario drops by about 
+The results in Figure \ref{fig:exp:crash_failure} demonstrate that performance under this crash failure scenario drops by about 
 $50\%$, and that larger TimeoutPropose values help mediate latencies. While the average latency increases towards three seconds,
 the median is closer to one second, and latencies may run as high as ten seconds.
 
@@ -100,6 +100,13 @@ and delayed messages. A variety of heuristics exist, such as using pings,
 but in each case they require an assumption of some synchrony. 
 To evaluate performance in the face of network asynchrony, twenty percent of all messages are delayed an amount of time chosen uniformly 
 from one to ten seconds.
+
+\begin{figure}[]
+	Crash-fault latency statistics	
+	\input{figures/crash_tables}
+	\label{fig:exp:crash_failure}
+	\caption[Latency statistics under crash faults]{Every three seconds, a random $(N-1)/3$ validators were crashed, and restarted three seconds later. This crash-restart procedure continued for 200 blocks. Each table reports the minimum, maximum, average, median, and $95^{th}$ percentile of the block latencies, for varying values of the TimeoutPropose parameter.}
+\end{figure}
 
 
 \section{Byzantine Failures}
@@ -124,6 +131,16 @@ In particular, for this experiment, a byzantine validator makes the following ch
 \end{itemize}
 
 Taken together, these behaviours explicilty violate the double signing and locking rules. 
+
+\begin{figure}[]
+	Byzantine-fault latency statistics	
+	\input{figures/byz_tables}
+	\label{fig:exp:byz_failure}
+	\caption[Latency statistics under byzantine faults]{$(N-1)/3$ validators were set to be byzantine.
+Byzantine validators propose conflicting blocks and vote on any proposal as soon as they see it.
+Each table reports the minimum, maximum, average, median, and $95^{th}$ percentile of the block latencies, for varying values of the TimeoutPropose parameter.}
+\end{figure}
+
 
 \section{A real application: ErisDB}
 
