@@ -29,9 +29,11 @@ of Edsger Dijkstra on the mutual exclusion problem \cite{mutex}, and of Tony Hoa
 A host of concurrency problems with catchy names were popularized around this time,
 including the cigarette smokers problem \cite{cigarette_smokers}, where smokers sit around a table, 
 each with a different ingredient, and must successfully roll a full cigarettte,
-and the dinning philosophers problem \cite{dining_philosophers},
+the dinning philosophers problem \cite{dining_philosophers},
 where philosophers sitting around a table must take turns eating and thinking,
-but each can only eat while its neighnours are thinking.
+but each can only eat while its neighnours are thinking,
+and the two-generals or co-ordinated attack problem \cite{gettier},
+where two generals must co-ordinate from afar to attack an enemy city at the same time.
 
 These problems served to put the focus on synchronization primitives
 such as semaphores, mutexes, and communication channels,
@@ -128,46 +130,228 @@ as an atomic unit of work in a database system \cite{gray1981transaction}.
 That is, a transaction is either applied in full or not at all.
 
 Jim also introduced other classic features of modern databases,
-such as the principles of ACIDity (Atomicity, Consistency, Isolation, and Durability),
+such as the principles of Atomicity, Consistency, Isolation, and Durability, 
+which come part and parcel with the transaction concept \cite{gray1981transaction},
 and the use of write-ahead-logs, for logging transactions to disk before they are executed
-in order to recover from faults occuring during transaction execution.
+in order to recover from faults occuring during transaction execution \cite{gray1978notes}.
 
+In a distributed database setting, this work on transactions, atomicity, and consistency
+led to a series of approaches for database replication centered around the notion of an \emph{atomic commit},
+wherein a transaction is replicated atomically across all machines.
+These approaches are known as two-phase-commit \cite{gray1978notes}, and its non-blocking alternative,
+three-phase-commit \cite{skeen1983formal}.
 
-
-atomic commit, 2pc, 3pc, database replication
-transaction serializability (Eswar 76)
+Both two-phase and three-phase commit protocols work only in a synchronous setting,
+where crash failured can be detected, and utilize a co-ordinator process that serves as leader for the protocol.
 
 \subsection{Broadcast Protocols}
-reliable broadcast, atomic broadcast
+
+The problem of ordering a set of transactions in a distributed setting subject to faults has also been known as 
+the problem of \emph{total order broadcast} or \emph{atomic broadcast} \cite{defago2004total}.
+In particular, an atomic broadcast protocol is expected to satisfy the following properties:
+
+\begin{itemize}
+\item{Validity}: if a correct process broadcasts a message, it is eventually received.
+\item{Agreement}: if a process receives a message, then all correct processes eventually receive that message.
+\item{Integrity}: a message is received at most once by a process, and only if it was sent by another process.
+\item{Total Order}: if two messages are received by two processes, the messages are received in the same order.
+\end{itemize}
+
+Atomic broadcast is built above a simpler primitive, known as \emph{reliable broadcast}, 
+the difference being that atomic broadcast ensures the messages are totally ordered,
+while reliabale broadcast ensures only that the messages are delivered.
+That is, reliable broadcast satisfies all the above properties except the final one.
+A taxonomy and survey of solutions to the problem is provided in \cite{defago2004total}.
 
 \section{Byzantine}
-	\subsection{Byzantine Generals}
-	\subsection{Randomized Consensus}
-	\subsection{DLS}
-	\subsection{PBFT}
-		- pbft: pre-prepare, prepare, commit; view changes; lack of gaurantees.
-	\subsection{PBFT Derivatives} 
-		- pbft improvements
+Many fault tolerant protocols focus only on crash failures, as they are the most common,
+while much less attention has been given to the problem of potentially arbitrary, including malicious,
+behaviour of software. This more general problem is known as Byzantine Fault Tolerance.
+
+\subsection{Byzantine Generals}
+
+Lamport introduced the problem of Byzantine Fault Tolerance in \cite{pease1980reaching},
+but gave the problem its name in a later paper by making an analogy with the problem faced
+by the Byzantine army in co-ordinating to attack an enemy city \cite{lamport1982byzantine}.
+The army is composed of multiple divisions, each of which is led by a general.
+Communication between generals happens only via messenger.
+How can the generals agree on a common plan of action if one or some of the generals is a traitor?
+
+The original paper provides the first proof that to tolerate $f$ Byzantine faults,
+a system must have at least $3f+1$ nodes. 
+The intuition behind this result was depicted in \ref{fig:byzantine} and discussed 
+throughout Chapters \ref{ch:motivation} and \ref{ch:tendermint}.
+A number of algorithms are provided in both papers as the first solutions to the problem,
+though they are designed to work only in the synchronous case, where the absence of a message can be detected.
+
+\subsection{Randomized Consensus}
+
+Asynchronous Byzantine consensus saw its first solution in the form of the common coins
+introduced by Ben Or \cite{free-choice} and Rabin \cite{rabin1983randomized}.
+However, neither solution achieves optimal Byzantine fault tolerance of $3f+1$ machines for $f$ faults.
+Ben Or's solution requires $5f+1$ machines, while Rabin's requires $10t+1$ machines.
+The solution was iteratively improved to achieve optimal Byzantine agreement with low overhead \cite{feldman1988optimal,canetti1993fast,cachin2000random}.
+
+\subsection{Partial Synchrony}
+
+The next major advancement in BFT came in the form of the so called \emph{DLS} consensus algorithms,
+named after the authors Dwork, Lynch, and Stockmeyer \cite{DLS}.
+The innovation of DLS was to define a middle ground between synchrony and asynchrony called \emph{partial synchrony}.
+Recall from Chapter \ref{ch:motivation} that a synchrony assumption is one which states that messages 
+are received within some known, finite amount of time, 
+or that processor clocks only deviate from eachother by some finite number of ticks.
+The secret to partial synchrony is to suppose one of the following:
+
+\begin{itemize}
+\item{Messages are guaranteed to be delivered within some fixed but unknown amount of time.}
+\item{Messages are guaranteed to be delivered within some known amount of time, beginning an unknown amount of time in the future.}
+\end{itemize}
+
+The DLS algorithm proceeds via series of rounds, each of which is divided into \emph{trying} and \emph{lock-release} phases.
+Each round has a corresponding proposer, and processes can \emph{lock} on a value at a round if they think
+the proposer will propose that value.
+A round begins with processes gossiping the values they deem acceptable.
+The proposer will propose a value if it has heard from at least $N - f$ processes that the value is acceptable.
+Any process which receives the proposed value should lock on it, and send an acknowledgement message
+that it has done so.
+If the proposer receives acknowledgement from $f+1$ processes, it commits the value.
+
+Variations on the basic protocol are discussed for different combinations of assumptions,
+and many proofs are provided of its soundness.
+Despite its success, however, DLS algorithms were never widely adopted for BFT.
+Tendermint's original design was based on DLS, in particular the version which assumes
+a partially synchronous network but synchronous processor clocks.
+In practice, due to the use of protocols like the Network Time Protocol (NTP), 
+synchronized clocks may be a fair assumption.
+However, NTP is vulnerable to a number of attacks,
+and protocols which assume synchronous clocks can be slow to recover from crash faults.
+In the summer of 2015, the core Tendermint consensus protocol was redesigned to be more fully asynchronous,
+as described in \ref{ch:tendermint},
+and has thus come to more closely resemble another BFT algorithm,
+known as Practical Byzantine Fault Tolerance (PBFT).
+
+\subsection{PBFT}
+
+PBFT was introduced in 1999 \cite{pbft}, and was widely hailed as the first practical BFT algorithm,
+suitable for use in asynchronous networks,
+though it does in fact make weak synchrony assumptions which can be violated by a careful adversary \cite{honeybadger}.
+PBFT proceeds through a series of views, 
+where each view has a proposer, known as a primary,
+that is selected in round-robin order.
+The primary receives requests from clients,
+assigns them a sequence number, and broadcasts a signed \emph{pre-prepare}
+messages to the other processes containing the view and sequence numbers.
+Replicas accept the \emph{pre-prepare} message if they have not already accepted one for the same
+view and sequence numbers, assuming the message is for the current view and signed by the correct primary.
+
+Once a \emph{pre-prepare} is accepted, a replica broadcasts a signed \emph{prepare} message.
+A replica is said to be \emph{prepared} for a given client request when it has received $2f$ \emph{prepare}
+messages for that request, with the same view and sequence number.
+The combination of \emph{pre-prepare} and \emph{prepare} ensure a total order on the requests in a single view,
+according to their sequence number. 
+Once a replica is prepared, it broadcasts a signed \emph{commit} message,
+which is accepted so long as its properly signed and the view is correct.
+When a replica accepts a \emph{commit} message, it runs the client request against the state machine and returns the result to the client.
+
+PBFT employs an additional mechanism to facilitate view changes in the event the primary is faulty.
+Replicas maintain a timeout, which restarts every time they receive a new client request, 
+and terminates when a \emph{pre-prepare} is received for that request.
+If no \emph{pre-prepare} is received, the replica  times out, and triggers the view change protocol.
+View change is subtle and somewhat complicated as it requires consensus that the view should be changed, 
+and all client requests since the last commit must be brought into the new view.
+
+Tendermint side-steps these issues through the use of blocks and by changing proposers every block,
+allowing a proposer to be skipped using the same mechanism used to commit the proposed block.
+Furthermore, the use of blocks allows Tendermint to include the set of \emph{pre-commit} 
+messages from one block in the next block, removing the need for an explicit \emph{commit} message.
+
+\subsection{BFT Improvements} 
+
+Many improvements have been proposed for PBFT since it was published.
+Some of these focus on so-called \emph{optimistic execution}, 
+where transactions are executed before they are committed in order to provide a low-latency,
+optimistic reply to clients \cite{kotla2007zyzzyva,garcia2011efficient}.
+The trouble with these approaches is that the responsibilty of managing inconsistency is relegated to the client,
+while presumably the reason they used a consistent consensus protocol in the first place was to avoid that responsibility.
+Alternatively, this may be a useful approach in low-fault circumstance.
+The phenomenon is referred to as \emph{zero-conf transactions} in Bitcoin and is widely warned against,
+given Bitcoin's weak consistency guarantees.
+
+Others have focused on the possibility of running indepedent transactions concurrently to achieve higher throughputs \cite{kotla2004high}.
+This is the approach that has begun to be researched in the blockchain community, especially by Ethereum, in order to produce a scalable blockchain architecture.
 
 \section{Non-Byzantine}
-	\subsection{view stamped replication}
-	\subsection{paxos}
-	\subsection{zab}
-	\subsection{spanner}
-	\subsection{riak}
-	\subsection{raft} leaderelection, log replication, safety. subtleties. no bft
 
-\section{P2P}
-	napster, bittorent, kademlia, chord, tahoe-lafs, ipfs
-	boinc, seti, folding@home
+In parallel to the BFT algorithms, a number of non-BFT algorithms have emerged, and a 
+number of important highly available internet services have been built on top of them.
+
+\subsection{Paxos}
+
+It is often said in consensus science that there is only one consensus algorithm, and it is Paxos.
+This is on the one hand a statement of the significance of the Paxos algorithm to the field,
+and on the other a reflection on the universal foundation of consensus protocols,
+which is in every case ``Paxos-like''.
+
+Lamport introduced Paxos in the early nineties, though the article was not accepted for publication until 
+almost a decade later \cite{paxos}.
+Many have pointed out that the algorithm is actually quite similar to Viewstamped Replication,
+published in the late eighties \cite{oki1988viewstamped},
+and that the two represent independent discovery of the same protocol.
+
+The protocols are quite similar to PBFT, which came after them, 
+but require only $2f+1$ machines to tolerate $f$ faults as they are not BFT.
+Another similar protocol, the Zookeeper Atomic Broadcast protocol (ZAB) \cite{junqueria2011zab}
+was developed for the Apache Zookeeper distributed key-value store.
+The similarities and differences of each algorithm are illuminated in \cite{van2015vive}.
+
+\subsection{Raft} 
+
+Non-BFT consensus science received a major improvement with the introduction of Raft \cite{raft},
+which was designed from ground up to be \emph{understandable}, 
+and which even proved itself to be more understandable than Paxos through a user survey \cite{raft_thesis}.
+
+Raft is similar in spirit to Paxos and Viewstamped Replication, but it emphasizes replicating a transaction log, 
+rather than a single bit, and introduces randomization for more efficient leader elections.
+Furthermore, Raft's safety guarantees have been formally proven using the Coq proof assistant \cite{woos2016planning}
+and a framework built above Coq, called Verdi, for formally verifying distribtued systems \cite{wilcox2015verdi}.
 
 \section{Blockchain}
-	\subsection{bitcoin} Incentive incompatibility issues, attempts to scale, sidechains, lightning, seg-wit, Bitcoin-NG,
-	treeee signatures, ghost, etc.
-	\subsection{ethereum}
-	\subsection{proof of stake}
-	\subsection{juno, sieve}
-	\subsection{honeybadger}
+
+This thesis was motivated by the introduction of blockchain technology, which emerged in the form of Bitcoin,
+and has since seen many iterations.
+Few have succeeded in putting the blockchain in context of classical consensus science until recently \cite{vukolic11quest,cachin2016non,miller2016honey}.
+
+\subsection{Bitcoin} 
+
+Bitcoin was the first blockchain, introduced in \cite{bitcoin}.
+It solved the atomic broadcast problem in a public, adversarial setting through a clever use of economics.
+In particular, the order of transactions comes in blocks proposed by those who solve partial hash collisions,
+where the data being hashed is the block of transactions.
+Since computing partial hash collisions is expensive, requiring brute force search in a large space,
+the effort is subsidized by the issuance of a currency, known as bitcoins, with every block.
+The protocol has been wildly successful, with the currency achieving a market capitalization
+of roughly five billion dollars (USD), and with many clones of the original that have market capitalizations in the millions.
+
+However, Bitcoin is not without it's issues. A number of design flaws make the protocol cumbersome and difficult 
+for application developers to work with.
+Furthermore, a number of academic works have shed light on incentive incompatibilities in the protocol,
+weaking widley held assumptions about the protocol's security \cite{eyal2014majority,courtois2014subversive}.
+
+Numerous approaches have been proposed to improve Bitcoin,
+including those that change the nature of the partial hash collision function \cite{miller2015nonoutsourceable},
+those that change the nature of leadership election in the protocol to imrpove many features of the economics and underlying performance \cite{eyal2015bitcoin}
+and those that aim to augment the protocol in an effort to achieve scalability \cite{back2014enabling,poon2015bitcoin}.
+
+\subsection{Ethereum}
+
+Ethereum was introduced by Vitalik Buterin as a solution the proliferation of cryptocurrencies that followed bitcoin
+with different varieties of features \cite{buterin2013ethereum}.
+
+\subsection{Proof-of-Stake}
+
+\subsection{HyperLedger}
+
+\subsection{HoneyBadgerBFT}
 
 
 \section{Conclusion}
