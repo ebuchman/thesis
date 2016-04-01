@@ -50,7 +50,7 @@ and permitting only transactions which spend a certain fee to reside in the memp
 In a more generalized system, like Tendermint, where there is not necessarily a currency to pay fees with,
 the system must establish stricter filtering rules and rely on more intelligent clients to resubmit transactions that are dropped.
 The situation is even more subtle, however, because the ruleset for filtering transactions in the mempool must be a function of the application itself.
-Thus, TMSP includes an additional message type, CheckTx, 
+Hence the \emph{CheclTx} message of TMSP,
 which the mempool can use to run a transaction against a transient state of the application to determine if it should be kept around or dropped.
 
 Handling the transient state is non-trivial, and is something left to the application developer, 
@@ -60,17 +60,16 @@ which may occur in highly concurrent settings where the validity of one transact
 
 \section{Semantics}
 
-Tendermint's core consensus algorithm provides only \emph{at-least-once semantics}, which means ... ,
-but can lead to problems where the same transaction may be applied to the state twice!
+Tendermint's core consensus algorithm provides only \emph{at-least-once semantics}, 
+which is to say the system is subject to replay attacks, 
+where the same transaction can be committed many times.
 However, many users and applications expect stronger gaurantees from a database system.
 The flexibility of the Tendermint system leaves the strictness of these semantics up to the application developer.
-By utilizing the CheckTx message, and by adequately managing state in the application, 
+By utilizing the \emph{CheckTx} message, and by adequately managing state in the application, 
 application developers can provide the database semantics that suit them and their users' needs.
-
-For instance, serializabikity ....
-
-Modules for incrementing client nonces (establishing forms of sessions) can be used to manage.
-Raft uses client sessions tracked in the transaction log itself, to provide linearizeable semantics.
+For instance, as discussed in Chapter \ref{ch:apps}, 
+using an account based system with sequence numbers mitigates replay attacks,
+and changes the semantics from \emph{at-least-once} to \emph{exactly-once}.
 
 \section{Reads} 
 
@@ -95,3 +94,5 @@ A light client proof is a path through a merkle tree that allows a client to ver
 The state's merkle root hash is included in the block header, such that it is sufficient for a client to have only the latest header to verify any component of the state.
 Of course, to know that the header itself is valid, they must have either validated the whole chain, 
 or kept up-to-date with validator set changes only and rely on economic gaurantees that the state transitions were correct (see LATER).
+
+
