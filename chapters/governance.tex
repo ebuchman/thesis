@@ -7,14 +7,15 @@ and recovering from crisis, have not yet been discussed.
 
 This chapter proposes an approach to these problems that formalizes the role of governance in a consensus system.
 As validator sets come to encompass more decentralized sets of agents, competent governance systems 
-for maintaining the network will be increasingly paramount to success.
+for maintaining the network will be increasingly paramount to the network's success.
 
 \section{Governmint}
 
 The basic functionality of governance is to filter proposals for action, typically through a form of voting.
 The most basic implementation of governance as software is a module that enables users to make proposals,
-vote on them, and tally the votes. Most proposals may be related to things outside the reach of the software.
-Others might be within the reach of the software, and hence potentially executable.
+vote on them, and tally the votes. 
+Proposals may be programmatic, in which case they may execute automatically following a successful vote,
+or they may be non-programmatic, in which case their execution is a manual excercise.
 
 To enable certain actions in Tendermint, such as changing the validator set or upgrading the software,
 a governance module has been implemented, called Governmint.
@@ -22,23 +23,130 @@ Governmint is a minimum viable governance application with support for multiple 
 each of which can vote internally on proposals, some of which may result in programmatic execution of actions,
 like changing the validator set, or upgrading governmint itself (for instance to add new proposal types or other voting mechanisms).
 
+The system utilizes digital signatures to authenticate voters, 
+and majority rule with weighted voters, where weights are determined ahead of time.
+
 \section{Validator Set Changes}
 
-Validator set changes are a critical component of real world consensus algorithms that many previous approaches have failed to specify, 
+Validator set changes are a critical component of real world consensus algorithms that many previous approaches have failed to specify 
 or have been left as a black art. 
-Raft took pains to expound a sound protocol for validator set changes which required the change pass through consensus, as would any other transaction.
-Tendermint takes a similar approach. 
-A change to the validator set comes in the form of a transaction committed in a block that instructs the application to inform the consensus engine of the change.
+Raft took pains to expound a sound protocol for validator set changes which required the change pass through consensus, 
+using a new message type.
+Tendermint takes a similar approach, though it is standardized through the TMSP interface using the \emph{EndBlock} message,
+which is run after all the \emph{AppendTx} messages, but before \emph{Commit}.
+If a transaction, or set of transactions, is included in a block with the intended effect of updating the validator set,
+the application can return a list of validators to update by specifying their public key and new voting power 
+in response to the \emph{EndBlock} message.
+Validators can be removed by setting their voting power to zero.
+This provides a generic means for applications to update the validator set without having to specify transaction types.
 
-This mechanism is implemented as a new TMSP message, called \emph{EndBlock}, which is run at the end of every block, after all the AppendTx,
-but before the Commit. The EndBlock message gives the application the opportunity to make certain state machine transitions at the same frequency the blocks are committed.
-The response value for the EndBlock message contains a list of validators, some of whom are new and being added, some of whom are known and being removed.
-The validator set is thus updated for the next block.
+If the block at height $H$ returns an updated validator set, 
+then the block at height $H+1$ will reflect the update.
+Note, however, that the \emph{LastValidation} in block $H+1$
+must utilize the validator set as it was at $H$, 
+since it may contain signatures from a validator that was removed.
 
-Note concerns about who the next proposer is, edge cases, etc.
+Changes to voting power are applied for $H+1$ such that the next proposer 
+is effected by the update. 
+In particular, the validator that otherwise should have been the next proposer may be removed.
+The round robin algorithm should handle this gracefully, simply moving on to the next proposer in line.
+Since the same block is replicated on at least two-thirds of validators, 
+and the round robin is deterministic,
+they will all make the same update and expect the same next proposer.
 
 \section{Software Upgrades}
 
+Governmint can also be used as a natural means for negotiating software upgrades on a possibly decentralized network.
+Software upgrades on the public internet are a notoriously challenging operation,
+requiring careful planning to maintain backwards compatibility for users that don't upgrade right away,
+and to not upset loyal users of the software by introducing bugs, removing features, adding complexity, or,
+perhaps worst of all, updating automatically without permission.
+
+The challenege of upgrading a decentralized consensus system is made especially apparent with Bitcoin.
+While Ethereum has already managed a successful, non-backwards-compatible upgrade, 
+due to its strong leadership and unified community,
+Bitcoin has been unable to make some needed upgrades,
+despite a plethora of software engineering ills,
+on account of the lack of strong leadership and a viciously divided community.
+
+Upgrades to blockchains are typically differentiated as being \emph{soft forks} or \emph{hard forks},
+on account of the scope of the changes.
+Soft forks are meant to be backwards compatible, and to use degrees of freedom in the protocol that may be ignored
+by users who have not upgraded, but which provide new features to users which do.
+Hard forks, on the other hand, are non-backwards compatible upgrades that,
+in Bitcoin's case, may cause violations of safety, 
+
+and in Tendermint's case, cause the system to halt.
+
+To cope, developers of the Bitcoin software have rolled out a series of softforks which validators can vote for
+by signalling in new blocks. 
+Once a certain threshold of validators are signalling for the update,
+it automatically takes effect across the network, at least for users with a version of the software supporting the update.
+The utility of the Bitcoin system has grown tremendously on account of these softforks, 
+and is exepected to continue to do so on account of upcomming ones.
+Interestingly, the failure of the community to successfully hard fork the software has
+one the one hand raised concerns about the long term stability of the system,
+and on the other triggered excitement and inspiration about the systems ungovernability,
+and hence resilience to corrupt governance.
+
+While there are many reasons to take the latter stance, 
+given the overwhelming government corruption apparent in the world today,
+cryptography and distributed consensus provide a new set of tools that enables a degree
+of transparency and accountability otherwise not imagineable in the paper-pen-handshake world of modern governments,
+nor even the digital world of the traditional web, which suffers tremendously from sufficiently robust authentication systems.
+
+In a system using Governmint, developers would be identifiable entities on the blockchain,
+and may submit proposals for software upgrades. 
+The mechanic is quite similar to that of a Pull Request on Github, 
+only it is integrated into a live running system,
+and the agreement passes through the consensus protocol.
+Clients should be written with configurable update parameters, 
+so they can specify whether to update automatically or to require they are notified first.
+
+Of course, any software upgrade which is not thoroughly vetted could pose a danger to the system,
+and a conservative approach to upgrades should be taken in general.
+
 \section{Crisis Recovery}
 
+In the event of a crisis, such as a fork in the transaction log,
+or the system coming to a halt, 
+a traditional consensus system provides little or no guarantees,
+and typically requires manual intervention.
+
+Tendermint assures that those responsible for violating safety can be identified,
+but requires a robust, censorship resistant publishing medium in which evidence can be published 
+so the culprits can be determined. 
+The phase in which evidence is published 
+
+For instance, suppose a third or more validators double-sign, 
+causing two blocks to be committed at height $H$.
+the honest validators can determine who double-signed by gossipping the votes.
+At this point, they cannot use the consensus protocol, because the basic fault assumptions have been violated.
+One approach is for each validator to wait until they have all the evidence for every vote at $H$.
+This implies strong assumptions about network connectivity and availability during the crisis,
+which, if it cannot be provided by the p2p network, may require validators use alternative means, 
+such as social media and high availability services, to communicate evidence.
+A new blockchain can be started by the full set of remaining honest nodes, 
+once at least two-thirds of them have gathered all the evidence.
+
+Alternative approaches to crisis recovery may utilize Governmint, 
+for instance to recover from the permenant crash failure of a third or more validators.
+However, such approaches must be carefully thought out, 
+as they may undermine the safety guarantees of the underlying protocol.
+We leave investigation of these methods to future work, 
+other than to note the importance of the socio-economic context a blockchain is embedded in to understand its ability to recover from crisis.
+
+Regardless of how crisis recovery proceeds, its success depends on integration with clients.
+If clients do not accept the new blockchain, the service is effectively offline.
+Thus, clients must be aware of the rules used by the particular blockchain to recover.
+In the cases of safety violation described above, they must also gather the evidence,
+determine which validators to remove, and compute the new state with the remaining validators.
+In the case of the liveness violation, they must keep up with Governmint.
+
 \section{Conclusion}
+
+Governance is a critical element of a distributed consensus system, 
+though competent governance systems remain poorly understood.
+Tendermint provides governance as a TMSP module called Governmint,
+which aims to facilitate increased experimentation in software-based governance for distributed systems.
+
