@@ -26,11 +26,11 @@ See github.com/tendermint/go-wire for more details.
 Consensus algorithms such as tendermint use three primary cryptographic primitives: digital signatures, hash functions, and authenticated encryption.
 While many implementations exist of these primitives, 
 choosing a cryptography library for enterprise software is no trivial task, given especially the profound insecurity of the world's most used security library 
-(i.e. OpenSSL \ref{openssl_insecurity}).
+(i.e. OpenSSL \cite{openssl_insecurity}).
 
 Contributing to the insecurity of cryptographic systems is the potential deliberate undermining of their security properties by government agencies 
 such as the NSA, who, in collaboration with the NIST, have designed and standardized many of the most popular cryptographic algorithms in use today. 
-Given the apparent unlawfulness of such agencies, as made evident, for instance, by Edward Snowden \ref{snowden}, 
+Given the apparent unlawfulness of such agencies, as made evident, for instance, by Edward Snowden \cite{snowden}, 
 many in the cryptography community prefer to use algorithms designed in an open, academic environment.
 Tendermint, similarly, uses only such algorithms.
 
@@ -39,7 +39,7 @@ It is used in the merkle trees of transactions and validator signatures, and for
 Go provides an implemention in its extended library. RIPEMD160 is also used as one of two hashing functions by Bitcoin in the derrivation of addresses from public keys.
 
 As it's digital signature scheme, Tendermint uses Schnorr signatures over the ED25519 elliptic curve. 
-ED25519 was designed in the open by Dan Bernstein \ref{ed25519}, with the intention of being high performance and easy to implement without introducing vulnerabilities.
+ED25519 was designed in the open by Dan Bernstein \cite{ed25519}, with the intention of being high performance and easy to implement without introducing vulnerabilities.
 Bernstein also introduced NaCl, a high level library for doing authenticated encryption that uses the ED25519 curve. Tendermint uses the implemention provided by Go in its extended library.
 
 \section{Merkle Hash Tree}
@@ -51,13 +51,13 @@ For any leaf in the tree, a trail of hashes leading from it to the root serves a
 This makes merkle trees particularly useful for p2p file-sharing applications, where pieces of a large file can be verified as belonging to the file without
 having all the pieces. Tendermint uses this mechanism to gossip block parts on the network, where the root hash is included in the block proposal.
 
-Tendermint also provides a self-balancing, merklized binary tree, modelled after the AVL tree \ref{avl}, as a tmsp service called merkleeyes.
+Tendermint also provides a self-balancing, merklized binary tree, modelled after the AVL tree \cite{avl}, as a tmsp service called merkleeyes.
 The IAVL tree can be used for storing state of dynamic size, allowing lookups, inserts, and removals in logarithmic time.
 
 \section{RPC}
 
 Tendermint exposes HTTP API's for querying the blockchain, network information, and consensus state, and for broadcasting transactions.
-The same API is available via three methods: GET requests using URI encoded paramters, POST requests using the JSONRPC standard \ref{jsonrpc}, 
+The same API is available via three methods: GET requests using URI encoded paramters, POST requests using the JSONRPC standard \cite{jsonrpc}, 
 and websockets using the JSONRPC standard. Websockets are the preferred method for high transaction throughput, 
 and are necessary for receiving events.
 

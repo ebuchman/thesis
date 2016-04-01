@@ -159,7 +159,7 @@ Transactions must be digitally signed using ED25519 signatures to be valid, and 
 For this experiment, a simple contract with two methods, get and set, is deployed to the virtual machine.
 The contract is written in solidity, a high-level, javascript-like language developed by Ethereum which compiles down to EVM byte code.
 The application state is preloaded with 1000 accounts, and transactions are signed by private keys drawn uniformly from those accounts.
-Keys and values for the get and set methods are fixed at 32-bytes each, to reflect the native architecture of the EVM \ref{ethereum_yellow_paper}.
+Keys and values for the get and set methods are fixed at 32-bytes each, to reflect the native architecture of the EVM \cite{ethereum_yellow_paper}.
 Transactions are generated for a read/write load of 10/90 (i.e. 90\% of transaction call the set method).
 
 \section{Related Work}

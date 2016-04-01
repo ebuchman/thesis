@@ -3,7 +3,7 @@
 
 Byzantine consensus has a rich history that spans cryptography, distributed computing, and economics,
 but the socio-economic context for its products to be deployed in industry has not existed until recently,
-at least not outside of traditionally critical real-time systems like air-craft control \ref{draper_lab}.
+at least not outside of traditionally critical real-time systems like air-craft control \cite{draper_lab}.
 On the one hand, the invention of Bitcoin and the coining of the term "blockchain" popularized the notion
 of a distributed ledger not controlled by a single entity, using cryptography and aligned economic incentives to 
 preserve safety in the face of Byzantine faults.
@@ -24,12 +24,12 @@ in attempts to effectively handle multiple concurrent message streams in a trans
 or multiple trains on the same set of tracks.
 
 Academic work on the subject appears to have been launched officially by the seminal work
-of Edsger Dijkstra on the mutual exclusion problem \ref{mutex}, and of Tony Hoare on models for describing communicating processes.\ref{csp}, 
+of Edsger Dijkstra on the mutual exclusion problem \cite{mutex}, and of Tony Hoare on models for describing communicating processes.\cite{csp}, 
 
 A host of concurrency problems with catchy names were popularized around this time,
-including the cigarette smokers problem \ref{cigarette_smokers}, where smokers sit around a table, 
+including the cigarette smokers problem \cite{cigarette_smokers}, where smokers sit around a table, 
 each with a different ingredient, and must successfully roll a full cigarettte,
-and the dinning philosophers problem \ref{dining_philosophers},
+and the dinning philosophers problem \cite{dining_philosophers},
 where philosophers sitting around a table must take turns eating and thinking,
 but each can only eat while its neighnours are thinking.
 
@@ -40,9 +40,9 @@ and would lay the ground for a number of advancements over the coming decades.
 \subsection{Faulty Things}
 
 Fault tolerant distributed computing effectively emerged in the late seventies 
-out of the effort to utilize microprocessors for aircraft control, resulting in a number of early systems \ref{sift,ftmp}.
-Today, it is standard for NASA to conduct BFT research \ref{miner2004unified}, 
-and for commercial aircraft to use BFT systems, such as the SAFEbus \ref{hoyme1993safebus}.
+out of the effort to utilize microprocessors for aircraft control, resulting in a number of early systems \cite{sift,ftmp}.
+Today, it is standard for NASA to conduct BFT research \cite{miner2004unified}, 
+and for commercial aircraft to use BFT systems, such as the SAFEbus \cite{hoyme1993safebus}.
 
 Many systems, however, do not require tolerance to Byzantine faults as they are run in controlled environments,
 where there is presumably no malicious behaviour and the code is written correctly.
@@ -53,8 +53,8 @@ whether it be a break in a network link, power failure in a server rack, or a de
 \subsection{Clocks}
 
 The problem of distribtued consensus, however, did not formally emerge until Leslie Lemport introduced it in his 
-"Time, clocks, and the ordering of events in a distribetud system" \ref{clocks}.
-In that work, Lamport demonstrated how a partial ordering of events emerges from a definition of causality based on communication \ref{clocks}.
+"Time, clocks, and the ordering of events in a distribetud system" \cite{clocks}.
+In that work, Lamport demonstrated how a partial ordering of events emerges from a definition of causality based on communication \cite{clocks}.
 That is, events occuring in concurrent processes, between communication events, 
 effectively happen at the same time, as they cannot influence one another.
 Thus, a system of logical clocks can be defined based on the individual sequential processes 
@@ -79,13 +79,13 @@ known amount of time.
 Similarly, synchronous processors are one whose clocks stay within some fixed, 
 known number of ticks of eachother.
 In the early days of consensus research, the distinction was not well characterized, 
-though the close relationship between asynchrony and crash failures is apparent even in \ref{clocks}.
+though the close relationship between asynchrony and crash failures is apparent even in \cite{clocks}.
 Lamports original consensus algorithm is able to operate in asynchronous environments, 
 so long as all messages are eventually delivered from each process.
 However, the algorithm is obviously not fault tolerant as the failure of just a single process can halt the algorithm forever.
 
 The intuition behind a single failure thwarting a consensus protocol was given formal ground by Fischer, Lynch, and Patterson,
-who proved the impossibility of deterministic distribtued consensus in asynchronous environments if even a single process can fail \ref{flp}.
+who proved the impossibility of deterministic distribtued consensus in asynchronous environments if even a single process can fail \cite{flp}.
 The result does not apply to synchronous contexts, 
 as assumptions about network synchrony allow processors to detect failures using timeouts, 
 such that if a process does not respond within some given amount of time it is assumed to have crashed.
@@ -99,11 +99,11 @@ consensus fails if a single processes crashes at that opportune moment.
 
 The FLP result became something of a warning bell to distributed systems scientists, 
 establishing a clear impossibility result at the heart of the emerging field.
-Later, the approach would be generalized to derrive many more impossibility results \ref{impossibility},
+Later, the approach would be generalized to derrive many more impossibility results \cite{impossibility},
 and significant academic effort would be expended on relaxing either the synchrony or determinism assumptions to derrive algorithms which circumvent the result.
 
 In particular, in a short note, 
-Ben Or demonstrated how an algorithm which includes a simple amount of non-determinism can circumvent the FLP result \ref{free-choice}.
+Ben Or demonstrated how an algorithm which includes a simple amount of non-determinism can circumvent the FLP result \cite{free-choice}.
 The algorithm is tolerant to faults of up to half of the processes in asynchronous environments.
 Essentially, in trying to reach consensus on the value of a single bit, 
 if a process does not receive votes from a majority for the same value, it randomly changes the value it votes for the next round.
@@ -114,8 +114,8 @@ due to the resemblance of the procedure to communally flipping a coin to obtain 
 The problem with Ben Or's common coin is that, in the asynchronous case,
 the algorithm requires a number of rounds exponential in the number of validators.
 This was quickly rectified in a follow up by Rabin, who showed how a common coin
-could be constructed using secret sharing, as pioneered by Shamir \ref{shamir1979share},
-to achieve consensus in a fixed number of rounds \ref{rabin1983randomized}.
+could be constructed using secret sharing, as pioneered by Shamir \cite{shamir1979share},
+to achieve consensus in a fixed number of rounds \cite{rabin1983randomized}.
 The approach is useful for BFT as well, and is discussed more fully in that context in a later section.
 
 \subsection{Transaction Processing}
@@ -124,7 +124,7 @@ Parallel to the development of fault tolerant consensus algorithms was the emerg
 While they did not at first use the consensus protocols being developed, 
 they built atop the growing body of work in distributed computing and concurrency.
 In particular is the seminal work of Jim Gray, who introduced the term \emph{transaction} 
-as an atomic unit of work in a database system \ref{gray1981transaction}. 
+as an atomic unit of work in a database system \cite{gray1981transaction}. 
 That is, a transaction is either applied in full or not at all.
 
 Jim also introduced other classic features of modern databases,

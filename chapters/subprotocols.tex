@@ -14,7 +14,7 @@ by implementing components as relatively independent reactors that are multiplex
 On startup, each Tendermint node receives an initial list of peers to dial.
 For each peer, a node maintains a persistent TCP connection over which multiple subprotocols are multiplexed in a rate-limited fashion.
 Messages are serialized into a compact binary representation to be sent on the wire, and 
-connections are encrypted via an authenticated encryption protocol \ref{authenticated_encryption}.
+connections are encrypted via an authenticated encryption protocol \cite{authenticated_encryption}.
 
 Each remaining section of this chapter describes a separate reactor that is multiplexed over each peer connection.
 An additional peer exchange reactor can be run which allows nodes to request other peer addresses from each other and keep track of peers they have connected to before,
@@ -30,7 +30,7 @@ and which they don't already have.
 For each peer, a node maintains two routines which continuously check for new information to send the peer,
 namely, proposals and votes. 
 Information should be gossipped in a ``rarest first'' manner in order to maximize 
-gossip efficiency and minimize the chance that some information becomes unavailable \ref{rarest_first}
+gossip efficiency and minimize the chance that some information becomes unavailable \cite{rarest_first}
 
 
 \subsection{Block Data}
