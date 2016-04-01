@@ -6,7 +6,7 @@ It gaurantees safety so long as less than a third of validators are Byzantine,
 and gaurantees liveness similarly, so long as network messages are eventually delivered,
 with weak assumptions about network synchrony for gossipping proposals.
 In this section, we evaluate Tendermint's fault tolerance empirically by injecting 
-crash faults, Byzantine faults, and arbitrary network delays.
+crash faults and Byzantine faults.
 The goal is to show that the implementation of Tendermint consensus does not compromise safety in the event of such failures,
 that it suffers minimum performance impact, and that it is quick to recover.
 
@@ -19,69 +19,73 @@ where the number of validators ranges, in multiples of 2, from 2 to 64.
 \section{Overview}
 
 The experiments in this chapter can be reproduced using the repository at https://github.com/tendermint/network\_testing.
-All experiments take place in docker containers running on Amazon EC2 instances of type t2.medium.
+All experiments take place in docker containers running on \emph{Amazon EC2} instances of type \emph{t2.medium}.
 Instances are distribtued across seven datacenters, spanning five continents (Figure \ref{fig:experiments_overview}).
 A second docker container, responsible for generating transactions, is run on each instance.
 Transactions are 250 bytes in size (a reasonable size for including a few 32/64 byte hashes and signatures),
 where the leading bytes are big endian encoded integers representing transaction number and validator index for that instance,
-the trailing 16 bytes are randomly draw from the operating system, and the intermediate bytes are just zeroes.
+the trailing 16 bytes are randomly drawn from the operating system, and the intermediate bytes are just zeroes.
 
-A network monitoring tool is used to maintain active websocket connections to each validator's tendermint rpc server,
+A network monitoring tool is used to maintain active websocket connections to each validator's Tendermint rpc server,
 and uses its local time when it receives a new committed block for the first time as the official commit time for that block.
 Experiments were first run without the monitor by copying all data from validators for analysis and using the local time
 of the 2/3th validator committing a block as the commit time. 
 Using the monitor is much faster, ammenable to online monitoring, and was found to not impact the results 
 so long as only block header information (and not the whole block) was passed over the websockets.
 
-Docker containers on remote machines are easily managed using the docker-machine tool, 
-and the network\_testing repository provides some tools which take advantage of go's concurrency features
+Docker containers on remote machines are easily managed using the \emph{docker-machine} tool, 
+and the network\_testing repository provides some tools which take advantage of Go's concurrency features
 to perform actions on docker containers on many remote machines at once.
 
 Each validator connects directly to each other to avoid confounding effects of network topology.
 
-For experiments involving crash faults or byzantine behaviour, the number of faulty nodes is given by $N_{fault} = (N-1)/3$.
+For experiments involving crash faults or byzantine behaviour, the number of faulty nodes is given by $N_{fault} = (N-1)/3$,
+where $N$ is the total number of validators.
 
 \section{Throughput and Latency}
 
 This section describes experiments which measure the raw performance of tendermint in non-adversarial conditions,
 where all nodes are online and synced and no accomodations are made for asynchrony.
 That is, an artifically high TimeoutPropose is used (10 seconds), and all other timeout parameters are set to 1 millisecond.
-Additionally, all mempool activity is disabled (no gossip transactions or rechecking them after commits),
+Additionally, all mempool activity is disabled (no gossiping of transactions or rechecking them after commits),
 and an in-process nil application is used to bypass TMSP.
 This serves as a control scenario for evaluating the performance drop in the face of faults and/or asynchrony.
 
 Experiments are run on validator set sizes doubling in size from two to 64, and on block sizes doubling from 128 to 32768.
 Transactions are preloaded on each validator. Each experiment is run for 16 blocks. 
 
-As can be seen in Figure \ref{fig:exp:throughput_latency}, 
+
+\begin{figure}[]
+	\includegraphics[width=\linewidth,height=\textheight,keepaspectratio]{figures/throughput/latency-throughput.png}
+    	\centering
+	\caption[Latency-throughput in non-faulty network]{Latency-throughput tradeoff on nodes distributed around the globe}
+	\label{fig:exp_throughput_latency}
+\end{figure}
+
+As can be seen in Figure \ref{fig:exp_throughput_latency}, 
 tendermint easily handles thousands of transactions per second with around one second block latency,
 though there appears to be a capacity limit at around ten thousand transactions per second.
 A block of 16384 transactions is about 4 MB in size, and analysis of network bandwidth shows each connection
 easily reaching upwards of 20MB/s, though analysis of the logs shows that at high block sizes, 
 validators can spend upwards of two seconds waiting for block parts.
-Transaction throughput as a function of blocksize is shown in \ref{fig:exp:throughput_blocksize}
+Transaction throughput as a function of blocksize is shown in Figure \ref{fig:exp:throughput_blocksize}
 Thus it is likely that a more efficient block-part broadcast algorithm may alleviate this bottleneck.
 Additionally, experiments in single data centers, as shown in Figure \ref{fig:exp:single},
 demonstrate that much higher throughputs are possible. We leave further investigations of this capacity limit to future work.
 
 
 \begin{figure}[]
-	\includegraphics[width=\linewidth,height=\textheight,keepaspectratio]{figures/throughput/latency-throughput.png}
-    	\centering
-	\label{fig:exp:throughput_latency}
-	\caption[Latency-throughput in non-faulty network]{Latency-throughput tradeoff on nodes distributed around the globe}
-\end{figure}
-\begin{figure}[]
 	\includegraphics[width=\linewidth,height=\textheight,keepaspectratio]{figures/throughput/throughput-blocksize.png}
     	\centering
-	\label{fig:exp:throughput_blocksize}
 	\caption[Throughput-blocksize in non-faulty network]{Larger blocks incur diminishing returns in transaction throughput, with an ultimate capacity at around 10,000 txs/s}
+	\label{fig:exp:throughput_blocksize}
 \end{figure}
+
 \begin{figure}[]
 	\includegraphics[width=\linewidth,height=\textheight,keepaspectratio]{figures/single_datacenter/latency-throughput.png}
     	\centering
-	\label{fig:exp:single}
 	\caption[Latency-throughput in non-faulty network, single data center]{Latency-throughput tradeoff in a single datacenter shows tendermint is capable of tens of thousands of transactions per second}
+	\label{fig:exp:single}
 \end{figure}
 
 \section{Crash Failures and Asynchrony}
@@ -104,8 +108,8 @@ from one to ten seconds.
 \begin{figure}[]
 	Crash-fault latency statistics	
 	\input{figures/crash_tables}
-	\label{fig:exp:crash_failure}
 	\caption[Latency statistics under crash faults]{Every three seconds, a random $(N-1)/3$ validators were crashed, and restarted three seconds later. This crash-restart procedure continued for 200 blocks. Each table reports the minimum, maximum, average, median, and $95^{th}$ percentile of the block latencies, for varying values of the TimeoutPropose parameter.}
+	\label{fig:exp:crash_failure}
 \end{figure}
 
 
@@ -135,10 +139,10 @@ Taken together, these behaviours explicilty violate the double signing and locki
 \begin{figure}[]
 	Byzantine-fault latency statistics	
 	\input{figures/byz_tables}
-	\label{fig:exp:byz_failure}
 	\caption[Latency statistics under byzantine faults]{$(N-1)/3$ validators were set to be byzantine.
 Byzantine validators propose conflicting blocks and vote on any proposal as soon as they see it.
 Each table reports the minimum, maximum, average, median, and $95^{th}$ percentile of the block latencies, for varying values of the TimeoutPropose parameter.}
+	\label{fig:exp:byz_failure}
 \end{figure}
 
 
