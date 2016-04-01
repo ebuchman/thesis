@@ -344,15 +344,81 @@ and those that aim to augment the protocol in an effort to achieve scalability \
 
 \subsection{Ethereum}
 
-Ethereum was introduced by Vitalik Buterin as a solution the proliferation of cryptocurrencies that followed bitcoin
+Ethereum was introduced by Vitalik Buterin as a solution to the proliferation of cryptocurrencies that followed Bitcoin,
 with different varieties of features \cite{buterin2013ethereum}.
+Ethereum sought a more pure mandate: to have no features.
+Instead, Ethereum provides a Turing complete virtual machine, the Ethereum Virtual Machine (EVM), for transaction execution above the consensus,
+and provides a means for users to upload code to the EVM that can execute upon the processing of future transactions.
+So-called \emph{smart contracts} \cite{} offer the promise of automatically enforced execution of code in a public setting, 
+using strong cryptography and BFT replication. 
+The Ethereum project was succesful in one of the largest crowdfunds to date, over \$18 million USD, 
+and the market capitalization of its native token, ether, which is used to pay for transaction execution and code uploads,
+has since reached \$1 billion USD.
+
+Ethereum currently uses a modified form of Proof-of-Work called Greedy Heaviest Observed Sub Tree (GHOST) \cite{ghost},
+but is planning to move to a more secure economic consensus algorithm modelled around Proof of Stake.
 
 \subsection{Proof-of-Stake}
+...
 
 \subsection{HyperLedger}
 
+The success of Bitcoin, Ethereum, and other cryptocurrencies has inspired an increasingly diverse cross section of society,
+including regulators, bankers, business executives, auditors, account managers, logisticians, and more.
+In particular, a recent project under the Linux Foundation, spearheaded by IBM and a new blockchain-based company called Digital Asset Holdings (DAH), 
+seeks to provide a unified blockchain architecture for industrial applications. The project is called HyperLedger,
+after a company with the same name, thought provided a rudimentar implementation of a PBFT-based blockchain, was acquired by DAH.
+
+Two contributions to the HyperLedger initiaitve are particularly relevant.
+The first is the combination of Juno and Hopper by the team at JP Morgan.
+Juno is an implementation of Tangora, a BFT version of Raft \cite{tangora},
+Hopper is a new virtual machine design,
+based on linear logic \cite{girard1987linear} and dependent type systems \cite{bove2009dependent},
+that aims to provide an execution environment for smart contract systems equipped with a formal logic
+for making and proving statements about the state of the system, or the behaviour of a contract.
+Both Juno and Hopper are written in Haskell.
+
+The other project is the OpenBlockchain by IBM, a PBFT-based blockchain written in Go,
+sporting an application state that supports the deployment of arbitrary docker containers.
+Since an arbitrary docker container may container non-determinism, their PBFT implementation
+was modified with additional steps to preserve safety in the face of possiblu non-deterministic execution \cite{cachin2016non}
+
+Another relevent contribution from IBM is a recent review paper, similar in spirit to this chapter \cite{vukolic11quest}.
+
 \subsection{HoneyBadgerBFT}
 
+All Paxos like consensus protocols, including Raft, PBFT, and Tendermint, 
+despite functioning well in asynchronous environments, are not strictly asynchronous.
+This is because each one uses a timeout somewhere in the protocol, typically to detect faulty leaders.
+On the other hand, randomized consensus protocols like the common coin offer solutions that work in 
+a fully asynchronous context, with no timeouts.
+
+All consensus protocols rely one way or another on the eventual delivery of messages.
+The assumption of asynchrony simply states that there is no upper bound on when a message will be delivered.
+Most of the time, networks act synchronous, in the sense that most messages are delivered within some bound.
+The difference between a fully asynchronous protocol and one with timeouts is that 
+an asynchronous protocol can \emph{always make progress} during times when the network is behaving synchronously.
+This point is illustrated clearly in \cite{honeybadger}, which introduces HoneyBadgerBFT, 
+the first fully asynchronous blockchain design, based on common coin consensus.
+
+An adversary with arbitrary control over the network, 
+and the ability to crash any one node at a time,
+can cause PBFT to halt for arbitrarily long.
+This can be done by crashing the current primary/proposer/leader during times when the network is synchronous,
+and bringing it back for periods of asynchrony.
+The network still eventually delivers messages, with some average synchrony,
+but with precise timing can stop all system progress.
+The experiment is carried out on PBFT directly in \cite{honeybadger}, and would work similarly against Tendermint.
+
+The solution to this problem is HoneyBadgerBFT, a fully asynchronous atomic broadcast protocol \cite{honeybadger}.
+HoneyBadgerBFT utilizes a series of cryptographic techniques, including secret sharing, erasure coding, 
+and threshold signatures to design a highly performant asynchronous BFT consensus protocol.
+However, it requires a trusted dealer for initial setup and for validator changes, 
+and it relies on relatively new cryptographic assumptions about the hardness of certain problems that have 
+yet to withstand the test of time.
 
 \section{Conclusion}
 
+Tendermint emerges from and complements a rich history of consensus science which spans the gamut of synchrony and fault-tolerance assumptions. 
+The invention of the blockchain and of Raft have rekindled the fire in consensus research and spawned a new generation 
+of protocols and software for co-ordination over the internet.
