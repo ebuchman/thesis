@@ -10,37 +10,65 @@ machine that operates on batches, or blocks, of transactions at a time.
 The algorithm is summarized in Figure \ref{fig:tendermint_summary}, 
 its key properties as a replicated state machine are summarized in Figure \ref{fig:tendermint_guarantees}, 
 and its key security properties are summarized in Figure \ref{fig:tendermint_security}.
+The key data types are given in Figure \ref{
 
+\lstset{xleftmargin=-1in}
+\floatstyle{plain}
+\restylefloat{figure}
 \begin{figure}[]
-	\underline{Consensus State}
-		\begin{description}
-			\item[ValidatorSet:] ordered list of validators. There is at most one valid proposer for every term.
-			\item[LastCommit:] set of $+\frac{2}{3}$ precommits for last block. Empty for first block.
-			\item[Height:] strictly increasing from 0. One unique block per height.
-			\item[Round:] resets to zero at each height. Accommodates asynchrony. 
-			\item[Proposal:] signed proposal of block to commit at next height.
-			\item[VoteSet:] set of votes from validators on proposals (or nil) for any round at the current height.
-			\item[LockedBlock:] last block precommitted.
-			\item[LockedRound:] first round the LockedBlock was precommitted by this validator.
-		\end{description}
+\vspace*{-1.5in}
+	\begin{lstlisting}
 
-	\underline{Proposal Message}
-		\begin{description}
-			\item[Broadcast by next proposer in round-robin.]
-			\item[Only one valid proposer (and message) at each round.]
-			\item[Arguments:] Height, Round, BlockHash, Signature
-		\end{description}
+// Proposal for a block at a given height and round, signed by the proposer
+type Proposal struct {
+  Height           int                     
+  Round            int                     
+  BlockHash        []byte                  
+  Signature        crypto.SignatureEd25519  // 64 bytes
+}
 
-	\underline{Vote Message}
-		\begin{description}
-			\item[Broadcast by validators in response to proposals and other votes.]
-			\item[Two types: prevote and precommit.]
-			\item[Arguments:] Height, Round, Type, BlockHash, Signature
-		\end{description}
+// Represents a prevote or precommit vote from validators for consensus.
+type Vote struct {
+  Height           int                     
+  Round            int                     
+  Type             byte                     // 1 for prevote, 2 for precommit
+  BlockHash        []byte                   // empty if vote is nil
+  Signature        crypto.SignatureEd25519  // 64 bytes
+}
 
+// A vote message, gossiped to peers
+type VoteMessage struct {
+  ValidatorIndex int
+  Vote           *types.Vote
+}
+
+// A proposal message, gossiped to peers
+type ProposalMessage struct {
+  Proposal *types.Proposal
+}
+
+// Current local state of a validator's consensus machine
+type RoundState struct {
+  Height             int // Height we are working on
+  Round              int
+  Step               RoundStepType
+  CommitTime         time.Time // Subjective time we received +2/3 precommits 
+  Validators         *types.ValidatorSet
+  Proposal           *types.Proposal
+  ProposalBlock      *types.Block
+  LockedRound        int
+  LockedBlock        *types.Block
+  Votes              *HeightVoteSet // Votes from all rounds at this height
+  CommitRound        int            //
+  LastCommit         *types.VoteSet // Last precommits at Height-1
+  LastValidators     *types.ValidatorSet
+}
+	\end{lstlisting}
 	\caption[Summary of tendermint protocol]{Summary of data types in the Tendermint protocol}
-	\label{fig:tendermint_summary}
+	\label{fig:tendermint_types}
 \end{figure}
+\floatstyle{boxed}
+\restylefloat{figure}
 
 
 \begin{figure}[]
