@@ -386,7 +386,7 @@ Here we sketch a brief proof of Tendermint's safety guarantee, namely,
 the State Machine Safety property, that for two validators to apply different blocks at the same height
 requires at least one-third of valdiators to be Byzantine.
 
-Referring back to the safety guarantees in \fig{tendermint_guarantees}, 
+Referring back to the safety guarantees in Figure \ref{fig:tendermint_guarantees}, 
 note that Proposer Safety, Validator Append Only, and Proposer Completeness are trivially satisfied by the protocol, 
 in particular through the use of a round-robin for the proposer selection and hash links to connect blocks,
 and by not allowing blocks to be overwritten.
