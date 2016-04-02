@@ -54,6 +54,22 @@ Since the same block is replicated on at least two-thirds of validators,
 and the round robin is deterministic,
 they will all make the same update and expect the same next proposer.
 
+\section{Punishing Byzantine Validators}
+
+One of the salient points of Bitcoin's design is its incentive comptability, 
+in so far as the goal of the protocol was to incentivize validators to behave correctly
+by rewarding them. While this makes sense in the context of Bitcoin's conensus protocol,
+a superior incentive may be to provide strong dis-incentives, such that validators
+have real \emph{skin-in-the-game} \cite{taleb2014skin}.
+
+Disincentives can be achieved in Tendermint using an approach first proposed by Vitalik Buterin \cite{slasher}.
+In essence, to validators must make a security deposit in order to participate in consensus.
+In the event that they are found to double-sign proposals or votes, 
+other validators can publish evidence of the transgression in the form of a transaction, 
+which the application state can use to change the validator set by removing the transgressor, burning its deposit.
+This has the effect of associated an economic cost with Byzantine behaviour, 
+and enables one to estimate the cost of violating safety by turning a third or more of the validators Byzantine.
+
 \section{Software Upgrades}
 
 Governmint can also be used as a natural means for negotiating software upgrades on a possibly decentralized network.

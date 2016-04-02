@@ -10,7 +10,7 @@ machine that operates on batches, or blocks, of transactions at a time.
 The algorithm is summarized in Figure \ref{fig:tendermint_summary}, 
 its key properties as a replicated state machine are summarized in Figure \ref{fig:tendermint_guarantees}, 
 and its key security properties are summarized in Figure \ref{fig:tendermint_security}.
-The key data types are given in Figure \ref{
+The key data types are given in Figure \ref{fig:tendermint_types}.
 
 \lstset{xleftmargin=-1in}
 \floatstyle{plain}
@@ -64,7 +64,7 @@ type RoundState struct {
   LastValidators     *types.ValidatorSet
 }
 	\end{lstlisting}
-	\caption[Summary of tendermint protocol]{Summary of data types in the Tendermint protocol}
+	\caption[Summary of Tendermint protocol data types]{Summary of data types in the Tendermint protocol}
 	\label{fig:tendermint_types}
 \end{figure}
 \floatstyle{boxed}
@@ -88,7 +88,7 @@ type RoundState struct {
 		\end{description}
 		Violation of any of the Broadcast Rules is detectable and should be punished.
 
-	\caption[Summary of tendermint protocol rules]{Summary of rules in the tendermint protocol. 
+	\caption[Summary of Tendermint protocol rules]{Summary of rules in the tendermint protocol. 
 $+\frac{2}{3}$ validators is short for ``more than two-thirds of validators''}
 
 	\label{fig:tendermint_summary}
@@ -104,8 +104,6 @@ $+\frac{2}{3}$ validators is short for ``more than two-thirds of validators''}
 		There is at most one valid proposer for every term.
 	  \item[Validator Append Only] \hfill \\
 		A validator never overwrites or deletes blocks it has committed.
-	  \item[Block Matching] \hfill \\
-		If two validators contain a block at the same height, it is the same block.
 	  \item[Proposer Completeness] \hfill \\
 		If a block is committed at a given height, then that block will be present in the chain of all proposers at greater heights.
 	  \item[State Machine Safety] \hfill \\
@@ -201,10 +199,10 @@ type Header struct {
 	NumTxs             int           
 	LastBlockHash      []byte        
 	LastBlockParts     PartSetHeader 
-	LastValidationHash []byte	 // Merkle root hash of LastValidation
-	DataHash           []byte        // Merkle root hash of transaction 
-	ValidatorsHash     []byte        // Merkle root hash of validator set
-	AppHash            []byte        // state Merkle root from previous block's transactions
+	LastValidationHash []byte   // Merkle root hash of LastValidation
+	DataHash           []byte   // Merkle root hash of transaction 
+	ValidatorsHash     []byte   // Merkle root hash of validator set
+	AppHash            []byte   // state Merkle root from previous block's transactions
 }
 
 type PartSetHeader struct {
@@ -385,7 +383,14 @@ A complete description of Tendermint consensus is given in Figure \ref{fig:tende
 \section{Safety}
 
 Here we sketch a brief proof of Tendermint's safety guarantee, namely, 
-that a violation of safety requires at least one-third of valdiators to be Byzantine.
+the State Machine Safety property, that for two validators to apply different blocks at the same height
+requires at least one-third of valdiators to be Byzantine.
+
+Referring back to the safety guarantees in \fig{tendermint_guarantees}, 
+note that Proposer Safety, Validator Append Only, and Proposer Completeness are trivially satisfied by the protocol, 
+in particular through the use of a round-robin for the proposer selection and hash links to connect blocks,
+and by not allowing blocks to be overwritten.
+
 Suppose that two blocks are committed at the same height.
 Let the blocks be $blockA$ and $blockB$, and let them be committed in rounds $R_A$ and $R_B$, respectively, with $R_A < R_B$.
 Since each commit requires more than two-thirds of validators, 
@@ -403,6 +408,12 @@ they must observe a polka for $blockB$ at round $R_P$, where $R_A < R_P <= R_B$.
 A polka requires more than two-thirds of validators to prevote for the same block.
 Since more than two-thirds locked on $blockA$ at round $R_A$, 
 a polka for a different block at a higher round requires more than a third to violate Prevote-the-Lock.
+Given Proposer Safety, Validator Append Only, and Proposer Completenes,
+this guarantees State Machine Safety assuming less than one-third of validators are Byzantine.
+
+In future work, we aim to provide a more formal proof of Tendermint's correctness 
+and the ability to identify validators which violated locking rules.
+
 
 %
 %- Proposer Safety condition implied by protocol

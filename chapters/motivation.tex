@@ -145,18 +145,8 @@ In fact, it can be shown that the upper limit on $f$ for Byzantine faults is $f 
 Thus, to tolerate a single Byzantine process, we require at least $N=4$. 
 Then the faulty process can't split the vote the way it was able to when $N=3$.
 
-A number of approaches have been proposed for BFT consensus in the academic literature.
-The first generally accepted solution was the DLS algorithm, named after its inventors \cite{dls}, and described in \ref{fig:dls}.
-DLS introduced an assumption of partial synchrony as a compromise between synchronous and asynchronous networks.
-Partial synchrony can be defined one of two ways: 
-messages are guaranteed to be delivered within some fixed but unknown amount of time,
-or they will be delivered within some known amount of time, beginning an unknown amount of time in the future.
-This assumption allowed them to circumvent the FLP result, yielding a consensus algorithm that was also optimally Byzantine tolerant.
-The original Tendermint was effectively a modified version of the DLS algorithm, inheriting its partial synchrony approach.
-The problem, however, was that in practice, recovering from crash faults could be extremely slow.
-
 In 1999, Castro and Liskov published Practical Byzantine Fault Tolerance \cite{pbft}, or \emph{PBFT}, 
-which provided the first optimal Byzantine fault tolerant algorithm in weakly synchronous networks.
+which provided the first optimal Byzantine fault tolerant algorithm in asynchronous networks.
 It set a new precedent for the practicality of Byzantine fault tolerance in industrial systems by being capable 
 of processing tens of thousands of transactions per second.
 Despite this success, Byzantine fault tolerance was still considered expensive and largely unnecessary, 
