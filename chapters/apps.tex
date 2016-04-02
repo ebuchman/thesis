@@ -13,7 +13,7 @@ Applications on the internet can in general be characterized as containing two f
 \begin{itemize}
 \item{Engine: handles core security, networking, replication
     functionality. This is typically a webserver, like Apache or Nginx, when powering a web app, or a consensus algorithm when powering a distributed application.}
-\item{State-machine: the actual application code that processes transactions received from the engine  and updates internal state.}
+\item{State-machine: the actual application logic that processes transactions received from the engine and updates internal state.}
 \end{itemize}
 
 This separation of concerns enables application developers to write state-machines in any programming language representing arbitrary applications,
@@ -40,8 +40,67 @@ Tendermint aims to provide the fundamental interface and consensus engine upon w
 \section{Tendermint Socket Protocol}
 
 The Tendermint Socket Protocol (TMSP) defines the core interface by which the consensus engine communicates with the application state machine.
-The interface definition consists of a number of message types, specified using Google's Protobuf \cite{protobuf}, 
-that are length-prefixed and transmitted over a socket \ref{fig:tmsp}.
+The interface definition consists of a number of message types, specified using Google's Protocol Buffers \cite{protobuf}, 
+that are length-prefixed and transmitted over a socket. 
+A list of message types, there arguments, return values, and purpose is given in \ref{fig:tmsp_msgs},
+and an overview of the architecture and message flow is shown in \ref{fig:tmsp}.
+
+\begin{figure}[]
+    	\centering
+\begin{verbatim}
+
+type Application interface {
+	// Return application info
+	Info() (info string)
+
+	// Set application option
+	SetOption(key string, value string) (log string)
+
+	// Append a tx
+	AppendTx(tx []byte) Result
+
+	// Validate a tx for the mempool
+	CheckTx(tx []byte) Result
+
+	// Return the application Merkle root hash
+	Commit() Result
+
+	// Query for state
+	Query(query []byte) Result
+
+	// Signals the beginning of a block
+	BeginBlock(height uint64) 
+
+	// Signals the end of a block
+	// validators: changed validators from app to TendermintCore
+	EndBlock(height uint64) (validators []*Validator)
+}
+
+type CodeType int32
+
+type Result struct {
+	Code CodeType
+	Data []byte
+	Log  string // Can be non-deterministic
+}
+
+type Validator struct {
+	PubKey []byte 
+	Power  uint64 
+}
+\end{verbatim}
+	\label{fig:tmsp_msgs}
+	\caption[TMSP Message Types]{
+The TMSP application interface as defined in Golang.
+TMSP messages are defined using Google's Protocol Buffers, and their serialized form is length prefixed before 
+being sent over the TMSP socket. 
+Return values include a \emph{Code}, similar to an HTTP Status Code, representing any errors,
+and $0$ is used to indicate no error.
+Messages are buffered client side until a \emph{Flush} message is sent,
+at which point all messages are transmitted. While the server design is asynchronous, message responses must be correctly ordered and match their request.
+}
+\end{figure}
+
 
 \begin{figure}[]
 	\includegraphics[width=\linewidth,height=\textheight,keepaspectratio]{figures/tmsp.png}
@@ -197,9 +256,11 @@ where each user has a public key and an account with the balance for that public
 The account also contains a sequence number, which is equal to the number of transactions sent by the account.
 Transactions can send funds from the account if they include the correct sequence number
 and are signed by the correct private key.
-Without the sequence number, the system would be susceptible to replay attacks,
+Without the sequence number, the system would be susceptible to replay attacks \cite{replay},
 where a signed transaction debiting an account could be replayed, 
 causing the debit to occur multiple times.
+Furthermore, to prevent replay attacks in a multi-chain environment, 
+transaction signatures should include a network or blockchain identifier.
 
 An application supporting a currency has naturally more logic than a simple key-value store.
 In particular, certain transactions are distinctly invalid, 

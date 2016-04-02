@@ -80,14 +80,14 @@ so long as their checksum in the block is correct.
 
 Transactions are managed independently in an in-memory cache, 
 which, following Bitcoin, has come to be known as the \emph{mempool}.
-Transactions are validated when they are received and, if valid, 
+Transactions are validated by the application logic when they are received and, if valid, 
 added to the mempool and gossiped using an ordered multicast algorithm.
 A node maintains a routine for each peer which ensures that transactions 
 in the mempool are sent to the peer in the same order in which they were processed by the node.
 
 Proposers reap transactions from the ordered list in the mempool for new block proposals.
 Once a block is committed, all transactions included in the block are removed from the mempool,
-and the remaining transactions are re-validated,
+and the remaining transactions are re-validated by the application logic,
 as their validity may have changed on account of other transactions being committed, 
 which the node may not have had in its mempool.
 
