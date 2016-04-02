@@ -26,11 +26,11 @@ See github.com/tendermint/go-wire for more details.
 Consensus algorithms such as tendermint use three primary cryptographic primitives: digital signatures, hash functions, and authenticated encryption.
 While many implementations exist of these primitives, 
 choosing a cryptography library for enterprise software is no trivial task, given especially the profound insecurity of the world's most used security library 
-(i.e. OpenSSL \cite{openssl_insecurity}).
+(i.e. OpenSSL \cite{openssl}).
 
 Contributing to the insecurity of cryptographic systems is the potential deliberate undermining of their security properties by government agencies 
 such as the NSA, who, in collaboration with the NIST, have designed and standardized many of the most popular cryptographic algorithms in use today. 
-Given the apparent unlawfulness of such agencies, as made evident, for instance, by Edward Snowden \cite{snowden}, 
+Given the apparent unlawfulness of such agencies, as made evident, for instance, by Edward Snowden,
 many in the cryptography community prefer to use algorithms designed in an open, academic environment.
 Tendermint, similarly, uses only such algorithms.
 
@@ -47,7 +47,7 @@ Bernstein also introduced NaCl, a high level library for doing authenticated enc
 Merkle trees function much like other tree based data-structures, 
 with the additional feature that it is possible to produce a proof of membership of a key in the tree that is logarithmic in the size of the tree.
 This is done by recursively concatenating and hashing keys in pairs until only a single hash is left, the root hash of the tree.
-For any leaf in the tree, a trail of hashes leading from it to the root serves as proof of its membership \ref{fig:Merkletree}.
+For any leaf in the tree, a trail of hashes leading from it to the root serves as proof of its membership.
 This makes Merkle trees particularly useful for p2p file-sharing applications, where pieces of a large file can be verified as belonging to the file without
 having all the pieces. Tendermint uses this mechanism to gossip block parts on the network, where the root hash is included in the block proposal.
 

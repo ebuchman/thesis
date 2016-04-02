@@ -153,7 +153,7 @@ On the other, compilers are being built to translate possibly non-deterministic 
 
 If determinism is critical for preserving safety, termination of transaction execution is critical for preserving liveness.
 It is, however, not in general possible to determine whether a given program halts for even a single input, let alone all of them,
-a problem known as the Halting Problem \cite{halting}.
+a problem known as the Halting Problem \cite{halting, davis1958computability}.
 
 Ethereum's virtual machine solves the problem by \emph{metering}, that is, charging for each operation in the execution.
 This way, a transaction is guaranteed to terminate when the sender runs out of funds.

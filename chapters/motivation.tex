@@ -100,7 +100,7 @@ Raft is much simpler to understand than Paxos.
 It has seen tremendous adoption in the open source community, 
 with implementations in virtually ever major language \cite{raft.github.io},
 and use as the backbone in major projects, 
-including CoreOs's distributed Linux distribution \cite{coreos_raft} and the open source time-series database InfluxDB \cite{influxdb_raft}.
+including CoreOs's distributed Linux distribution \cite{coreos_raft} and the open source time-series database InfluxDB \cite{influxdb,hashicorp_raft}.
 
 Raft's major divergent design decisions from Paxos was to focus on the transaction-log first, rather than a single bit,
 and to allow a leader to persist in committing transactions until he goes down, 

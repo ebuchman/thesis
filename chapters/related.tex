@@ -300,7 +300,7 @@ and that the two represent independent discovery of the same protocol.
 
 The protocols are quite similar to PBFT, which came after them, 
 but require only $2f+1$ machines to tolerate $f$ faults as they are not BFT.
-Another similar protocol, the Zookeeper Atomic Broadcast protocol (ZAB) \cite{junqueria2011zab}
+Another similar protocol, the Zookeeper Atomic Broadcast protocol (ZAB) \cite{junqueira2011zab}
 was developed for the Apache Zookeeper distributed key-value store.
 The similarities and differences of each algorithm are illuminated in \cite{van2015vive}.
 
@@ -319,7 +319,7 @@ and a framework built above Coq, called Verdi, for formally verifying distribute
 
 This thesis was motivated by the introduction of blockchain technology, which emerged in the form of Bitcoin,
 and has since seen many iterations.
-Few have succeeded in putting the blockchain in context of classical consensus science until recently \cite{vukolic11quest,cachin2016non,miller2016honey}.
+Few have succeeded in putting the blockchain in context of classical consensus science until recently \cite{vukolic11quest,cachin2016non,honeybadger}.
 
 \subsection{Bitcoin} 
 
@@ -371,7 +371,7 @@ after a company with the same name, thought provided a rudimentary implementatio
 
 Two contributions to the HyperLedger initiative are particularly relevant.
 The first is the combination of Juno and Hopper by the team at JP Morgan.
-Juno is an implementation of Tangora, a BFT version of Raft \cite{tangora},
+Juno is an implementation of Tangaroa, a BFT version of Raft \cite{tangaroa},
 Hopper is a new virtual machine design,
 based on linear logic \cite{girard1987linear} and dependent type systems \cite{bove2009dependent},
 that aims to provide an execution environment for smart contract systems equipped with a formal logic
