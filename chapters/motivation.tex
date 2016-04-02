@@ -110,14 +110,14 @@ though the major advantage of blockchains is the ability to tolerate a different
 
 \section{Byzantine Fault Tolerance}
 
-Blockchains have been described as "trust machines" \cite{economist_blockchains} on account of the way they reduce counter party risk through the decentralization of responsibility over a shared database.
+Blockchains have been described as ``trust machines'' \cite{economist_blockchains} on account of the way they reduce counter party risk through the decentralization of responsibility over a shared database.
 Bitcoin, in particular, is noted for its ability to withstand attacks and malicious behaviour by any of the participants. 
 Traditionally, consensus protocols tolerant of malicious behaviour were known as Byzantine Fault Tolerant (BFT) consensus protocols.
 The term Byzantine was used due to the similarity of the problem to that faced by generals of the Byzantine army attempting to co-ordinate themselves to attack Rome using only messengers,
 where one of the generals may be a traitor \cite{lamport1982Byzantine}.
 
 In a crash fault, a process simply halts. In a Byzantine fault, it can behave arbitrarily.
-Crash faults are easier to handle, as no process can "lie" to another process.
+Crash faults are easier to handle, as no process can \emph{lie} to another process.
 Systems which only tolerate crash faults can operate via simple majority rule, 
 and therefore typically tolerate simultaneous failure of up to half of the system.
 If the number of failures the system can tolerate is $f$, such systems must have at least $2f+1$ processes.

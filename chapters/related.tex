@@ -7,7 +7,7 @@ at least not outside of traditionally critical real-time systems like air-craft 
 On the one hand, the invention of Bitcoin and the coining of the term ``blockchain'' popularized the notion
 of a distributed ledger not controlled by a single entity, using cryptography and aligned economic incentives to 
 preserve safety in the face of Byzantine faults.
-On the other, the continued commoditization of servers, in the form of "The Cloud", and the invention of Raft, 
+On the other, the continued commoditization of servers, in the form of ``The Cloud'', and the invention of Raft, 
 have popularized distributed computing in mainstream developer culture, 
 and brought renewed attention to distributed consensus algorithms as co-ordination hubs in large-scale deployments. 
 
@@ -110,7 +110,7 @@ The algorithm is tolerant to faults of up to half of the processes in asynchrono
 Essentially, in trying to reach consensus on the value of a single bit, 
 if a process does not receive votes from a majority for the same value, it randomly changes the value it votes for the next round.
 With everyone changing values, eventually more than half of them will vote the same value.
-This approach came to be known as a "common coin", 
+This approach came to be known as a \emph{common coin},
 due to the resemblance of the procedure to communally flipping a coin to obtain a shared value.
 
 The problem with Ben Or's common coin is that, in the asynchronous case,
