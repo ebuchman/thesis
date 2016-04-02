@@ -20,9 +20,9 @@ where the number of validators ranges, in multiples of 2, from 2 to 64.
 
 The experiments in this chapter can be reproduced using the repository at https://github.com/tendermint/network\_testing.
 All experiments take place in docker containers running on \emph{Amazon EC2} instances of type \emph{t2.medium}.
-Instances are distribtued across seven datacenters, spanning five continents (Figure \ref{fig:experiments_overview}).
+Instances are distribtued across seven datacenters, spanning five continents.
 A second docker container, responsible for generating transactions, is run on each instance.
-Transactions are 250 bytes in size (a reasonable size for including a few 32/64 byte hashes and signatures),
+Transactions are 250 bytes in size (a reasonable size for including a few 32 or 64 byte hashes and signatures),
 where the leading bytes are big endian encoded integers representing transaction number and validator index for that instance,
 the trailing 16 bytes are randomly drawn from the operating system, and the intermediate bytes are just zeroes.
 
@@ -68,7 +68,7 @@ though there appears to be a capacity limit at around ten thousand transactions 
 A block of 16384 transactions is about 4 MB in size, and analysis of network bandwidth shows each connection
 easily reaching upwards of 20MB/s, though analysis of the logs shows that at high block sizes, 
 validators can spend upwards of two seconds waiting for block parts.
-Transaction throughput as a function of blocksize is shown in Figure \ref{fig:exp:throughput_blocksize}
+Transaction throughput as a function of blocksize is shown in Figure \ref{fig:exp:throughput_blocksize}.
 Thus it is likely that a more efficient block-part broadcast algorithm may alleviate this bottleneck.
 Additionally, experiments in single data centers, as shown in Figure \ref{fig:exp:single},
 demonstrate that much higher throughputs are possible. We leave further investigations of this capacity limit to future work.
@@ -88,45 +88,40 @@ demonstrate that much higher throughputs are possible. We leave further investig
 	\label{fig:exp:single}
 \end{figure}
 
-\section{Crash Failures and Asynchrony}
+\section{Crash Failures}
 
-To evaluate the performance due to crash failures, every three seconds $N_{fault}$ validators are randomly selected,
+To evaluate the performance of a network subject to crash failures, every three seconds $N_{fault}$ validators are randomly selected,
 stopped, and restarted three seconds later.
-Experiments are run for validator set sizes doubling from 2 to 64, for varying values of TimeoutPropose.
+Experiments are run for validator set sizes doubling from 2 to 32, for varying values of TimeoutPropose.
 In each experiment, the block size is 2048.
 
 The results in Figure \ref{fig:exp:crash_failure} demonstrate that performance under this crash failure scenario drops by about 
-$50\%$, and that larger TimeoutPropose values help mediate latencies. While the average latency increases towards three seconds,
-the median is closer to one second, and latencies may run as high as ten seconds.
+$50\%$, and that larger TimeoutPropose values help mediate latencies. While the average latency increases to about two seconds,
+the median is closer to one second, and latencies may run as high as ten or twenty seconds.
 
+
+\ifx
 Crash failures are closely related to asynchrony, as it can be difficult to distinguish between a crashed node
 and delayed messages. A variety of heuristics exist, such as using pings, 
 but in each case they require an assumption of some synchrony. 
 To evaluate performance in the face of network asynchrony, twenty percent of all messages are delayed an amount of time chosen uniformly 
 from one to ten seconds.
+\fi
 
 \begin{figure}[]
-	Crash-fault latency statistics	
+	Crash-fault latency statistics	\\\\
 	\input{figures/crash_tables}
-	\caption[Latency statistics under crash faults]{Every three seconds, a random $(N-1)/3$ validators were crashed, and restarted three seconds later. This crash-restart procedure continued for 200 blocks. Each table reports the minimum, maximum, average, median, and $95^{th}$ percentile of the block latencies, for varying values of the TimeoutPropose parameter.}
+	\caption[Latency statistics under crash faults]{Every three seconds, a random $N_{fault}$ validators were crashed, and restarted three seconds later. This crash-restart procedure continued for 200 blocks. Each table reports the minimum, maximum, average, median, and $95^{th}$ percentile of the block latencies, for varying values of the TimeoutPropose parameter.}
 	\label{fig:exp:crash_failure}
 \end{figure}
 
 
 \section{Byzantine Failures}
 
-Since its infeasible to capture every instance of arbitrary behaviour,
-a few implementations are provided which cover some important cases, namely:
-network fuzzing, double signing proposals or votes, and violating locking rules.
-
-\subsection{Network fuzzing}
-
-To simulate network fuzzing, $N_{fault}$ validators randomly corrupt 25\% of the bytes in 10\% of the messages they send.
-
-\subsection{Double signing}
-
-To simulate a more determined byzantine adversary, the consensus state machine is augmented to allow explicit byzantine behaviour.
-In particular, for this experiment, a byzantine validator makes the following changes.
+Since it is infeasible to capture every instance of arbitrary behaviour,
+a single implementation is provided which covers some important cases.
+The consensus state machine is augmented to allow explicit byzantine behaviour,
+by making the following changes:
 
 \begin{itemize}
 \item{Conflicting proposals: during its time to propose, a byzantine validator signs two conflicting proposals and broadcasts each, along with a prevote and precommit, to separate halves of its connected peers.} 
@@ -135,17 +130,22 @@ In particular, for this experiment, a byzantine validator makes the following ch
 \end{itemize}
 
 Taken together, these behaviours explicilty violate the double signing and locking rules. 
+Despite these faults, which would cause many systems to fail completely and immediately,
+Tendermint maintains respectable latencies, in some cases better and in others worse than crash faults.
 
 \begin{figure}[]
-	Byzantine-fault latency statistics	
+	Byzantine-fault latency statistics \\\\
 	\input{figures/byz_tables}
-	\caption[Latency statistics under byzantine faults]{$(N-1)/3$ validators were set to be byzantine.
+	\caption[Latency statistics under byzantine faults]{$N_{fault}$ validators were set to be byzantine.
 Byzantine validators propose conflicting blocks and vote on any proposal as soon as they see it.
 Each table reports the minimum, maximum, average, median, and $95^{th}$ percentile of the block latencies, for varying values of the TimeoutPropose parameter.}
 	\label{fig:exp:byz_failure}
 \end{figure}
 
 
+
+
+\ifx
 \section{A real application: ErisDB}
 
 The experiments presented so far have been artificial to the extent that transactions incur no processing logic.
@@ -162,4 +162,29 @@ The application state is preloaded with 1000 accounts, and transactions are sign
 Keys and values for the get and set methods are fixed at 32-bytes each, to reflect the native architecture of the EVM \cite{ethereum_yellow_paper}.
 Transactions are generated for a read/write load of 10/90 (i.e. 90\% of transaction call the set method).
 
+\fi
+
 \section{Related Work}
+
+The experiments in this chapter were modelled after those in \cite{honeybadger},
+which benchmarks the performance of a PBFT implementation and a new randomized BFT protocol called HoneyBadgerBFT.
+In their results, PBFT achieves over 15,000 transactions per second on four nodes,
+but decays exponentially as the number of nodes increases, while HoneyBadgerBFT attains roughly even performance
+of between 10,000 and 15,000 transactions per second.
+Block latencies in HoneyBadgerBFT, however, are much higher, 
+closer to 10 seconds for validator sets of size 8, 16, and 32, and even more for larger ones.
+
+The author is not aware of any throughput experiments in the face of persistent crash or Byzantine failures,
+like those presented here.
+
+\section{Conclusion}
+
+The implementation of Tendermint written by the author and Jae Kwon easily achieves 
+thousands of transactions per second on up to 64 nodes on machines distributed around the globe, 
+with latencies mostly in the one to two second range.
+This is highly competitive with other solutions, and especially with the current state of blockchains,
+with Bitcoin, for instance, capping out at around 7 transactions per second.
+Furthermore, our implementation is robust to both crash faults and deliberate Byzantine faults,
+being able to maintain over a thousand transactions per second in the face of either.
+
+
