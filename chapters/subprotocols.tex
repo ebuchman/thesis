@@ -25,11 +25,11 @@ in order to stay connected to some minimum number of other peers.
 The consensus reactor wraps the consensus state machine, 
 and ensures each node broadcasts to all peers its current state every time it changes.
 In this way, each node keeps track of the consensus state of all its peers, 
-allowing it to optimize the gossipping of messages to only send peers information they need at the very moment,
+allowing it to optimize the gossiping of messages to only send peers information they need at the very moment,
 and which they don't already have.
 For each peer, a node maintains two routines which continuously check for new information to send the peer,
 namely, proposals and votes. 
-Information should be gossipped in a ``rarest first'' manner in order to maximize 
+Information should be gossiped in a ``rarest first'' manner in order to maximize 
 gossip efficiency and minimize the chance that some information becomes unavailable \cite{rarest_first}
 
 
@@ -37,23 +37,23 @@ gossip efficiency and minimize the chance that some information becomes unavaila
 In Chapter \ref{ch:tendermint}, it was assumed that proposal messages include the block.
 However, since blocks emerge from a single source and can be quite large, 
 this puts undue pressure on the block proposer to upload the data to all other nodes;
-blocks can be disseminated much more quickly if they are split into parts and gossipped.
+blocks can be disseminated much more quickly if they are split into parts and gossiped.
 
-A common approach to securely gossipping data, as popularized by various p2p protocols \cite{bittorrent,libswift}, 
-is to use a merkle tree \cite{merkle1987digital},
+A common approach to securely gossiping data, as popularized by various p2p protocols \cite{bittorrent,libswift}, 
+is to use a Merkle tree \cite{Merkle1987digital},
 allowing each piece of the data to be accompanied by a short proof (logarithmic in the size of the data)
 that the piece is a part of the whole. 
 To use this approach, 
 blocks are serialized and split into chunks of an appropriate size 
 for the expected block size and number of validators,
-and chunks are hashed into a merkle tree. 
-The signed proposal, instead of including the entire block, includes just the merkle root hash,
-allowing the network to co-operate in gossipping the chunks.
+and chunks are hashed into a Merkle tree. 
+The signed proposal, instead of including the entire block, includes just the Merkle root hash,
+allowing the network to co-operate in gossiping the chunks.
 A node informs its peers every time it receives a chunk, 
-in order to minimize the bandwidth wasted by transmitting the same chunk to the a node more than once.
+in order to minimize the bandwidth wasted by transmitting the same chunk to a node more than once.
 
 Once all the chunks are received, the block is deserialized and validated to ensure it refers correctly to the previous 
-block, and that its various checksums, implemented as merkle trees, are correct. 
+block, and that its various checksums, implemented as Merkle trees, are correct. 
 While it was previously assumed that a validator does not prevote until the proposal (including the block) is received,
 some performance benefit may be obtained by allowing validators to prevote after receiving a proposal, 
 but before receiving the full block. This would imply that it is okay to prevote for what turns out to be an invalid block.
@@ -81,7 +81,7 @@ so long as their checksum in the block is correct.
 Transactions are managed independently in an in-memory cache, 
 which, following Bitcoin, has come to be known as the \emph{mempool}.
 Transactions are validated when they are received and, if valid, 
-added to the mempool and gossipped using an ordered multicast algorithm.
+added to the mempool and gossiped using an ordered multicast algorithm.
 A node maintains a routine for each peer which ensures that transactions 
 in the mempool are sent to the peer in the same order in which they were processed by the node.
 
@@ -96,8 +96,8 @@ which the node may not have had in its mempool.
 The consensus reactor provides a relatively slow means of syncing with the latest state of the blockchain,
 as it was designed for real-time consensus,
 meaning peers wait to receive all information to commit a single block before worrying about the next block.
-To accomodate peers that may be more than just a few blocks behind, 
-an additional reactor, the blockhain reactor, allows peers to download many blocks in parallel,
+To accommodate peers that may be more than just a few blocks behind, 
+an additional reactor, the blockchain reactor, allows peers to download many blocks in parallel,
 enabling a peer to sync hundreds of times faster than via the consensus reactor.
 
 When a node connects to a new peer, the peer sends its current height.

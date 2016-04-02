@@ -8,7 +8,7 @@ This chapter presents the Tendermint consensus algorithm and communicates the in
 Tendermint consensus is an algorithm for the secure replication of a state
 machine that operates on batches, or blocks, of transactions at a time.
 The algorithm is summarized in Figure \ref{fig:tendermint_summary}, 
-its key properties as a replicated state machine are summarized in Figure \ref{fig:tendermint_gaurantees}, 
+its key properties as a replicated state machine are summarized in Figure \ref{fig:tendermint_guarantees}, 
 and its key security properties are summarized in Figure \ref{fig:tendermint_security}.
 
 \begin{figure}[]
@@ -82,19 +82,19 @@ and its key security properties are summarized in Figure \ref{fig:tendermint_sec
 		If a validator has applied a block at a given height to its state machine, no other validator will ever apply a different block for the same height.
 	\end{description}
   	\caption[Tendermint Safety Guarantees]{Tendermint guarantees that all of these properties are true, at all times, within the security guarantee. This set of properties was taken practically verbatim from \cite{raft_thesis}.}
-	\label{fig:tendermint_gaurantees}
+	\label{fig:tendermint_guarantees}
 \end{figure}
 
 \begin{figure}[]
 	\textbf{Tendermint Security Guarantees}
 	\begin{description}
 	  \item[Byzantine Fault Tolerance] \hfill \\
-		All properties in \ref{fig:tendermint_gaurantees} are satisfied so long as fewer than one-third of validators are Byzantine.
+		All properties in \ref{fig:tendermint_guarantees} are satisfied so long as fewer than one-third of validators are Byzantine.
 	  \item[Deterministic Accountability] \hfill \\
 		If one-third or more of validators, but less than half, are Byzantine, and thereby compromise safety, 
 		they can be specifically identified and held accountable to their actions.
 	\end{description}
-  	\caption[Tendermint Security Guarantees]{Tendermint gaurantees these security properties, making it more suitable than algorithms like Raft and Paxos, and even other BFT algorithms like PBFT, for consortia with potentially malicious or untrusted actors}
+  	\caption[Tendermint Security Guarantees]{Tendermint guarantees these security properties, making it more suitable than algorithms like Raft and Paxos, and even other BFT algorithms like PBFT, for consortia with potentially malicious or untrusted actors}
 	\label{fig:tendermint_security}
 \end{figure}
 
@@ -109,13 +109,13 @@ Validators engage in two phases of voting on a proposed block before it is commi
 and follow a simple locking mechanism which prevents any coalition of up to one third malicious validators from compromising safety.
 
 Each block contains some metadata, known as its \emph{header}, which includes the hash of the block at the previous height, resulting in a hash chain.
-The header also includes the block height, local time the block was proposed, and the merkle root hash of transactions included in the block.
+The header also includes the block height, local time the block was proposed, and the Merkle root hash of transactions included in the block.
 
 The consensus algorithm can be roughly divided into the following, somewhat orthogonal, components:
 
 \begin{itemize}
 
-\item{Proposals: a new block must be proposed by the correct proposer at each round, and gossipped to the other validators. If a proposal is not received in sufficient time, the proposer should be skipped.}
+\item{Proposals: a new block must be proposed by the correct proposer at each round, and gossiped to the other validators. If a proposal is not received in sufficient time, the proposer should be skipped.}
 
 \item{Votes: two phases of voting must occur to ensure optimal Byzantine fault tolerance. They are called \emph{pre-vote} and \emph{pre-commit}. A set of pre-commits from more than two-thirds of the validators for the same block at the same round is a \emph{commit}.}
 
@@ -145,11 +145,11 @@ Using blocks results in two primary optimizations, which give us more throughput
 \end{itemize}
 
 Blocks induce another effect as well, which is more subtle but potentially important. 
-They increase the minimum latency of a transaction to that of the whole block, which for tendermint is on the order of hundreds of milliseconds to seconds.
+They increase the minimum latency of a transaction to that of the whole block, which for Tendermint is on the order of hundreds of milliseconds to seconds.
 Traditional serializable database systems provide commit latencies on the order of milliseconds to tens of milliseconds.
 They are able to do this because they are not Byzantine Fault Tolerant, requiring only one round of communication (instead of two)
 and responses from over half of the replicas (instead of two-thirds).
-However, unlike the fast commit times interupted by leader elections in other consensus algorithms,
+However, unlike the fast commit times interrupted by leader elections in other consensus algorithms,
 Tendermint provides a more regular pulse that is more responsive to the overall health of the network, in terms of node failures and asynchrony.
 
 What role such pulses might play in the coherence of communicating autonomous systems on the internet is yet to be determined.
@@ -162,7 +162,7 @@ TODO
 \section{Tendermint Basics}
 
 In order to provide tolerance to a single Byzantine fault, a Tendermint network must contain at minimum four validators.
-Each validator must possess an assymetric cryptographic key-pair for producing digital signatures.
+Each validator must possess an asymmetric cryptographic key-pair for producing digital signatures.
 Validators start from a common \emph{genesis} state, which contains the initial list of validators in terms of their public keys.
 All proposals and votes must be signed by the respective validator's private key, and can hence be verified by every other validator.
 It is helpful to assume that up to one-third of validators are malicious, co-operating in arbitrary ways to subvert system safety or liveness.
@@ -170,11 +170,11 @@ It is helpful to assume that up to one-third of validators are malicious, co-ope
 Consensus begins for block 1, round 0; the proposer is the first validator listed in the genesis.
 The outcome of a round is either a commit, or a decision to move to the next round.
 With a new round comes the next proposer.
-Using multiple rounds gives validators multiple opportunties to come to consensus in the event of network asynchrony or validator failures.
+Using multiple rounds gives validators multiple opportunities to come to consensus in the event of network asynchrony or validator failures.
 
 In contrast to algorithms which require a form of leader election, Tendermint has a new leader (the proposer) for each round.
 Validators vote to skip to the next round in the same way they vote to accept the proposal,
-lending the protocol a uniniformity of mechanism that is absent from algorithms with an explicit leader-election program.
+lending the protocol a uniformity of mechanism that is absent from algorithms with an explicit leader-election program.
 
 The beginning of each round has a weak dependence on synchrony as it utilizes local clocks to determine when to skip a proposer.
 That is, if a validator does not receive a proposal within a locally measured \emph{TimeoutPropose} of entering a new round, it can vote to skip the proposer.
@@ -214,8 +214,8 @@ and every validator knows the correct proposer.
 If a proposal is received for a lower round, or from an incorrect proposer, it is rejected.
 
 Cycling of proposers is necessary for Byzantine tolerance. 
-For instance, in Raft, if an elected leader is Byzantine and maintatins strong network connections to other nodes,
-it can completely compromise the system, destroying all safety and liveness gaurantees.
+For instance, in Raft, if an elected leader is Byzantine and maintains strong network connections to other nodes,
+it can completely compromise the system, destroying all safety and liveness guarantees.
 Tendermint preserves safety via the voting and locking mechanisms, 
 and maintains liveness by cycling proposers, so if one won't process any transactions, others can pick up.
 Perhaps more interestingly, validators can vote through governance modules (see Chapter \ref{ch:governance}) to remove or replace Byzantine validators.
@@ -397,7 +397,7 @@ The protocol uses a round-robin approach for proposers, and uses the same mechan
 Safety is maintained across rounds via a simple locking mechanism.
 
 The presentation of the protocol in this chapter left out many important details, 
-such as the efficient gossipping of blocks, buffering transactions, changes to the validator set, 
+such as the efficient gossiping of blocks, buffering transactions, changes to the validator set, 
 and the interface with application logic. These important topics are taken up in subsequent chapters.
 
 

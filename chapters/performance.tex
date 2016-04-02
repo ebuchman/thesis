@@ -2,9 +2,9 @@
 \label{ch:performance}
 
 Tendermint is designed as a Byzantine fault tolerant state-machine replication algorithm.
-It gaurantees safety so long as less than a third of validators are Byzantine, 
-and gaurantees liveness similarly, so long as network messages are eventually delivered,
-with weak assumptions about network synchrony for gossipping proposals.
+It guarantees safety so long as less than a third of validators are Byzantine, 
+and guarantees liveness similarly, so long as network messages are eventually delivered,
+with weak assumptions about network synchrony for gossiping proposals.
 In this section, we evaluate Tendermint's fault tolerance empirically by injecting 
 crash faults and Byzantine faults.
 The goal is to show that the implementation of Tendermint consensus does not compromise safety in the event of such failures,
@@ -13,24 +13,24 @@ that it suffers minimum performance impact, and that it is quick to recover.
 Performance of the Tendermint algorithm can be evaluated in a few key ways.
 The most obvious measures are the block commit time, which is a measure of finalization latency, 
 and transaction throughput, which measures the network's capacity.
-We collect measurements for each on networks with validators distribtued over the globe, 
+We collect measurements for each on networks with validators distributed over the globe, 
 where the number of validators ranges, in multiples of 2, from 2 to 64.
 
 \section{Overview}
 
-The experiments in this chapter can be reproduced using the repository at https://github.com/tendermint/network\_testing.
+The experiments in this chapter can be reproduced using the repository at https://github.com/Tendermint/network\_testing.
 All experiments take place in docker containers running on \emph{Amazon EC2} instances of type \emph{t2.medium}.
-Instances are distribtued across seven datacenters, spanning five continents.
+Instances are distributed across seven datacenters, spanning five continents.
 A second docker container, responsible for generating transactions, is run on each instance.
 Transactions are 250 bytes in size (a reasonable size for including a few 32 or 64 byte hashes and signatures),
-where the leading bytes are big endian encoded integers representing transaction number and validator index for that instance,
+where the leading bytes are Big-Endian encoded integers representing transaction number and validator index for that instance,
 the trailing 16 bytes are randomly drawn from the operating system, and the intermediate bytes are just zeroes.
 
-A network monitoring tool is used to maintain active websocket connections to each validator's Tendermint rpc server,
+A network monitoring tool is used to maintain active websocket connections to each validator's Tendermint RPC server,
 and uses its local time when it receives a new committed block for the first time as the official commit time for that block.
 Experiments were first run without the monitor by copying all data from validators for analysis and using the local time
 of the 2/3th validator committing a block as the commit time. 
-Using the monitor is much faster, ammenable to online monitoring, and was found to not impact the results 
+Using the monitor is much faster, amenable to online monitoring, and was found to not impact the results 
 so long as only block header information (and not the whole block) was passed over the websockets.
 
 Docker containers on remote machines are easily managed using the \emph{docker-machine} tool, 
@@ -44,9 +44,9 @@ where $N$ is the total number of validators.
 
 \section{Throughput and Latency}
 
-This section describes experiments which measure the raw performance of tendermint in non-adversarial conditions,
-where all nodes are online and synced and no accomodations are made for asynchrony.
-That is, an artifically high TimeoutPropose is used (10 seconds), and all other timeout parameters are set to 1 millisecond.
+This section describes experiments which measure the raw performance of Tendermint in non-adversarial conditions,
+where all nodes are online and synced and no accommodations are made for asynchrony.
+That is, an artificially high TimeoutPropose is used (10 seconds), and all other timeout parameters are set to 1 millisecond.
 Additionally, all mempool activity is disabled (no gossiping of transactions or rechecking them after commits),
 and an in-process nil application is used to bypass TMSP.
 This serves as a control scenario for evaluating the performance drop in the face of faults and/or asynchrony.
@@ -63,7 +63,7 @@ Transactions are preloaded on each validator. Each experiment is run for 16 bloc
 \end{figure}
 
 As can be seen in Figure \ref{fig:exp_throughput_latency}, 
-tendermint easily handles thousands of transactions per second with around one second block latency,
+Tendermint easily handles thousands of transactions per second with around one second block latency,
 though there appears to be a capacity limit at around ten thousand transactions per second.
 A block of 16384 transactions is about 4 MB in size, and analysis of network bandwidth shows each connection
 easily reaching upwards of 20MB/s, though analysis of the logs shows that at high block sizes, 
@@ -84,7 +84,7 @@ demonstrate that much higher throughputs are possible. We leave further investig
 \begin{figure}[]
 	\includegraphics[width=\linewidth,height=\textheight,keepaspectratio]{figures/single_datacenter/latency-throughput.png}
     	\centering
-	\caption[Latency-throughput in non-faulty network, single data center]{Latency-throughput tradeoff in a single datacenter shows tendermint is capable of tens of thousands of transactions per second}
+	\caption[Latency-throughput in non-faulty network, single data center]{Latency-throughput tradeoff in a single datacenter shows Tendermint is capable of tens of thousands of transactions per second}
 	\label{fig:exp:single}
 \end{figure}
 
@@ -129,7 +129,7 @@ by making the following changes:
 \item{Sign every proposal: a byzantine validator submits a prevote and a precommit for every proposal it sees, as soon as it sees it}
 \end{itemize}
 
-Taken together, these behaviours explicilty violate the double signing and locking rules. 
+Taken together, these behaviours explicitly violate the double signing and locking rules. 
 Despite these faults, which would cause many systems to fail completely and immediately,
 Tendermint maintains respectable latencies, in some cases better and in others worse than crash faults.
 
@@ -166,7 +166,7 @@ Transactions are generated for a read/write load of 10/90 (i.e. 90\% of transact
 
 \section{Related Work}
 
-The experiments in this chapter were modelled after those in \cite{honeybadger},
+The experiments in this chapter were modeled after those in \cite{honeybadger},
 which benchmarks the performance of a PBFT implementation and a new randomized BFT protocol called HoneyBadgerBFT.
 In their results, PBFT achieves over 15,000 transactions per second on four nodes,
 but decays exponentially as the number of nodes increases, while HoneyBadgerBFT attains roughly even performance

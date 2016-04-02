@@ -5,7 +5,7 @@ This chapter reviews some considerations pertaining to clients that interact wit
 
 \section{Discovery}
 
-Network discovery occurs simply by dialing some set of seed nodes over tcp.
+Network discovery occurs simply by dialing some set of seed nodes over TCP.
 The p2p network uses authenticated encryption, but the public keys of the validators must be verified somehow out of band.
 Indeed, in these systems, the genesis state itself must be communicated out of band, and ideally is the only thing that must be communicated, 
 as it should also contain the public keys used by validators for authenticated encryption, 
@@ -13,12 +13,12 @@ which are different than those used for signing votes in consensus.
 
 For validator sets that may change over time, it is useful to register all validators via DNS, 
 and to register new validators before they actually become validators, and remove them after they are removed as validators.
-Alternatively, validator locations can be registered in another fault-tolerant distribtued data store, 
+Alternatively, validator locations can be registered in another fault-tolerant distributed data store, 
 including possibly another Tendermint cluster itself.
 
 \section{Broadcasting Transactions}
 
-As a generalized application platform, tendermint provides only a simple interface to clients for broadcasting transactions.
+As a generalized application platform, Tendermint provides only a simple interface to clients for broadcasting transactions.
 The general paradigm is that a client connects to a Tendermint consensus network through a proxy, which is either run locally on its machine,
 or hosted by some other provider. The proxy functions as a non-validator node on the network, 
 which means it keeps up with the consensus and processes transactions, but does not sign votes.
@@ -27,7 +27,7 @@ The proxy enables client transactions to be quickly broadcast to the whole netwo
 A node need only connect to one other node on the network to broadcast transactions, but by default will connect to many,
 minimizing the chances that the transaction will not be received.
 Transactions are passed into the mempool, 
-and gossipped through the mempool reactor to be cached in the mempool of all nodes, 
+and gossiped through the mempool reactor to be cached in the mempool of all nodes, 
 so that eventually one of them will include it in a block. 
 
 Note that the transaction does not execute against the state until it gets into a block,
@@ -49,13 +49,13 @@ and permitting only transactions which spend a certain fee to reside in the memp
 
 In a more generalized system, like Tendermint, where there is not necessarily a currency to pay fees with,
 the system must establish stricter filtering rules and rely on more intelligent clients to resubmit transactions that are dropped.
-The situation is even more subtle, however, because the ruleset for filtering transactions in the mempool must be a function of the application itself.
+The situation is even more subtle, however, because the rule set for filtering transactions in the mempool must be a function of the application itself.
 Hence the \emph{CheclTx} message of TMSP,
 which the mempool can use to run a transaction against a transient state of the application to determine if it should be kept around or dropped.
 
 Handling the transient state is non-trivial, and is something left to the application developer, 
 though examples are provided in the many example applications. 
-In any case, clients must monitor the state of the mempool (ie. the unconfirmed transactions) to determine if they need to rebroadcast their transactions,
+In any case, clients must monitor the state of the mempool (i.e.~the unconfirmed transactions) to determine if they need to rebroadcast their transactions,
 which may occur in highly concurrent settings where the validity of one transactions depends on having processed another.
 
 \section{Semantics}
@@ -63,7 +63,7 @@ which may occur in highly concurrent settings where the validity of one transact
 Tendermint's core consensus algorithm provides only \emph{at-least-once semantics}, 
 which is to say the system is subject to replay attacks, 
 where the same transaction can be committed many times.
-However, many users and applications expect stronger gaurantees from a database system.
+However, many users and applications expect stronger guarantees from a database system.
 The flexibility of the Tendermint system leaves the strictness of these semantics up to the application developer.
 By utilizing the \emph{CheckTx} message, and by adequately managing state in the application, 
 application developers can provide the database semantics that suit them and their users' needs.
@@ -79,7 +79,7 @@ However, in the event of a partition, the proxy may be partitioned from the rest
 In that case, reads from the proxy might be stale.
 
 To avoid stale reads, the read request can be sent as a transaction, presuming the application permits such queries.
-By using transactions, reads are gauranteed to return the latest committed state, ie. when the read transaction is committed in the next block.
+By using transactions, reads are guaranteed to return the latest committed state, i.e.~when the read transaction is committed in the next block.
 This is of course much more expensive than simply querying the proxy for the state.
 It is possible to use heuristics to determine if a read will be stale,
 such as if the proxy is well-connected to its peers and is making blocks, 
@@ -88,11 +88,11 @@ but there is no substitute for performing an actual transaction.
 
 \section{Light Client Proofs}
 
-One of the major innovations of blockchains over traditional databases is their deliberate use of merkle hash trees to enable the production
+One of the major innovations of blockchains over traditional databases is their deliberate use of Merkle hash trees to enable the production
 of compact proofs of system substates, so called light-client proofs.
-A light client proof is a path through a merkle tree that allows a client to verify that some key-value pair is in the merkle tree with a given root hash.
-The state's merkle root hash is included in the block header, such that it is sufficient for a client to have only the latest header to verify any component of the state.
+A light client proof is a path through a Merkle tree that allows a client to verify that some key-value pair is in the Merkle tree with a given root hash.
+The state's Merkle root hash is included in the block header, such that it is sufficient for a client to have only the latest header to verify any component of the state.
 Of course, to know that the header itself is valid, they must have either validated the whole chain, 
-or kept up-to-date with validator set changes only and rely on economic gaurantees that the state transitions were correct (see LATER).
+or kept up-to-date with validator set changes only and rely on economic guarantees that the state transitions were correct (see LATER).
 
 

@@ -35,8 +35,8 @@ many in the cryptography community prefer to use algorithms designed in an open,
 Tendermint, similarly, uses only such algorithms.
 
 Tendermint uses RIPEMD160 as its cryptographic hash function, which produces 20-byte outputs. 
-It is used in the merkle trees of transactions and validator signatures, and for computing the block hash.
-Go provides an implemention in its extended library. RIPEMD160 is also used as one of two hashing functions by Bitcoin in the derrivation of addresses from public keys.
+It is used in the Merkle trees of transactions and validator signatures, and for computing the block hash.
+Go provides an implementation its extended library. RIPEMD160 is also used as one of two hashing functions by Bitcoin in the derivation of addresses from public keys.
 
 As it's digital signature scheme, Tendermint uses Schnorr signatures over the ED25519 elliptic curve. 
 ED25519 was designed in the open by Dan Bernstein \cite{ed25519}, with the intention of being high performance and easy to implement without introducing vulnerabilities.
@@ -47,17 +47,17 @@ Bernstein also introduced NaCl, a high level library for doing authenticated enc
 Merkle trees function much like other tree based data-structures, 
 with the additional feature that it is possible to produce a proof of membership of a key in the tree that is logarithmic in the size of the tree.
 This is done by recursively concatenating and hashing keys in pairs until only a single hash is left, the root hash of the tree.
-For any leaf in the tree, a trail of hashes leading from it to the root serves as proof of its membership \ref{fig:merkletree}.
-This makes merkle trees particularly useful for p2p file-sharing applications, where pieces of a large file can be verified as belonging to the file without
+For any leaf in the tree, a trail of hashes leading from it to the root serves as proof of its membership \ref{fig:Merkletree}.
+This makes Merkle trees particularly useful for p2p file-sharing applications, where pieces of a large file can be verified as belonging to the file without
 having all the pieces. Tendermint uses this mechanism to gossip block parts on the network, where the root hash is included in the block proposal.
 
-Tendermint also provides a self-balancing, merklized binary tree, modelled after the AVL tree \cite{avl}, as a tmsp service called merkleeyes.
+Tendermint also provides a self-balancing, Merklized binary tree, modeled after the AVL tree \cite{avl}, as a TMSP service called Merkleeyes.
 The IAVL tree can be used for storing state of dynamic size, allowing lookups, inserts, and removals in logarithmic time.
 
 \section{RPC}
 
 Tendermint exposes HTTP API's for querying the blockchain, network information, and consensus state, and for broadcasting transactions.
-The same API is available via three methods: GET requests using URI encoded paramters, POST requests using the JSONRPC standard \cite{jsonrpc}, 
+The same API is available via three methods: GET requests using URI encoded parameters, POST requests using the JSONRPC standard \cite{jsonrpc}, 
 and websockets using the JSONRPC standard. Websockets are the preferred method for high transaction throughput, 
 and are necessary for receiving events.
 
@@ -91,7 +91,7 @@ The consensus reactor manages the consensus state machine, which handles proposa
 and the actual committing of blocks.
 The state machine is managed using a few persistent go-routines, 
 which order received messages and enable them to be played back deterministically to debug the state.
-These go-routines include the readLoop, for reading off the queue of receivied messages, 
+These go-routines include the readLoop, for reading off the queue of received messages, 
 and the timeoutLoop, for registering and triggering timeout events. 
 
 Transitions in the consensus state machine are made either when a complete proposal and block are received,
@@ -105,11 +105,13 @@ but allows internal messages to be processed faster, as they don't sit in the sa
 
 The blockchain reactor syncs the blockchain using a much faster technique than the consensus reactor.
 Namely, validators request blocks of incrementing height until none of their peers have blocks of any higher height.
-Blocks are collected in a blockpool and synced to the blockchain by a worder routine that periodically takes blocks from the pool
+Blocks are collected in a blockpool and synced to the blockchain by a worker routine that periodically takes blocks from the pool
 and validates them against the current chain.
 
 Once the blockchain reactor finishes syncing up, it turns on the consensus reactor to take over.
 
 \section{Conclusion}
 
-The implementation of Tendermint in Golang takes advantage of the languages concurrency primitives, garbage collection, and type safety, to provide a clear, modular, easy to read code base with many reuseable components. As will be seen in Chapter \ref{ch:performance}, the implementation obtains high performance and is robust to many different kinds of fault.
+The implementation of Tendermint in Golang takes advantage of the languages concurrency primitives, garbage collection, 
+and type safety, to provide a clear, modular, easy to read code base with many reusable components. 
+As will be seen in Chapter \ref{ch:performance}, the implementation obtains high performance and is robust to many different kinds of fault.

@@ -55,9 +55,9 @@ where we make assumptions about the maximum delay of network messages or the max
 and skip a proposer's turn if they don't propose within the bounds of the synchrony assumptions.
 
 In asynchronous environments, where no such assumptions about network delays or processor speeds are warranted,
-the tradeoff is much more difficult to manage.
+the trade-off is much more difficult to manage.
 In fact, the so called FLP impossibility result demonstrates the 
-impossibility of distributed consensus among deterministic asyncronous processes 
+impossibility of distributed consensus among deterministic asynchronous processes 
 if even a single processes can crash\footnote{Prior to FLP, the distinction between sync/async wasn't as prominent}\cite{flp}.
 The proof amounts to showing that, because processes can fail, 
 there are valid executions of the protocol in which processes fail at the exact opportune times to prevent consensus.
@@ -67,9 +67,9 @@ Typically, synchrony in a protocol is reflected by the use of timeouts to manage
 In asynchronous environments, where messages can be arbitrarily delayed, relying on synchrony (timeouts) for safety
 can lead to a fork in the transaction log.
 Relying on synchrony to ensure liveness can cause the consensus to halt, and the service to become unresponsive.
-The former case is usually considered more severe, as reconcilling conflicting logs can be a daunting or impossible task. 
+The former case is usually considered more severe, as reconciling conflicting logs can be a daunting or impossible task. 
 
-In the early 90's, Lamport broke new ground with the Paxos algorithm \cite{paxos},
+In the early 90s, Lamport broke new ground with the Paxos algorithm \cite{paxos},
 which, while not fully asynchronous,
 provided the first provably correct algorithm for distributed consensus in mostly asynchronous environments.
 Paxos simultaneously empowered and confused the discipline of consensus science,
@@ -84,7 +84,7 @@ providing a consistent interface to resource management and allocation,
 operating at much slower time scales than the highly-available applications facing the users.
 However, there has always been an understanding in the field that implementing Paxos is somewhat of a black art,
 permeated by tricks for two main things: 
-maintaining liveness in the face of asyncrony, and achieving consensus on more than one bit at a time.
+maintaining liveness in the face of asynchrony, and achieving consensus on more than one bit at a time.
 
 Like most consensus algorithms before it, the official Paxos algorithm only achieves consensus on one bit at a time,
 and involves an expensive leadership election process for each additional bit. 
@@ -95,7 +95,7 @@ Some have worked to more more clearly define these difficulties
 and describe solutions \cite{chandra2007paxos}.
 
 Seeking to remedy this situation, in 2013, Ongaro and Ousterhout published Raft \cite{raft},
-an algorithm for consensus in asyncronous environments whose motivating design goal was understandability.
+an algorithm for consensus in asynchronous environments whose motivating design goal was understandability.
 Raft is much simpler to understand than Paxos.
 It has seen tremendous adoption in the open source community, 
 with implementations in virtually ever major language \cite{raft.github.io},
@@ -147,7 +147,7 @@ Then the faulty process can't split the vote the way it was able to when $N=3$.
 
 A number of approaches have been proposed for BFT consensus in the academic literature.
 The first generally accepted solution was the DLS algorithm, named after its inventors \cite{dls}, and described in \ref{fig:dls}.
-DLS introduced an assumption of partial synchrony as a compromise between synchronous and asyncronous networks.
+DLS introduced an assumption of partial synchrony as a compromise between synchronous and asynchronous networks.
 Partial synchrony can be defined one of two ways: 
 messages are guaranteed to be delivered within some fixed but unknown amount of time,
 or they will be delivered within some known amount of time, beginning an unknown amount of time in the future.
@@ -159,7 +159,7 @@ In 1999, Castro and Liskov published Practical Byzantine Fault Tolerance \cite{p
 which provided the first optimal Byzantine fault tolerant algorithm in weakly synchronous networks.
 It set a new precedent for the practicality of Byzantine fault tolerance in industrial systems by being capable 
 of processing tens of thousands of transactions per second.
-Despite this success, Byzantine fault tolerance was still considered expensive and largely unecessary, 
+Despite this success, Byzantine fault tolerance was still considered expensive and largely unnecessary, 
 and the most popular implementation was difficult to build on top of \cite{ppbft}.
 Hence, despite a resurgence in academic interest, including numerous improved variations \cite{yin2003separating, kotla2007zyzzyva}
 not much progress was made in the way of implementations and deployment.
@@ -167,18 +167,18 @@ Furthermore, PBFT provides no guarantees in the face of a complete Byzantine fai
 
 \section{The Need For Tendermint}
 
-The success of Bitcoin and its derrivatives, especially Ethereum, and their promise of secure, autonomous, distributed, fault-tolerant execution of arbitrary code has caused virtually every major financial institution on the planet to start paying attention to the blockchain phenomenon. 
+The success of Bitcoin and its derivatives, especially Ethereum, and their promise of secure, autonomous, distributed, fault-tolerant execution of arbitrary code has caused virtually every major financial institution on the planet to start paying attention to the blockchain phenomenon. 
 In particular, there has emerged an understanding of two forms of the technology:
 On the one hand are the public blockchains, known affectionately as the Big Bad Public Blockchains or BBPBs, 
 whose protocols are dominated by in-built economic incentives bootstrapped by a native currency.
-On the other are so called private blockchains, which might more accurately be called "consortia blockchains",
+On the other are so called private blockchains, which might more accurately be called ``consortia blockchains'',
 and which are effectively improvements on traditional consensus and BFT algorithms through the use of hash trees, digital signatures, 
 peer-to-peer networking, and enhanced accountability.
 
 As the infrastructure of our societies continues to decentralize, and as the nature of business becomes more inter-organizational,
 there is increasing need for a transparent, accountable, high performance BFT system, which can support applications from finance to domain registration to electronic voting,
 and which comes equipped with advanced mechanisms for governance and evolution into the future.
-Tendermint is that solution, optimized for consortia, or inter-organizational logic, but flexible enough to accomodate anyone from private enterprise to global currency,
+Tendermint is that solution, optimized for consortia, or inter-organizational logic, but flexible enough to accommodate anyone from private enterprise to global currency,
 and high-performance enough to compete with the major, non-BFT, consensus solutions available today, such as etcd, consul, and zookeeper, while providing greater resilience, security guarantees, and flexibility to application developers.
 
 A more comprehensive discussion of consensus science and related algorithms is reserved for Chapter \ref{ch:related}

@@ -4,7 +4,7 @@
 Byzantine consensus has a rich history that spans cryptography, distributed computing, and economics,
 but the socio-economic context for its products to be deployed in industry has not existed until recently,
 at least not outside of traditionally critical real-time systems like air-craft control \cite{draper_lab}.
-On the one hand, the invention of Bitcoin and the coining of the term "blockchain" popularized the notion
+On the one hand, the invention of Bitcoin and the coining of the term ``blockchain'' popularized the notion
 of a distributed ledger not controlled by a single entity, using cryptography and aligned economic incentives to 
 preserve safety in the face of Byzantine faults.
 On the other, the continued commoditization of servers, in the form of "The Cloud", and the invention of Raft, 
@@ -19,7 +19,7 @@ understand the blockchain phenomenon.
 
 \section{Beginnings}
 
-Distribtued algorithms first emerged in the late 19th century in the telecommunications and railroad industries,
+Distributed algorithms first emerged in the late 19th century in the telecommunications and railroad industries,
 in attempts to effectively handle multiple concurrent message streams in a transmission, 
 or multiple trains on the same set of tracks.
 
@@ -28,10 +28,10 @@ of Edsger Dijkstra on the mutual exclusion problem \cite{mutex}, and of Tony Hoa
 
 A host of concurrency problems with catchy names were popularized around this time,
 including the cigarette smokers problem \cite{cigarette_smokers}, where smokers sit around a table, 
-each with a different ingredient, and must successfully roll a full cigarettte,
+each with a different ingredient, and must successfully roll a full cigarette,
 the dinning philosophers problem \cite{dining_philosophers},
 where philosophers sitting around a table must take turns eating and thinking,
-but each can only eat while its neighnours are thinking,
+but each can only eat while its neighbours are thinking,
 and the two-generals or co-ordinated attack problem \cite{gettier},
 where two generals must co-ordinate from afar to attack an enemy city at the same time.
 
@@ -54,10 +54,10 @@ whether it be a break in a network link, power failure in a server rack, or a de
 
 \subsection{Clocks}
 
-The problem of distribtued consensus, however, did not formally emerge until Leslie Lemport introduced it in his 
-"Time, clocks, and the ordering of events in a distribetud system" \cite{clocks}.
+The problem of distributed consensus, however, did not formally emerge until Leslie Lamport introduced it in his 
+``Time, clocks, and the ordering of events in a distributed system'' \cite{clocks}.
 In that work, Lamport demonstrated how a partial ordering of events emerges from a definition of causality based on communication \cite{clocks}.
-That is, events occuring in concurrent processes, between communication events, 
+That is, events occurring in concurrent processes, between communication events, 
 effectively happen at the same time, as they cannot influence one another.
 Thus, a system of logical clocks can be defined based on the individual sequential processes 
 and the fact that messages are sent before they are received.
@@ -70,7 +70,7 @@ Lamport's work established time as a principle obstacle to designing fault toler
 as synchronizing clocks across geographical locations requires the communication of messages 
 which is ultimately limited by the speed of light.
 This formulation of the problem has close ties to the relativism of modern physics,
-wherein frames of reference are relative to an observer and the speed of light imposes a constraint on information propogation.
+wherein frames of reference are relative to an observer and the speed of light imposes a constraint on information propagation.
 
 \subsection{FLP}
 As discussed in Chapter \ref{ch:motivation}, 
@@ -82,12 +82,12 @@ Similarly, synchronous processors are one whose clocks stay within some fixed,
 known number of ticks of eachother.
 In the early days of consensus research, the distinction was not well characterized, 
 though the close relationship between asynchrony and crash failures is apparent even in \cite{clocks}.
-Lamports original consensus algorithm is able to operate in asynchronous environments, 
+Lamport's original consensus algorithm is able to operate in asynchronous environments, 
 so long as all messages are eventually delivered from each process.
 However, the algorithm is obviously not fault tolerant as the failure of just a single process can halt the algorithm forever.
 
 The intuition behind a single failure thwarting a consensus protocol was given formal ground by Fischer, Lynch, and Patterson,
-who proved the impossibility of deterministic distribtued consensus in asynchronous environments if even a single process can fail \cite{flp}.
+who proved the impossibility of deterministic distributed consensus in asynchronous environments if even a single process can fail \cite{flp}.
 The result does not apply to synchronous contexts, 
 as assumptions about network synchrony allow processors to detect failures using timeouts, 
 such that if a process does not respond within some given amount of time it is assumed to have crashed.
@@ -101,8 +101,8 @@ consensus fails if a single processes crashes at that opportune moment.
 
 The FLP result became something of a warning bell to distributed systems scientists, 
 establishing a clear impossibility result at the heart of the emerging field.
-Later, the approach would be generalized to derrive many more impossibility results \cite{impossibility},
-and significant academic effort would be expended on relaxing either the synchrony or determinism assumptions to derrive algorithms which circumvent the result.
+Later, the approach would be generalized to derive many more impossibility results \cite{impossibility},
+and significant academic effort would be expended on relaxing either the synchrony or determinism assumptions to derive algorithms which circumvent the result.
 
 In particular, in a short note, 
 Ben Or demonstrated how an algorithm which includes a simple amount of non-determinism can circumvent the FLP result \cite{free-choice}.
@@ -133,7 +133,7 @@ Jim also introduced other classic features of modern databases,
 such as the principles of Atomicity, Consistency, Isolation, and Durability, 
 which come part and parcel with the transaction concept \cite{gray1981transaction},
 and the use of write-ahead-logs, for logging transactions to disk before they are executed
-in order to recover from faults occuring during transaction execution \cite{gray1978notes}.
+in order to recover from faults occurring during transaction execution \cite{gray1978notes}.
 
 In a distributed database setting, this work on transactions, atomicity, and consistency
 led to a series of approaches for database replication centered around the notion of an \emph{atomic commit},
@@ -142,7 +142,7 @@ These approaches are known as two-phase-commit \cite{gray1978notes}, and its non
 three-phase-commit \cite{skeen1983formal}.
 
 Both two-phase and three-phase commit protocols work only in a synchronous setting,
-where crash failured can be detected, and utilize a co-ordinator process that serves as leader for the protocol.
+where crash failures can be detected, and utilize a co-ordinator process that serves as leader for the protocol.
 
 \subsection{Broadcast Protocols}
 
@@ -159,7 +159,7 @@ In particular, an atomic broadcast protocol is expected to satisfy the following
 
 Atomic broadcast is built above a simpler primitive, known as \emph{reliable broadcast}, 
 the difference being that atomic broadcast ensures the messages are totally ordered,
-while reliabale broadcast ensures only that the messages are delivered.
+while reliable broadcast ensures only that the messages are delivered.
 That is, reliable broadcast satisfies all the above properties except the final one.
 A taxonomy and survey of solutions to the problem is provided in \cite{defago2004total}.
 
@@ -271,7 +271,7 @@ Many improvements have been proposed for PBFT since it was published.
 Some of these focus on so-called \emph{optimistic execution}, 
 where transactions are executed before they are committed in order to provide a low-latency,
 optimistic reply to clients \cite{kotla2007zyzzyva,garcia2011efficient}.
-The trouble with these approaches is that the responsibilty of managing inconsistency is relegated to the client,
+The trouble with these approaches is that the responsibility of managing inconsistency is relegated to the client,
 while presumably the reason they used a consistent consensus protocol in the first place was to avoid that responsibility.
 Alternatively, this may be a useful approach in low-fault circumstance.
 The phenomenon is referred to as \emph{zero-conf transactions} in Bitcoin and is widely warned against,
@@ -313,7 +313,7 @@ and which even proved itself to be more understandable than Paxos through a user
 Raft is similar in spirit to Paxos and Viewstamped Replication, but it emphasizes replicating a transaction log, 
 rather than a single bit, and introduces randomization for more efficient leader elections.
 Furthermore, Raft's safety guarantees have been formally proven using the Coq proof assistant \cite{woos2016planning}
-and a framework built above Coq, called Verdi, for formally verifying distribtued systems \cite{wilcox2015verdi}.
+and a framework built above Coq, called Verdi, for formally verifying distributed systems \cite{wilcox2015verdi}.
 
 \section{Blockchain}
 
@@ -335,11 +335,11 @@ of roughly five billion dollars (USD), and with many clones of the original that
 However, Bitcoin is not without it's issues. A number of design flaws make the protocol cumbersome and difficult 
 for application developers to work with.
 Furthermore, a number of academic works have shed light on incentive incompatibilities in the protocol,
-weaking widley held assumptions about the protocol's security \cite{eyal2014majority,courtois2014subversive}.
+weakening widely held assumptions about the protocol's security \cite{eyal2014majority,courtois2014subversive}.
 
 Numerous approaches have been proposed to improve Bitcoin,
 including those that change the nature of the partial hash collision function \cite{miller2015nonoutsourceable},
-those that change the nature of leadership election in the protocol to imrpove many features of the economics and underlying performance \cite{eyal2015bitcoin}
+those that change the nature of leadership election in the protocol to improve many features of the economics and underlying performance \cite{eyal2015bitcoin}
 and those that aim to augment the protocol in an effort to achieve scalability \cite{back2014enabling,poon2015bitcoin}.
 
 \subsection{Ethereum}
@@ -351,12 +351,12 @@ Instead, Ethereum provides a Turing complete virtual machine, the Ethereum Virtu
 and provides a means for users to upload code to the EVM that can execute upon the processing of future transactions.
 So-called \emph{smart contracts} \cite{} offer the promise of automatically enforced execution of code in a public setting, 
 using strong cryptography and BFT replication. 
-The Ethereum project was succesful in one of the largest crowdfunds to date, over \$18 million USD, 
+The Ethereum project was successful in one of the largest crowdfunds to date, over \$18 million USD, 
 and the market capitalization of its native token, ether, which is used to pay for transaction execution and code uploads,
 has since reached \$1 billion USD.
 
 Ethereum currently uses a modified form of Proof-of-Work called Greedy Heaviest Observed Sub Tree (GHOST) \cite{ghost},
-but is planning to move to a more secure economic consensus algorithm modelled around Proof of Stake.
+but is planning to move to a more secure economic consensus algorithm modeled around Proof of Stake.
 
 \subsection{Proof-of-Stake}
 ...
@@ -367,9 +367,9 @@ The success of Bitcoin, Ethereum, and other cryptocurrencies has inspired an inc
 including regulators, bankers, business executives, auditors, account managers, logisticians, and more.
 In particular, a recent project under the Linux Foundation, spearheaded by IBM and a new blockchain-based company called Digital Asset Holdings (DAH), 
 seeks to provide a unified blockchain architecture for industrial applications. The project is called HyperLedger,
-after a company with the same name, thought provided a rudimentar implementation of a PBFT-based blockchain, was acquired by DAH.
+after a company with the same name, thought provided a rudimentary implementation of a PBFT-based blockchain, was acquired by DAH.
 
-Two contributions to the HyperLedger initiaitve are particularly relevant.
+Two contributions to the HyperLedger initiative are particularly relevant.
 The first is the combination of Juno and Hopper by the team at JP Morgan.
 Juno is an implementation of Tangora, a BFT version of Raft \cite{tangora},
 Hopper is a new virtual machine design,
@@ -381,9 +381,9 @@ Both Juno and Hopper are written in Haskell.
 The other project is the OpenBlockchain by IBM, a PBFT-based blockchain written in Go,
 sporting an application state that supports the deployment of arbitrary docker containers.
 Since an arbitrary docker container may container non-determinism, their PBFT implementation
-was modified with additional steps to preserve safety in the face of possiblu non-deterministic execution \cite{cachin2016non}
+was modified with additional steps to preserve safety in the face of possibly non-deterministic execution \cite{cachin2016non}
 
-Another relevent contribution from IBM is a recent review paper, similar in spirit to this chapter \cite{vukolic11quest}.
+Another relevant contribution from IBM is a recent review paper, similar in spirit to this chapter \cite{vukolic11quest}.
 
 \subsection{HoneyBadgerBFT}
 
@@ -412,7 +412,7 @@ The experiment is carried out on PBFT directly in \cite{honeybadger}, and would 
 
 The solution to this problem is HoneyBadgerBFT, a fully asynchronous atomic broadcast protocol \cite{honeybadger}.
 HoneyBadgerBFT utilizes a series of cryptographic techniques, including secret sharing, erasure coding, 
-and threshold signatures to design a highly performant asynchronous BFT consensus protocol.
+and threshold signatures to design a high performance asynchronous BFT consensus protocol.
 However, it requires a trusted dealer for initial setup and for validator changes, 
 and it relies on relatively new cryptographic assumptions about the hardness of certain problems that have 
 yet to withstand the test of time.
