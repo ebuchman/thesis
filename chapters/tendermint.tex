@@ -88,8 +88,7 @@ type RoundState struct {
 		\end{description}
 		Violation of any of the Broadcast Rules is detectable and should be punished.
 
-	\caption[Summary of Tendermint protocol rules]{Summary of rules in the tendermint protocol. 
-$+\frac{2}{3}$ validators is short for ``more than two-thirds of validators''}
+	\caption[Summary of Tendermint protocol rules]{Summary of rules in the tendermint protocol. The notation $+\frac{2}{3}$ validators is short for ``more than two-thirds of validators''.}
 
 	\label{fig:tendermint_summary}
 \end{figure}
@@ -117,7 +116,7 @@ $+\frac{2}{3}$ validators is short for ``more than two-thirds of validators''}
 	\textbf{Tendermint Security Guarantees}
 	\begin{description}
 	  \item[Byzantine Fault Tolerance] \hfill \\
-		All properties in \ref{fig:tendermint_guarantees} are satisfied so long as fewer than one-third of validators are Byzantine.
+		All properties in Figure \ref{fig:tendermint_guarantees} are satisfied so long as fewer than one-third of validators are Byzantine.
 	  \item[Deterministic Accountability] \hfill \\
 		If one-third or more of validators, but less than half, are Byzantine, and thereby compromise safety, 
 		they can be specifically identified and held accountable to their actions.
@@ -199,10 +198,11 @@ type Header struct {
 	NumTxs             int           
 	LastBlockHash      []byte        
 	LastBlockParts     PartSetHeader 
-	LastValidationHash []byte   // Merkle root hash of LastValidation
-	DataHash           []byte   // Merkle root hash of transaction 
-	ValidatorsHash     []byte   // Merkle root hash of validator set
-	AppHash            []byte   // state Merkle root from previous block's transactions
+	LastValidationHash []byte // Merkle root hash of LastValidation
+	DataHash           []byte // Merkle root hash of transaction 
+	ValidatorsHash     []byte // Merkle root hash of validator set
+	AppHash            []byte // state Merkle root from previous 
+                                  // block's transactions
 }
 
 type PartSetHeader struct {
@@ -210,7 +210,7 @@ type PartSetHeader struct {
 	Hash  []byte 
 }
 \end{verbatim}
-	\caption[Block Header Structure]{The fields required for a valid block header. The validity of all fields is checked before pre-commit}
+	\caption[Block Header Structure]{The fields required for a valid block header. The validity of all fields is checked before pre-commit.}
 	\label{fig:header}
 \end{figure}
 
@@ -384,7 +384,7 @@ A complete description of Tendermint consensus is given in Figure \ref{fig:tende
 
 Here we sketch a brief proof of Tendermint's safety guarantee, namely, 
 the State Machine Safety property, that for two validators to apply different blocks at the same height
-requires at least one-third of valdiators to be Byzantine.
+requires at least one-third of validators to be Byzantine.
 
 Referring back to the safety guarantees in Figure \ref{fig:tendermint_guarantees}, 
 note that Proposer Safety, Validator Append Only, and Proposer Completeness are trivially satisfied by the protocol, 

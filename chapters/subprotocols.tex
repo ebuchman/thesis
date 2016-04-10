@@ -40,7 +40,7 @@ this puts undue pressure on the block proposer to upload the data to all other n
 blocks can be disseminated much more quickly if they are split into parts and gossiped.
 
 A common approach to securely gossiping data, as popularized by various p2p protocols \cite{bittorrent,libswift}, 
-is to use a Merkle tree \cite{Merkle1987digital},
+is to use a Merkle tree \cite{merkle1987digital},
 allowing each piece of the data to be accompanied by a short proof (logarithmic in the size of the data)
 that the piece is a part of the whole. 
 To use this approach, 
