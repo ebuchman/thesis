@@ -42,7 +42,7 @@ in certain cases where the network is under high load. Otherwise, the transactio
 \section{Mempool}
 
 The mempool is responsible for caching transactions in memory before they are included in blocks.
-It's behaviour is subtle, and forms a number of challenges for the overall system architecture.
+Its behaviour is subtle, and forms a number of challenges for the overall system architecture.
 First and foremost, caching arbitrary numbers of transactions in the mempool is a direct denial of service attack
 that could trivially cripple the network. Most blockchains solve this problem using their native currency,
 and permitting only transactions which spend a certain fee to reside in the mempool.
@@ -50,13 +50,13 @@ and permitting only transactions which spend a certain fee to reside in the memp
 In a more generalized system, like Tendermint, where there is not necessarily a currency to pay fees with,
 the system must establish stricter filtering rules and rely on more intelligent clients to resubmit transactions that are dropped.
 The situation is even more subtle, however, because the rule set for filtering transactions in the mempool must be a function of the application itself.
-Hence the \emph{CheclTx} message of TMSP,
+Hence the \emph{CheckTx} message of TMSP,
 which the mempool can use to run a transaction against a transient state of the application to determine if it should be kept around or dropped.
 
 Handling the transient state is non-trivial, and is something left to the application developer, 
 though examples are provided in the many example applications. 
 In any case, clients must monitor the state of the mempool (i.e.~the unconfirmed transactions) to determine if they need to rebroadcast their transactions,
-which may occur in highly concurrent settings where the validity of one transactions depends on having processed another.
+which may occur in highly concurrent settings where the validity of one transaction depends on having processed another.
 
 \section{Semantics}
 
