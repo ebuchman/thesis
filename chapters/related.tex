@@ -3,7 +3,7 @@
 
 Byzantine consensus has a rich history that spans cryptography, distributed computing, and economics,
 but the socio-economic context for its products to be deployed in industry has not existed until recently,
-at least not outside of traditionally critical real-time systems like air-craft control \cite{draper_lab}.
+at least not outside of traditionally critical real-time systems like aircraft control \cite{draper_lab}.
 On the one hand, the invention of Bitcoin and the coining of the term ``blockchain'' popularized the notion
 of a distributed ledger not controlled by a single entity, using cryptography and aligned economic incentives to 
 preserve safety in the face of Byzantine faults.
@@ -24,7 +24,8 @@ in attempts to effectively handle multiple concurrent message streams in a trans
 or multiple trains on the same set of tracks.
 
 Academic work on the subject appears to have been launched officially by the seminal work
-of Edsger Dijkstra on the mutual exclusion problem \cite{mutex}, and of Tony Hoare on models for describing communicating processes.\cite{csp}, 
+of Edsger Dijkstra on the mutual exclusion problem \cite{mutex}, and
+of Tony Hoare on models for describing communicating processes \cite{csp}.
 
 A host of concurrency problems with catchy names were popularized around this time,
 including the cigarette smokers problem \cite{cigarette_smokers}, where smokers sit around a table, 
@@ -37,7 +38,7 @@ where two generals must co-ordinate from afar to attack an enemy city at the sam
 
 These problems served to put the focus on synchronization primitives
 such as semaphores, mutexes, and communication channels,
-and would lay the ground for a number of advancements over the coming decades.
+and would lay the groundwork for a number of advancements over the coming decades.
 
 \subsection{Faulty Things}
 
@@ -79,7 +80,7 @@ network and/or processor synchrony.
 A synchronous network is one in which messages are delivered within some fixed, 
 known amount of time. 
 Similarly, synchronous processors are one whose clocks stay within some fixed, 
-known number of ticks of eachother.
+known number of ticks of each other.
 In the early days of consensus research, the distinction was not well characterized, 
 though the close relationship between asynchrony and crash failures is apparent even in \cite{clocks}.
 Lamport's original consensus algorithm is able to operate in asynchronous environments, 
@@ -87,7 +88,7 @@ so long as all messages are eventually delivered from each process.
 However, the algorithm is obviously not fault tolerant as the failure of just a single process can halt the algorithm forever.
 
 The intuition behind a single failure thwarting a consensus protocol was given formal ground by Fischer, Lynch, and Patterson,
-who proved the impossibility of deterministic distributed consensus in asynchronous environments if even a single process can fail \cite{flp}.
+who proved the impossibility of deterministic distributed consensus in asynchronous environments even if a single process fails \cite{flp}.
 The result does not apply to synchronous contexts, 
 as assumptions about network synchrony allow processors to detect failures using timeouts, 
 such that if a process does not respond within some given amount of time it is assumed to have crashed.
@@ -95,7 +96,7 @@ Furthermore, the result applies to deterministic consensus protocols only,
 as its proof relies on the moment when the network goes deterministically from a bivalent state, 
 where not all processes hold the same value, to a univalent one, where they do.
 Since the point of transition is a deterministic point in time, 
-consensus fails if a single processes crashes at that opportune moment.
+consensus fails if a single process crashes at that opportune moment.
 
 \subsection{Common Coin}
 
@@ -129,7 +130,7 @@ In particular is the seminal work of Jim Gray, who introduced the term \emph{tra
 as an atomic unit of work in a database system \cite{gray1981transaction}. 
 That is, a transaction is either applied in full or not at all.
 
-Jim also introduced other classic features of modern databases,
+Gray also introduced other classic features of modern databases,
 such as the principles of Atomicity, Consistency, Isolation, and Durability, 
 which come part and parcel with the transaction concept \cite{gray1981transaction},
 and the use of write-ahead-logs, for logging transactions to disk before they are executed
@@ -199,7 +200,7 @@ named after the authors Dwork, Lynch, and Stockmeyer \cite{dls}.
 The innovation of DLS was to define a middle ground between synchrony and asynchrony called \emph{partial synchrony}.
 Recall from Chapter \ref{ch:motivation} that a synchrony assumption is one which states that messages 
 are received within some known, finite amount of time, 
-or that processor clocks only deviate from eachother by some finite number of ticks.
+or that processor clocks only deviate from each other by some finite number of ticks.
 The secret to partial synchrony is to suppose one of the following:
 
 \begin{itemize}
@@ -207,7 +208,7 @@ The secret to partial synchrony is to suppose one of the following:
 \item{Messages are guaranteed to be delivered within some known amount of time, beginning an unknown amount of time in the future.}
 \end{itemize}
 
-The DLS algorithm proceeds via series of rounds, each of which is divided into \emph{trying} and \emph{lock-release} phases.
+The DLS algorithm proceeds via a series of rounds, each of which is divided into \emph{trying} and \emph{lock-release} phases.
 Each round has a corresponding proposer, and processes can \emph{lock} on a value at a round if they think
 the proposer will propose that value.
 A round begins with processes gossiping the values they deem acceptable.
@@ -226,7 +227,7 @@ synchronized clocks may be a fair assumption.
 However, NTP is vulnerable to a number of attacks,
 and protocols which assume synchronous clocks can be slow to recover from crash faults.
 In the summer of 2015, the core Tendermint consensus protocol was redesigned to be more fully asynchronous,
-as described in \ref{ch:tendermint},
+as described in Chapter \ref{ch:tendermint},
 and has thus come to more closely resemble another BFT algorithm,
 known as Practical Byzantine Fault Tolerance (PBFT).
 
@@ -307,7 +308,7 @@ The similarities and differences of each algorithm are illuminated in \cite{van2
 \subsection{Raft} 
 
 Non-BFT consensus science received a major improvement with the introduction of Raft \cite{raft},
-which was designed from ground up to be \emph{understandable}, 
+which was designed from the ground up to be \emph{understandable}, 
 and which even proved itself to be more understandable than Paxos through a user survey \cite{raft_thesis}.
 
 Raft is similar in spirit to Paxos and Viewstamped Replication, but it emphasizes replicating a transaction log, 
@@ -332,8 +333,8 @@ the effort is subsidized by the issuance of a currency, known as bitcoins, with 
 The protocol has been wildly successful, with the currency achieving a market capitalization
 of roughly five billion dollars (USD), and with many clones of the original that have market capitalizations in the millions.
 
-However, Bitcoin is not without it's issues. A number of design flaws make the protocol cumbersome and difficult 
-for application developers to work with.
+However, Bitcoin is not without its issues. A number of design flaws make the protocol cumbersome and difficult 
+for application developers to work with it.
 Furthermore, a number of academic works have shed light on incentive incompatibilities in the protocol,
 weakening widely held assumptions about the protocol's security \cite{eyal2014majority,courtois2014subversive}.
 
@@ -367,7 +368,7 @@ The success of Bitcoin, Ethereum, and other cryptocurrencies has inspired an inc
 including regulators, bankers, business executives, auditors, account managers, logisticians, and more.
 In particular, a recent project under the Linux Foundation, spearheaded by IBM and a new blockchain-based company called Digital Asset Holdings (DAH), 
 seeks to provide a unified blockchain architecture for industrial applications. The project is called HyperLedger,
-after a company with the same name, thought provided a rudimentary implementation of a PBFT-based blockchain, was acquired by DAH.
+after a company with the same name, providing a rudimentary implementation of a PBFT-based blockchain, was acquired by DAH.
 
 Two contributions to the HyperLedger initiative are particularly relevant.
 The first is the combination of Juno and Hopper by the team at JP Morgan.
@@ -380,14 +381,14 @@ Both Juno and Hopper are written in Haskell.
 
 The other project is the OpenBlockchain by IBM, a PBFT-based blockchain written in Go,
 sporting an application state that supports the deployment of arbitrary docker containers.
-Since an arbitrary docker container may container non-determinism, their PBFT implementation
-was modified with additional steps to preserve safety in the face of possibly non-deterministic execution \cite{cachin2016non}
+Since an arbitrary docker container may contain non-determinism, their PBFT implementation
+was modified with additional steps to preserve safety in the face of possibly non-deterministic execution \cite{cachin2016non}.
 
 Another relevant contribution from IBM is a recent review paper, similar in spirit to this chapter \cite{vukolic11quest}.
 
 \subsection{HoneyBadgerBFT}
 
-All Paxos like consensus protocols, including Raft, PBFT, and Tendermint, 
+All Paxos-like consensus protocols, including Raft, PBFT, and Tendermint, 
 despite functioning well in asynchronous environments, are not strictly asynchronous.
 This is because each one uses a timeout somewhere in the protocol, typically to detect faulty leaders.
 On the other hand, randomized consensus protocols like the common coin offer solutions that work in 
