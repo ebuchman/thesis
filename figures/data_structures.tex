@@ -1,0 +1,52 @@
+
+\vspace*{-1.5in}
+
+\begin{lstlisting}
+
+// Proposal for a block at a given height and round, signed by the proposer
+type Proposal struct {
+  Height           int                     
+  Round            int                     
+  BlockHash        []byte                  
+  Signature        crypto.SignatureEd25519  // 64 bytes
+}
+
+// Represents a prevote or precommit vote from validators for consensus.
+type Vote struct {
+  Height           int                     
+  Round            int                     
+  Type             byte                     // 1 for prevote, 2 for precommit
+  BlockHash        []byte                   // empty if vote is nil
+  Signature        crypto.SignatureEd25519  // 64 bytes
+}
+
+// A vote message, gossiped to peers
+type VoteMessage struct {
+  ValidatorIndex int
+  Vote           *types.Vote
+}
+
+// A proposal message, gossiped to peers
+type ProposalMessage struct {
+  Proposal *types.Proposal
+}
+
+// Current local state of a validator's consensus machine
+type RoundState struct {
+  Height             int // Height we are working on
+  Round              int
+  Step               RoundStepType
+  CommitTime         time.Time // Subjective time we received +2/3 precommits 
+  Validators         *types.ValidatorSet
+  Proposal           *types.Proposal
+  ProposalBlock      *types.Block
+  LockedRound        int
+  LockedBlock        *types.Block
+  Votes              *HeightVoteSet // Votes from all rounds at this height
+  CommitRound        int            //
+  LastCommit         *types.VoteSet // Last precommits at Height-1
+  LastValidators     *types.ValidatorSet
+}
+\end{lstlisting}
+
+\caption[Summary of Tendermint protocol data types]{Summary of data types in the Tendermint protocol}

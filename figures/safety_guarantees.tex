@@ -1,0 +1,12 @@
+\textbf{Tendermint Safety Guarantees}
+\begin{description}
+  \item[Proposer Safety] \hfill \\
+	There is at most one valid proposer for every term.
+  \item[Validator Append Only] \hfill \\
+	A validator never overwrites or deletes blocks it has committed.
+  \item[Proposer Completeness] \hfill \\
+	If a block is committed at a given height, then that block will be present in the chain of all proposers at greater heights.
+  \item[State Machine Safety] \hfill \\
+	If a validator has applied a block at a given height to its state machine, no other validator will ever apply a different block for the same height.
+\end{description}
+\caption[Tendermint Safety Guarantees]{Tendermint guarantees that all of these properties are true, at all times, within the security guarantee. This set of properties was taken practically verbatim from \cite{raft_thesis}.}

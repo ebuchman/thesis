@@ -1,0 +1,21 @@
+
+\begin{verbatim}
+type Header struct {
+	ChainID            string        
+	Height             int           
+	Time               time.Time     
+	NumTxs             int           
+	LastBlockHash      []byte        
+	LastBlockParts     PartSetHeader 
+	LastCommitHash []byte       // Merkle root hash of LastCommit
+	DataHash           []byte   // Merkle root hash of transaction 
+	ValidatorsHash     []byte   // Merkle root hash of validator set
+	AppHash            []byte   // state Merkle root from previous block's transactions
+}
+
+type PartSetHeader struct {
+	Total int    
+	Hash  []byte 
+}
+\end{verbatim}
+	\caption[Block Header Structure]{The fields required for a valid block header. The validity of all fields is checked before pre-commit}

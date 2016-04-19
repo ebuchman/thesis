@@ -1,0 +1,19 @@
+
+\underline{Consensus State Rules}
+\begin{description}
+	\item[Proposal:] Wait up to \emph{TimeoutPropose} for a proposal from the correct validator for the current height and round.
+	\item[Prevote:]  If a proposal comes with a valid signature from the correct proposer for a validator’s current height and round, and the validator is not locked, it should prevote for the proposal block. Else, prevote nil.
+	\item[Precommit:] If a validator receives prevotes from $+\frac{2}{3}$ validators for the same block, it should precommit for that block. If the $+\frac{2}{3}$ prevotes are not for the same block, it should wait \emph{TimeoutPrevote}, and then precommit nil.
+	\item[Commit:] If a validator receives precommits from $+\frac{2}{3}$ validators for the same block, it should commit that block, and go to the next height.  If the $+\frac{2}{3}$ prevotes are not for the same block, it should wait \emph{TimeoutPrecommit}, and then go to the next round.
+\end{description}
+
+\underline{Broadcast Rules}
+\begin{description}
+	\item[No Double Signing:] a validator only signs for each message type (proposal, prevote, precommit) once at a given height and round.
+	\item[Prevote The Lock:] A validator is locked on the last block they precommitted, and must prevote for that block in future rounds at that height.
+	\item[Unlock On Polka:] a validator may only unlock if there have been $+\frac{2}{3}$ prevotes at a round after they locked. 
+\end{description}
+Violation of any of the Broadcast Rules is detectable and should be punished.
+
+\caption[Summary of Tendermint protocol rules]{Summary of rules in the tendermint protocol. 
+$+\frac{2}{3}$ validators is short for ``more than two-thirds of validators''}

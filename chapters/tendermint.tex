@@ -16,113 +16,24 @@ The key data types are given in Figure \ref{fig:tendermint_types}.
 \floatstyle{plain}
 \restylefloat{figure}
 \begin{figure}[]
-\vspace*{-1.5in}
-	\begin{lstlisting}
-
-// Proposal for a block at a given height and round, signed by the proposer
-type Proposal struct {
-  Height           int                     
-  Round            int                     
-  BlockHash        []byte                  
-  Signature        crypto.SignatureEd25519  // 64 bytes
-}
-
-// Represents a prevote or precommit vote from validators for consensus.
-type Vote struct {
-  Height           int                     
-  Round            int                     
-  Type             byte                     // 1 for prevote, 2 for precommit
-  BlockHash        []byte                   // empty if vote is nil
-  Signature        crypto.SignatureEd25519  // 64 bytes
-}
-
-// A vote message, gossiped to peers
-type VoteMessage struct {
-  ValidatorIndex int
-  Vote           *types.Vote
-}
-
-// A proposal message, gossiped to peers
-type ProposalMessage struct {
-  Proposal *types.Proposal
-}
-
-// Current local state of a validator's consensus machine
-type RoundState struct {
-  Height             int // Height we are working on
-  Round              int
-  Step               RoundStepType
-  CommitTime         time.Time // Subjective time we received +2/3 precommits 
-  Validators         *types.ValidatorSet
-  Proposal           *types.Proposal
-  ProposalBlock      *types.Block
-  LockedRound        int
-  LockedBlock        *types.Block
-  Votes              *HeightVoteSet // Votes from all rounds at this height
-  CommitRound        int            //
-  LastCommit         *types.VoteSet // Last precommits at Height-1
-  LastValidators     *types.ValidatorSet
-}
-	\end{lstlisting}
-	\caption[Summary of Tendermint protocol data types]{Summary of data types in the Tendermint protocol}
+	\input{figures/data_structures.tex}
 	\label{fig:tendermint_types}
 \end{figure}
 \floatstyle{boxed}
 \restylefloat{figure}
 
-
 \begin{figure}[]
-	\underline{Consensus State Rules}
-		\begin{description}
-			\item[Proposal:] Wait up to \emph{TimeoutPropose} for a proposal from the correct validator for the current height and round.
-			\item[Prevote:]  If a proposal comes with a valid signature from the correct proposer for a validator’s current height and round, and the validator is not locked, it should prevote for the proposal block. Else, prevote nil.
-			\item[Precommit:] If a validator receives prevotes from $+\frac{2}{3}$ validators for the same block, it should precommit for that block. If the $+\frac{2}{3}$ prevotes are not for the same block, it should wait \emph{TimeoutPrevote}, and then precommit nil.
-			\item[Commit:] If a validator receives precommits from $+\frac{2}{3}$ validators for the same block, it should commit that block, and go to the next height.  If the $+\frac{2}{3}$ prevotes are not for the same block, it should wait \emph{TimeoutPrecommit}, and then go to the next round.
-		\end{description}
-
-	\underline{Broadcast Rules}
-		\begin{description}
-			\item[No Double Signing:] a validator only signs for each message type (proposal, prevote, precommit) once at a given height and round.
-			\item[Prevote The Lock:] A validator is locked on the last block they precommitted, and must prevote for that block in future rounds at that height.
-			\item[Unlock On Polka:] a validator may only unlock if there have been $+\frac{2}{3}$ prevotes at a round after they locked. 
-		\end{description}
-		Violation of any of the Broadcast Rules is detectable and should be punished.
-
-	\caption[Summary of Tendermint protocol rules]{Summary of rules in the tendermint protocol. 
-$+\frac{2}{3}$ validators is short for ``more than two-thirds of validators''}
-
+	\input{figures/consensus_rules.tex}
 	\label{fig:tendermint_summary}
 \end{figure}
 
-
-
-
 \begin{figure}[]
-	\textbf{Tendermint Safety Guarantees}
-	\begin{description}
-	  \item[Proposer Safety] \hfill \\
-		There is at most one valid proposer for every term.
-	  \item[Validator Append Only] \hfill \\
-		A validator never overwrites or deletes blocks it has committed.
-	  \item[Proposer Completeness] \hfill \\
-		If a block is committed at a given height, then that block will be present in the chain of all proposers at greater heights.
-	  \item[State Machine Safety] \hfill \\
-		If a validator has applied a block at a given height to its state machine, no other validator will ever apply a different block for the same height.
-	\end{description}
-  	\caption[Tendermint Safety Guarantees]{Tendermint guarantees that all of these properties are true, at all times, within the security guarantee. This set of properties was taken practically verbatim from \cite{raft_thesis}.}
+	\input{figures/safety_guarantees.tex}
 	\label{fig:tendermint_guarantees}
 \end{figure}
 
 \begin{figure}[]
-	\textbf{Tendermint Security Guarantees}
-	\begin{description}
-	  \item[Byzantine Fault Tolerance] \hfill \\
-		All properties in \ref{fig:tendermint_guarantees} are satisfied so long as fewer than one-third of validators are Byzantine.
-	  \item[Deterministic Accountability] \hfill \\
-		If one-third or more of validators, but less than half, are Byzantine, and thereby compromise safety, 
-		they can be specifically identified and held accountable to their actions.
-	\end{description}
-  	\caption[Tendermint Security Guarantees]{Tendermint guarantees these security properties, making it more suitable than algorithms like Raft and Paxos, and even other BFT algorithms like PBFT, for consortia with potentially malicious or untrusted actors}
+	\input{figures/security_guarantees.tex}
 	\label{fig:tendermint_security}
 \end{figure}
 
@@ -156,11 +67,10 @@ As will be seen, Tendermint affords an ability to identify and hold accountable 
 \section{Blockchain}
 
 Tendermint consensus operates on batches (blocks) of transactions at a time.
-Continuity is maintained from one block to the next by explicitly linking each block to the one before it,
-forming a blockchain. 
-The blockchain contains the ordered transaction log and evidence,
-in the form of a hash tree of digital signatures,
-that a correct set of validators committed each block.
+Continuity is maintained from one block to the next by explicitly linking each block to the one before it 
+via it's cryptographic hash, forming a blockchain. 
+The blockchain contains the ordered transaction log and evidence that the block was committed 
+by the validators.
 
 \subsection{Why Blocks?}
 Most consensus algorithms commit transactions one at a time by design, and implement batching after the fact.
@@ -180,37 +90,19 @@ and responses from over half of the replicas (instead of two-thirds).
 However, unlike the fast commit times interrupted by leader elections in other consensus algorithms,
 Tendermint provides a more regular pulse that is more responsive to the overall health of the network, in terms of node failures and asynchrony.
 
-What role such pulses might play in the coherence of communicating autonomous systems on the internet is yet to be determined.
+What role such pulses might play in the coherence of communicating autonomous systems on the internet is yet to be determined,
+though purposefully induced latency has shown promise in the financial markets \cite{iex}.
 
 \subsection{Block Structure}
 
 The purpose of blocks is to contain a batch of transactions, and to link to the previous block.
-Because of the way Tendermint consensus is designed, the link comes in two forms: the previous block hash,
-and the set of pre-commits which caused the previous block to be committed, also known as the $LastValidation$.
-Thus a block is composed of three parts: the block header, the list of transactions, and the LastValidation.
+The link comes in two forms: the previous block hash,
+and the set of pre-commits which caused the previous block to be committed, also known as the $LastCommit$.
+Thus a block is composed of three parts: the block header, the list of transactions, and the $LastCommit$.
 The composition of the header is given in Figure \ref{fig:header}
 
 \begin{figure}[]
-\begin{verbatim}
-type Header struct {
-	ChainID            string        
-	Height             int           
-	Time               time.Time     
-	NumTxs             int           
-	LastBlockHash      []byte        
-	LastBlockParts     PartSetHeader 
-	LastValidationHash []byte   // Merkle root hash of LastValidation
-	DataHash           []byte   // Merkle root hash of transaction 
-	ValidatorsHash     []byte   // Merkle root hash of validator set
-	AppHash            []byte   // state Merkle root from previous block's transactions
-}
-
-type PartSetHeader struct {
-	Total int    
-	Hash  []byte 
-}
-\end{verbatim}
-	\caption[Block Header Structure]{The fields required for a valid block header. The validity of all fields is checked before pre-commit}
+	\input{figures/block_header.tex}
 	\label{fig:header}
 \end{figure}
 
@@ -275,13 +167,6 @@ Tendermint preserves safety via the voting and locking mechanisms,
 and maintains liveness by cycling proposers, so if one won't process any transactions, others can pick up.
 Perhaps more interestingly, validators can vote through governance modules (see Chapter \ref{ch:governance}) to remove or replace Byzantine validators.
 
-\iffalse
-TODO: move the tuning comment 
-Upon entering a new round, validators wait ProposalTimeout to receive a complete proposal before broadcasting their pre-vote.
-The ProposalTimeout thus serves as a critical paramter for tuning the performance of the system,
-as it determines how much latency is permitted from proposers before validators start voting to skip them.
-\fi
-
 \section{Votes}
 
 Once a complete proposal is received by a validator, 
@@ -289,7 +174,9 @@ it signs a pre-vote for that proposal and broadcasts it to the network.
 If a validator does not receive a correct proposal within \emph{ProposalTimeout}, 
 it signs and broadcasts a \emph{nil-pre-vote} instead.
 
-In Byzantine environments, a single stage of voting is not sufficient to ensure safety.
+In Byzantine environments, a single stage of voting,
+where each validator casts only one vote,
+is not sufficient to ensure safety.
 This can be seen via a proof by contradiction.
 Suppose that a single round of voting, where more than two-thirds vote for a single block, were sufficient to commit the block.
 Consider a network with validators Val1, Val2, Val3, and Val4, where Val1 is Byzantine.

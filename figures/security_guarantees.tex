@@ -1,0 +1,10 @@
+
+\textbf{Tendermint Security Guarantees}
+\begin{description}
+  \item[Byzantine Fault Tolerance] \hfill \\
+	All properties in \ref{fig:tendermint_guarantees} are satisfied so long as fewer than one-third of validators are Byzantine.
+  \item[Deterministic Accountability] \hfill \\
+	If one-third or more of validators, but less than half, are Byzantine, and thereby compromise safety, 
+	they can be specifically identified and held accountable to their actions.
+\end{description}
+\caption[Tendermint Security Guarantees]{Tendermint guarantees these security properties, making it more suitable than algorithms like Raft and Paxos, and even other BFT algorithms like PBFT, for consortia with potentially malicious or untrusted actors}
