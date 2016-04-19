@@ -1,0 +1,105 @@
+
+@article{girard1987linear,
+  title={Linear logic},
+  author={Girard, Jean-Yves},
+  journal={Theoretical computer science},
+  volume={50},
+  number={1},
+  pages={1--101},
+  year={1987},
+  publisher={Elsevier}
+}
+
+@incollection{bove2009dependent,
+  title={Dependent types at work},
+  author={Bove, Ana and Dybjer, Peter},
+  booktitle={Language engineering and rigorous software development},
+  pages={57--99},
+  year={2009},
+  publisher={Springer}
+}
+
+@inproceedings{wilcox2015verdi,
+  title={Verdi: A framework for implementing and formally verifying distributed systems},
+  author={Wilcox, James R and Woos, Doug and Panchekha, Pavel and Tatlock, Zachary and Wang, Xi and Ernst, Michael D and Anderson, Thomas},
+  booktitle={Proceedings of the 36th ACM SIGPLAN Conference on Programming Language Design and Implementation},
+  pages={357--368},
+  year={2015},
+  organization={ACM}
+}
+
+@inproceedings{woos2016planning,
+  title={Planning for change in a formal verification of the raft consensus protocol},
+  author={Woos, Doug and Wilcox, James R and Anton, Steve and Tatlock, Zachary and Ernst, Michael D and Anderson, Thomas},
+  booktitle={Proceedings of the 5th ACM SIGPLAN Conference on Certified Programs and Proofs},
+  pages={154--165},
+  year={2016},
+  organization={ACM}
+}
+
+@book{csp,
+	title={Communicating sequential processes},
+	author={Hoare, Charles Antony Richard},
+	year={1978},
+	publisher={Springer}
+}
+
+@inproceedings{tsuchiya2007model,
+  title={Model Checking of Consensus Algorit},
+  author={Tsuchiya, Tatsuhiro and Schiper, Andr{\'e}},
+  booktitle={Reliable Distributed Systems, 2007. SRDS 2007. 26th IEEE International Symposium on},
+  pages={137--148},
+  year={2007},
+  organization={IEEE},
+  annote={
+	only uses model checking (ie temporal logic) to verify.
+ 	uses Heard-Of model, which captures synchrony degree and any type of non-malicious fault
+	"first time standard model checking allows one to completely verify asynchronous consensus algorithms"
+  }
+}
+
+@techreport{charron2006heard,
+  title={The heard-of model: Unifying all benign failures},
+  author={Charron-Bost, Bernadette and Schiper, Andr{\'e}},
+  year={2006}
+}
+
+
+@incollection{francalanza2007fault,
+  title={A fault tolerance bisimulation proof for consensus},
+  author={Francalanza, Adrian and Hennessy, Matthew},
+  booktitle={Programming Languages and Systems},
+  pages={395--410},
+  year={2007},
+  publisher={Springer},
+  annote={
+	fine tune bisimulation techniques for partial failure settings
+	some processes are reliable, thus immortal
+	decompose to two parts: non-fault tolerant basic correctness, correctness preservation given faults
+	based on riely1997distributed
+	"We view our calculus as a partial-failure calculus rather than a distributed calculus as it permits action synchronisations across locations. This implies a tighter synchronisation assumption between locations, which in our calculus merely embody units of failure."
+	op semantics are basic CCS plus perfect failure detection (susp) and dynamic failures (halt)
+
+  }
+}
+
+
+@book{riely1997distributed,
+  title={Distributed processes and location failures},
+  author={Riely, James and Hennessy, Matthew},
+  year={1997},
+  publisher={Springer}
+}
+
+
+@article{chandra1996unreliable,
+  title={Unreliable failure detectors for reliable distributed systems},
+  author={Chandra, Tushar Deepak and Toueg, Sam},
+  journal={Journal of the ACM (JACM)},
+  volume={43},
+  number={2},
+  pages={225--267},
+  year={1996},
+  publisher={ACM}
+}
+
