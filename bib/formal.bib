@@ -44,6 +44,19 @@
 	publisher={Springer}
 }
 
+@article{misra1989simple,
+  title={A simple proof of a simple consensus algorithm},
+  author={Misra, Jayadev},
+  journal={Information processing letters},
+  volume={33},
+  number={1},
+  pages={21--24},
+  year={1989},
+  publisher={Elsevier}
+  note={proof of simple consensus with N > 4t+1 using equational reasoning}
+}
+
+
 @inproceedings{tsuchiya2007model,
   title={Model Checking of Consensus Algorit},
   author={Tsuchiya, Tatsuhiro and Schiper, Andr{\'e}},
@@ -101,5 +114,101 @@
   pages={225--267},
   year={1996},
   publisher={ACM}
+  note={
+    show atomic broadcast and consensus are same thing in asynchronous networks
+    failure detectors: completeness and accuracy
+    completeness - all faulty processes eventually suspected
+    accuracy - restrict mistakes
+    defines weakes failure detector necessary and sufficient for consensus
+    defines the hierarchy and shows where we go from tolerating any # faults to only (n-1)/2
+    
+  }
+}
+
+@incollection{nestmann2003modeling,
+  title={Modeling consensus in a process calculus},
+  author={Nestmann, Uwe and Fuzzati, Rachele and Merro, Massimo},
+  booktitle={CONCUR 2003-Concurrency Theory},
+  pages={399--414},
+  year={2003},
+  publisher={Springer}
+  note={builds on chandra1996unreliable using simpler form of weakest failure detector
+	models failure detector in pi calc, 
+	complete pi calc description of algorithm!
+	"matrix" view of network history allows to see all sent messages and state of receval,
+		useful for proofs
+}
+
+
+@article{palamidessi2003comparing,
+  title={Comparing the expressive power of the synchronous and asynchronous $ pi $-calculi},
+  author={Palamidessi, Catuscia},
+  journal={Mathematical Structures in Computer Science},
+  volume={13},
+  number={05},
+  pages={685--719},
+  year={2003},
+  publisher={Cambridge Univ Press}
+  note={
+	this paper is actually an updated of the original, from 1997
+	asynch pi-calc can't encode mixed gaurded choice, 
+	where the encoding is uniform, ie. [[ P | Q ]] = [[ P ]] | [[ Q ]].
+	and [[ \sigma(P) ]]  = \sigma( [[ P ]] ) where sigma is an automorphism (injective renaming function)
+	mixed gaurd has an initial symmetry that needs to be broken, 
+	which can be seen as a leader election process, which is impossible in async
+	pi calc for symmetric network.
+	electoral system is one in which a the projection of a computation on each process
+	has the procecesses all outputting the same value on their out chan
+  }
+}
+
+@article{nestmann2000good,
+  title={What is a “good” encoding of guarded choice?},
+  author={Nestmann, Uwe},
+  journal={Information and computation},
+  volume={156},
+  number={1},
+  pages={287--319},
+  year={2000},
+  publisher={Elsevier}
+  note={
+	important are compositionality and divergence freedom (no infinite loops)
+	clarifies the Palamedessi result
+	mixed choice can be done if willing to relax Palamedessi assumptions,
+	either with randomized agreement (though apparently this disqualifies Palamedessi's reasonableness,
+	though we know it can converge happen with probability 1), or arbitrary total order over the nodes, 
+	which would break symmetry.
+	an awesome paper
+  }
+}
+
+@article{phillips2004correct,
+  title={A correct abstract machine for the stochastic pi-calculus},
+  author={Phillips, Andrew and Cardelli, Luca},
+  journal={Electronic Notes in Theoretical Computer Science},
+  year={2004}
+  note={
+	how to implement the stochastic pi calculus
+  }
+}
+
+
+@article{priami1995stochastic,
+  title={Stochastic $\pi$-calculus},
+  author={Priami, Corrado},
+  journal={The Computer Journal},
+  volume={38},
+  number={7},
+  pages={578--589},
+  year={1995},
+  publisher={Br Computer Soc}
+  note={originally extension of pi-calc to probabilistic rates
+	choice becomes probabilistic rather than non-deterministic
+	delays are drawn from exponential distribution. memoryless.
+	continuity of prob distribution ensures the prob of two events ending at same time is 0 (contention in the choice)
+	rates on input/output can be independent, so rate of synch is that of the smaller one
+	prob of a transition is rate of its action divided by the total rate leaving the state
+	
+  }
 }
 

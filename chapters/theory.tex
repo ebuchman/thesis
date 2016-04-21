@@ -1,0 +1,47 @@
+\chapter{Theory}
+
+\section{Consensus and Atomic Broadcast}
+problem has been pitched as consensus or atomic broadcast
+consensus commits a value; ABC orders transactions.
+chandra & Toueg (1996) showed they're the same.
+we show they are the same with generalized pi-calc forms of each and a bi-simualtion between them.
+but atomic broadcast is the more natural form for real systems
+
+\section{Cryptography vs. Entropy}
+digital signatures.
+merkle trees, erasure codes for broadcast.
+hash-chain links to simplify proposer logic.
+
+\section{Byzantine Failure Detectors}
+chandra & toueg (1996) introduce failure detectors, an abstraction of timeouts,
+used to solve consensus.
+nestman 2003 formalizes in pi-calc, uses matrix analysis.
+we introduce byzantine failure detectors, which track byz faults ...
+1/3 affected by async, 1/3 byz, 1/3 honest and heard from (the table) ...
+most previous byz algos dont focus on detection, just tolerance!
+
+\section{Probabilistic Solutions}
+consensus can be solved with FDs or with randomness.
+common coin gives probabilistic liveness.
+bitcoin gives probabilistic safety.
+(asynchronous generalization of bitcoin is casper?)
+
+\section{Economics}
+economics are a way to parameterize the comm rates,
+such that the param values may change, subject to some constraints 
+(eg. the avg value over time is constant, etc.).
+the point of the system is to be value, 
+and have this value be contributed back to the processes as wealth.
+integration with food systems, be an organism, etc.
+economics makes the system reflexive.
+
+\section{Residence Times}
+energy input is receipt of a msg. 
+causes a tree of execution. 
+residence time is time until all branches of the tree either communicate with other trees or halt.
+here, txs are the inputs (ie. they should pay fees!).
+another energy input is eg. POW - can be measured as a packet of energy arriving as a new block
+without inflation, packets arrive and are immediately released as heat, minus what is paid in fees,
+which hang around as a balance and prolong the residence time.
+the inflation increases the residence time, but is clearly unsustainable - distribution mechanisms are important tho!
+alternatively, in POS, packets come in as security deposits, which sit around for a long time :D
