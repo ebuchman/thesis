@@ -1,0 +1,58 @@
+
+\title{
+	{Tendermint: Byzantine Fault Tolerance in the Age of Blockchains}\\
+	{\large University of Guelph}\\
+}
+
+\author{Ethan Buchman}
+\date{\today}
+
+\maketitle
+
+\clearpage
+
+\chapter*{Abstract}
+Tendermint is a new protocol for ordering events in a distributed network under adversarial conditions.
+More commonly known as consensus or atomic broadcast, the problem has attracted significant attention
+recently due to the widespread success of digital currencies, such as Bitcoin and Ethereum,
+which successfully solve the problem in public settings without a central authority.
+Tendermint modernizes classic academic work on the subject to provide a secure consensus protocol with 
+accountability guarantees, as well as an interface for building arbitrary applications above the consensus.
+Tendermint is high performance, achieving thousands of transactions per second on dozens of nodes distributed around the globe,
+with latencies of about one second, and performance degrading moderately in the face of adversarial attacks.
+
+\thispagestyle{plain}
+\par\vspace*{.35\textheight}{\centering Dedicated to Theda. \par}
+
+\chapter*{Preface}
+The structure and presentation of this thesis was directly inspired by Diego Ongaro's 2014 Doctoral Dissertation, 
+``Consensus: Bridging Theory and Practice'', wherein he specifies and evaluates the Raft consensus algorithm.
+
+Much of the work done in this thesis was done in collaboration with Jae Kwon, who initiated the Tendermint project.
+Please see the Github repository, at https://github.com/tendermint/tendermint, for a more direct account of contributions to the codebase.
+
+
+\chapter*{Acknowledgements}
+I learned early in life from Tony Montana that a man has only two things in this world, his word and his balls, and he should break em for nobody.
+This thesis would not have been completed if I had not given my word to certain people that I would complete it.
+These include my family, in particular my parents, grandparents, and great uncle Paul, and my primary advisor, Graham,
+who has, for one reason or another, permitted me a practically abusive amount of flexibility to pursue the topic of my choosing.
+Thanks Graham.
+
+Were it not for another set of individuals, this thesis would probably have been about machine learning.
+These include Vlad Zamfir, with whom I have experienced countless moments of discovery and insight;
+My previous employer and favorite company, Eris Industries, and especially their CEO and COO, Casey Kuhlman and Preston Byrne,
+for hiring me, mentoring me, and giving me such freedom to research and tinker and ultimately start my own company with technology they helped fund;
+Jae Kwon, for his direct mentorship in consensus science and programming, for being a great collaborator, and for being the core founder and CEO at Tendermint;
+Zach Ramsay, for being, for all intents and purposes, my heterosexual husband;
+and of course, Satoshi Nakamoto, whomever you are, for sending me down this damned rabbit hole in the first place.
+
+There are of course many other people who have influenced my life during the course of this graduate degree;
+you know who you are, and I thank you for being that person and for all you've done for me.
+
+\pagenumbering{roman}
+\tableofcontents
+\listoffigures
+\listoftables
+\pagenumbering{arabic}
+
