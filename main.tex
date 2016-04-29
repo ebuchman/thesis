@@ -5,10 +5,17 @@
 \usepackage{listings}
 \usepackage{lstautogobble}
 \usepackage{amsmath} 
+\usepackage[backend=bibtex]{biblatex}
 \graphicspath{ {images/} }
 \usepackage{float}
 \floatstyle{boxed} 
 \restylefloat{figure}
+
+%\bibliographystyle{IEEEtran}
+\bibliography{bib/consensus,bib/crypto,bib/programming,bib/applied,bib/formal}
+\AtEveryBibitem{%
+  \clearfield{note}%
+}
 
 \begin{document}
 
@@ -28,7 +35,7 @@
 \include{chapters/appendix}
 
 
-\bibliographystyle{IEEEtran}
-\bibliography{bib/consensus,bib/crypto,bib/programming,bib/applied,bib/formal}
+
+\printbibliography
 
 \end{document}
