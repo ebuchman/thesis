@@ -7,13 +7,13 @@ Can show they are the same \cite{chandra1996unreliable}
 We show they are the same with generalized process calculus forms of each and a bi-simualtion between them.
 Atomic broadcast is the more natural form for real systems.
 
-Note the pi calculus doesn't allow a uniform encoding of broadcast \cite{ene1999expressiveness},
-but we don't need uniformity, since in practice each node has a network stack/kernel that manages broadcasts.
+Note the pi calculus doesn't allow a strictly composable encoding of broadcast \cite{ene1999expressiveness},
+but we don't need it, since in practice each node has a network stack/kernel that manages broadcasts.
 Further, we really do want point-to-point, rather than broadcast,
 because we want connections to be encrypted on a per-connection basis,
 though group-encrypted broadcast primitives would be an interesting pursuit.
 
-Informally, reliable broadcast (RBC) is a broadcast primitive satisfying
+Reliable broadcast (RBC) is a broadcast primitive satisfying
 
 \begin{itemize}
 \item validity - if a correct process broadcasts m, it eventually delivers m
@@ -21,7 +21,7 @@ Informally, reliable broadcast (RBC) is a broadcast primitive satisfying
 \item integrity - m is only delivered once, and only if broadcast by its sender
 \end{itemize}
 
-Formally, we model RBC as a pi-calculus process, 
+We model RBC as a pi-calculus process, 
 $rbc(\hat{r}, \hat{d}) = (\nu \hat{x}) \prod_i rb_i(r_i, d_i, \hat{x})$,
 where $rbc_i$ is the instance of RBC running on node $i$, 
 $\hat{r}$ are input channels, with one for each node, 
@@ -29,14 +29,12 @@ on which new requests from clients can be received,
 $d_i$ are $delivery$ channels, on which a node outputs RBC-delivered values,
 and $\hat{x}$ are some shared variables.
 
-\ifx
-We can state the properties in a temporal henessy-milner logic:
+We can state the properties in a temporal henessy-milner logic with regular expressions: %fixed-point operators:
 \begin{itemize}
-\item validity - $ rbc_i |= [ r_i?(v) ] eventually < d_i!(v) > $
-\item agreement - $ rbc_i |= if a correct process delivers m, all correct processes eventually deliver m $
-\item integrity - m is only delivered once, and only if broadcast by its sender
+\item validity - $ \forall m$, and correct $i$, $rbc |= [ r_i?(m) ] . < * > d_i!(m) $
+\item agreement - $ \forall m$, and correct $i$, $rbc |= [ d_i!(m) ] . \wedge_{j \neq i} ( [ * ] d_j!(m) )$
+\item integrity - $ \forall m$, and correct $i$, $rbc |= [ d_i!(m) ] . [ * ] . < d_i!(m) > ff $, and only if broadcast by its sender ...
 \end{itemize}
-\fi
 
 Let us now model atomic broadcast ABC after RBC, as 
 $abc(\hat{r}, \hat{d}) = (\nu \hat{x}) \prod_i abc_i(r_i, d_i, \hat{x})$,
@@ -45,8 +43,6 @@ with the same properties as $rbc$, but with the addition of \emph{total order},
 \item total order - if correct processes p and q deliver m and m', then p delivers m before m' iff q delivers m before m'
 \end{itemize}
 
-
-which can be stated $ abc_i |= ... $
 
 That is, ABC is identical to RBC, with the added constraint that reads off of any $d_i$ 
 must return the same values in the same order.
@@ -110,15 +106,21 @@ Also note how moving data/indices into auth using hashes can simplify protocols
 
 \section{Probabilistic Solutions}
 Consensus can be solved with FDs or with randomness.
-Common coin gives probabilistic liveness.
-Bitcoin gives probabilistic safety.
-Bitcoin makes synchronicity assumption that network latency is much less than block time.
-Is the asynchronous generalization of bitcoin casper?
+Common coin gives probabilistic liveness, where randomness is over what value sent.
+Bitcoin gives probabilistic safety, where randomness is over when value sent.
+There seems to be a duality here, common coin being like $\wedge$ and bitcoin like $\vee$.
+How to reflect in stochastic-pi calc logic.
+
+Bitcoin makes synchrony assumption that network latency is much less than block time,
+allowing it to give strong (economic/probabilistic) serializability guarantees.
+GHOST weakens the synchrony assumption by using additional network information to inform fork choice.
+Is the asynchronous generalization of GHOST something like casper?
+How does the move from PoW to PoS complement that from synchrony to asynchrony?
 
 \section{Cryptography vs. Entropy}
 \emph{Trust} as expected mutual information.
 \emph{Correct-trust} as mutual information where you can see when it fails (crypto).
-Show that correct-trust increases possible trust
+Show that correct-trust increases possible trust.
 
 Digital signatures.
 Merkle trees, erasure codes for broadcast.
@@ -132,10 +134,18 @@ such that the param values may change, subject to some constraints
 (eg. the avg value over time is constant, etc.).
 The point of the system is to be valuable,
 and have this value be contributed back to the processes as wealth.
+Economics makes the system reflexive, in the sense that,
+given finite critical resources and a driving energy source,
+the system must increase its efficiency (ie. innovate, build wealth, etc),
+to maintain liveness during growth.
 Integration with food systems, be an organism, etc.
-Economics makes the system reflexive.
 
 \section{Residence Times}
+Drawing inspiration from ecology and biophysics, 
+where its been suggested that residence time of energy in a non-equilibrium system is a 
+measure of its organizational complexity.
+
+Consider a network of processes in such a light.
 Energy input is receipt of a msg. 
 Causes a tree of execution. 
 Residence time is (eg.) time until all branches of the tree either communicate with other trees or halt.
@@ -144,4 +154,4 @@ Another energy input is eg. POW - can be measured as a packet of energy arriving
 Without inflation, packets arrive and are immediately released as heat, minus what is paid in fees,
 which hang around as a balance and prolong the residence time.
 The inflation increases the residence time, but is clearly unsustainable - distribution mechanisms are important tho!
-Alternatively, in POS, packets come in as security deposits, which sit around for a long time :D
+Alternatively, in POS, packets come in as security deposits, which sit around for a long time ...
