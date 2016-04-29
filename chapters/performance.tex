@@ -82,7 +82,7 @@ demonstrate that much higher throughputs are possible. We leave further investig
 \end{figure}
 
 \begin{figure}[]
-	\includegraphics[width=\linewidth,height=\textheight,keepaspectratio]{figures/single_datacenter/latency-throughput.png}
+	\includegraphics[width=\linewidth,height=\textheight,keepaspectratio]{figures/throughput/single_datacenter/latency-throughput.png}
     	\centering
 	\caption[Latency-throughput in non-faulty network, single data center]{Latency-throughput tradeoff in a single datacenter shows Tendermint is capable of tens of thousands of transactions per second}
 	\label{fig:exp:single}
@@ -110,7 +110,7 @@ from one to ten seconds.
 
 \begin{figure}[]
 	Crash-fault latency statistics	\\\\
-	\input{figures/crash_tables}
+	\input{figures/throughput/crash_tables}
 	\caption[Latency statistics under crash faults]{Every three seconds, a random $N_{fault}$ validators were crashed, and restarted three seconds later. This crash-restart procedure continued for 200 blocks. Each table reports the minimum, maximum, average, median, and $95^{th}$ percentile of the block latencies, for varying values of the TimeoutPropose parameter.}
 	\label{fig:exp:crash_failure}
 \end{figure}
@@ -135,7 +135,7 @@ Tendermint maintains respectable latencies, in some cases better and in others w
 
 \begin{figure}[]
 	Byzantine-fault latency statistics \\\\
-	\input{figures/byz_tables}
+	\input{figures/throughput/byz_tables}
 	\caption[Latency statistics under byzantine faults]{$N_{fault}$ validators were set to be byzantine.
 Byzantine validators propose conflicting blocks and vote on any proposal as soon as they see it.
 Each table reports the minimum, maximum, average, median, and $95^{th}$ percentile of the block latencies, for varying values of the TimeoutPropose parameter.}
