@@ -29,10 +29,10 @@ on which new requests from clients can be received,
 $d_i$ are $delivery$ channels, on which a node outputs RBC-delivered values,
 and $\hat{x}$ are some shared variables.
 
-We can state the properties in a temporal henessy-milner logic with regular expressions: %fixed-point operators:
+We can state the properties in a temporal henessy-milner logic with fixed-point operators:
 \begin{itemize}
-\item validity - $ \forall m$, and correct $i$, $rbc |= [ r_i?(m) ] . < * > d_i!(m) $
-\item agreement - $ \forall m$, and correct $i$, $rbc |= [ d_i!(m) ] . \wedge_{j \neq i} ( [ * ] d_j!(m) )$
+\item validity - $ \forall m$, and correct $i$, $rbc |= [ r_i?(m) ] . \nu Z . ( d_i!(m)T \vee [*]Z) $
+\item agreement - $ \forall m$, and correct $i$, $rbc |= [ d_i!(m) ] . \wedge_{j \neq i} ( \nu Z . (d_j!(m)T \vee [*]Z) $
 \item integrity - $ \forall m$, and correct $i$, $rbc |= [ d_i!(m) ] . [ * ] . < d_i!(m) > ff $, and only if broadcast by its sender ...
 \end{itemize}
 
