@@ -237,8 +237,89 @@ Furthermore, PBFT provides no guarantees if a third or more of the network co-or
 
 \section{Cryptography, Trust, and Economics}
 
+Fundamentally, fault tolerance is a problem derriving from a lack of trust - 
+an inability to know how some process will behave.
+Formally, trust might be defined information theoretically as a means
+for reducing the entropy of one's model of the world - 
+to trust someone is to optimistically reduce one's uncertainty about the world,
+enabling more focused attention on higher order forms of organization.
+
+Cryptographic primitives are also fundamentally related to the problem of trust,
+and may similarly be defined as mechanisms which allow for a massive reduction in entropy -
+succesfully authenticating a cryptographic function collapses a distribution 
+over possible outcomes to a single, or in some cases a small number, of outcomes.
+
+It is well known that civilizations that have greater forms of institutional trust,
+such as the rule-of-law, 
+have higher productivity and more vibrant economies \cite{trust}.
+The result makes intuitive sense, as being able to trust more about an interaction 
+reduces the space of possible outcomes that need to be actively modelled,
+making it easier to co-ordinate.
+Unfortunately, it is becoming increasingly difficult to evaluate the trustworthiness 
+of modern institutions as their complexity has skyrocketed in recent decades,
+increasing the likelihood that the certainty they allegdly provide is an illusion.
+
+Fortunately, cryptography can form the basis for new institutions of trust in society 
+which may dramatically improve the capacity for human co-ordination at global scale on account
+of reduced risk of fraudulent and/or unaccountable activity.
+Of particular interest is the importance of cryptographic primitives in BFT algorithms,
+both for authentication and for seeding non-determinism.
+
+Most interestingly, economic mechanisms may also serve as means for reducing entropy,
+in so far as economic agents can be incentivized - 
+which is to say be made more likely to execute a particular behaviour.
+In fact, Bitcoin's great insight was that cryptographic primitives could be used in
+conjuction with economic incentives to sufficiently reduce the entropy of a public consensus network
+to achieve secure replication of state.
+
+A more formal investigation of the information theoretic grounds of trust, cryptography,
+consensus, and economics, and in particular their inter-relationship, remains for future work.
 
 \section{Process Calculus}
+
+Distributed systems, where pieces of the system execute concurrently with one another,
+are notorious for being difficult to design, build, and debug.
+They are further difficult to formally verify, 
+as most techniques for formal verification, and in fact the very foundations of computer science,
+have been specifically developed with sequential computation in mind.
+
+Process calculi are a family of models of computation introduced 
+to provide a formal basis for concurrent computation.
+The most popular calculus, the Comunicating Sequential Processes (CSP),
+forms the theoretical foundation for many modern programming languages which 
+include concurrency primitives in the language design.
+
+In the 80s, Robin Milner introduced the Calculus of Communicating Systems (CCS), 
+designed to be a concurrent analog of the sequential lambda calculus.
+While the lambda calculus has function application as its basic unit of computation,
+CCS uses communication between two concurrent processes over a shared channel.
+A more general form of CCS, the $\pi$-calculus, 
+enables mobility in the communication graph between processes, 
+such that the channels of communication can themselves be passed along other channels.
+
+The $\pi$-calculus has proven to be a highly effective tool for the study of concurrent systems,
+with applications from business process management \cite{pi_biz} to cellular biology \cite{stochastic_pi}.
+The remarkably simple notion dramatically simplifies the description of concurrent protocols.
+Furthermore, the well known equivalence between computation and logic \cite{curry_howard} enables
+logical systems to be defined complementary to the various process calculi,
+providing formal means to discuss and verify the properties of systems specified in an appropriate calculus.
+
+While we use the $\pi$-calculus to specify the Tendermint algorithm, 
+we leave use of an associated formal logic, and the corresponding verification of properties, to future work.
+
+The grammar of the $\pi$-calculus is as follows:
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
