@@ -1,17 +1,17 @@
 \chapter{Background}
 \label{ch:background}
 
-Distributed consensus systems have become a critical component of modern internet infrastructure, powering every major internet application at some level or another.
+Distributed consensus systems have become a critical component of modern internet infrastructure, 
+powering every major internet application at some level or another.
 This chapter introduces the necessary background material for understanding and discussing these systems.
 In addition, it introduces the pi-calculus, a formal language for describing concurrent processes,
 which will be used to specify the Tendermint algorithm in Chapter \ref{ch:tendermint}.
 
-
 \section{Replicated State Machine}
 
 The most common paradigm for studying and implementing distributed consensus is that of the Replicated State Machine, 
-wherein a \emph{deterministic} state machine is replicated across a set of nodes, 
-such that it functions as a single state machine despite the failure of some nodes \cite{state_machine}.
+wherein a \emph{deterministic} state machine is replicated across a set of processes, 
+such that it functions as a single state machine despite the failure of some processes \cite{state_machine}.
 The state machine is driven by a set of inputs, known as \emph{transactions}, 
 where each transaction may or may not, depending on its validity, cause a state transition and return a result.
 More formally, a transaction is an \emph{atomic} operation on a database, 
@@ -22,9 +22,9 @@ which maps a transaction and the current state to a new state and a return value
 The state transition function is also sometimes referred to as \emph{application logic}.
 
 It is the responsibility of the consensus protocol to order the transactions so that the resulting 
-\emph{transaction log} is replicated exactly on every node.
+\emph{transaction log} is replicated exactly by every process.
 Using a deterministic state transition function implies that 
-every node will compute the same state given the same transaction log.
+every process will compute the same state given the same transaction log.
 
 A summary of the replicated state machine architecture is given in Figure \ref{fig:replicated_state_machine}.
 
@@ -44,19 +44,9 @@ with dotted lines representing communication between machines to carry out the c
 
 Tendermint was motivated from the desire to create a general purpose, high-performance, secure, and robust replicated state machine.
 
-\section{Broadcast and Consensus}
-
-One of the most useful primitives in such a context is \emph{reliable broadcast}.
-
-reliable broadcast
-consensus
-atomic broadcast
-consensus <-> abc
-abc more natural
-
 \section{Asynchrony}
 
-The purpose of a fault-tolerant distributed consensus system is to co-ordinate 
+The purpose of a fault-tolerant replicated state machine is to co-ordinate 
 a network of computers to stay in sync while providing a useful service, 
 despite the presence of faults.
 
@@ -68,8 +58,8 @@ A violation of safety implies two or more valid, competing transaction logs.
 Violating liveness implies an unresponsive network.
 
 It is trivial to satisfy liveness by accepting all transactions. And it is trivial to satisfy safety by accepting none.
-Hence, consensus algorithms can be seen to operate on a spectrum defined by these extremes.
-Typically, nodes require some threshold of received information from other nodes before they commit a new transaction.
+Hence, state machine replication algorithms can be seen to operate on a spectrum defined by these extremes.
+Typically, processes require some threshold of received information from other processes before they commit a new transaction.
 In synchronous environments, 
 where we make assumptions about the maximum delay of network messages or the maximum speed of processor clocks,
  it is easy enough to take turns proposing new transactions, poll for a majority vote, 
@@ -90,43 +80,110 @@ can lead to a fork in the transaction log.
 Relying on synchrony to ensure liveness can cause the consensus to halt, and the service to become unresponsive.
 The former case is usually considered more severe, as reconciling conflicting logs can be a daunting or impossible task. 
 
-\section{Solutions}
+In practice, synchronous solutions are only used where the message latency is under 
+extremely well defined control, for instance between controllers on an airplane \cite{},
+or between datacenters that all posses a syncronized atomic clock \cite{spanner}.
+Thus, while many efficient synchronous solutions exist,
+the general unreliability of computer networks is too great a risk for them to be used in practice
+without significant additional costs.
 
-In the early 90s, Lamport broke new ground with the Paxos algorithm \cite{paxos},
-which, while not fully asynchronous,
-provided the first provably correct algorithm for distributed consensus in mostly asynchronous environments.
+There are fundamentally two ways to overcome the FLP impossibility result.
+The first is to use stronger synchrony assumptions - 
+even rather weak assumptions are sufficient, 
+for instance, that only eventually, 
+crashed processes are suspected of crashing and correct ones are not \cite{chandra1996unreliable}.
+Typically, this approach utilizes \emph{leaders}, 
+which play a special co-ordinating role, 
+and which can be skipped if they are suspected of being faulty after some timeout.
+In practice, such leader-election mechanisms can be difficult to get right.
+
+The second way to overcome FLP is to use non-determinism - 
+include randomization elements such that
+the probability of coming to consensus tends to $1$.
+While clever, relying on randomization is typically much slower, 
+though certain advanced cryptographic techniques have in recent years
+achieved tremendous improvements in speed \cite{honeybadger}
+
+
+\section{Broadcast and Consensus}
+
+In order for a process to replicate its state on other processes, 
+it must have access to basic communication primitives which allow it to disseminate, or deliver, information.
+One of the most useful such primitives is \emph{reliable broadcast}.
+Reliable broadcast (RBC) is a broadcast primitive satisfying \cite{rbc}, for message $m$:
+
+\begin{itemize}
+\item validity - if a correct process broadcasts $m$, it eventually delivers $m$
+\item agreement - if a correct process delivers $m$, all correct processes eventually deliver $m$
+\item integrity - $m$ is only delivered once, and only if broadcast by its sender
+\end{itemize}
+
+In essence, RBC enables a message to be eventually delivered on all correct processes.
+
+Another, more useful primitive is \emph{atomic broadcast} (ABC), 
+which satisfies RBC and an additional property:
+
+\begin{itemize}
+\item total order - if correct processes $p$ and $q$ deliver $m$ and $m'$, then $p$ delivers $m$ before $m'$ iff $q$ delivers $m$ before $m'$
+\end{itemize}
+
+In other words, atomic broadcast is a reliable broadcast where values are delivered in the same order on each host. 
+Note this is exactly the problem of replicating a transaction log.
+While colloquially, the problem may be referred to as consensus, 
+the standard definition of the consensus primitive satisfies the following:
+\begin{itemize}
+\item termination - every correct process eventually decides
+\item integrity - every correct process decides at most once
+\item agreement - if one correct process decides $v1$ and another decides $v2$, then $v1=v2$
+\item validity - if a correct process decides $v$, at least one process proposed $v$
+\end{itemize}
+
+Intuitively, consensus and ABC appear remarkably similar, 
+with the critical difference that ABC is a continuous protocol,
+whereas consensus expects to terminate.
+That said, it is well known that each can be reduced to the other \cite{chandra1996unreliable}.
+Consensus is easily reduced to ABC by deciding the first value to be atomically broadcast.
+ABC can be reduced to consensus by running many instances of the consensus protocol, 
+in sequence, 
+though certain subtle considerations must be made, 
+especially for handling Byzantine faults.
+A complete description of the parameter space surrounding
+the reduction of ABC to consensus remains an open topic of research.
+
+Historically, despite the fact that most use cases actually require ABC,
+the most widely adopted algorithm has been a consensus algorithm called Paxos, 
+introduced, and proven correct, by Leslie Lamport in the 90s.
 Paxos simultaneously empowered and confused the discipline of consensus science,
 on the one hand by providing the first real-world, practical, fault-tolerant consensus algorithm,
 and on the other by being so difficult to understand and explain.
+Each implementation of the algorithm used its own unique bag of ad-hoc techniques
+to build ABC from Paxos, making the ecosystem difficult to navigate, understand, and utilize.
+Unfortunately, there was little work on improving the problem framing to make it more understandable.
+though there were efforts to delineate solutions to the various difficulties \cite{chandra2007paxos}.
 
-Paxos became the staple consensus algorithm for industry, 
+In 2013, Ongaro and Ousterhout published Raft \cite{raft},
+a state machine replication algorithm whose motivating design goal was understandability.
+Rather than starting from a consensus algorithm, and attempting to build what was needed (ABC),
+the design of Raft considered first and foremost the transaction log,
+and sought orthogonal components which could fit together to provide what is ultimately ABC,
+though it is not described as such.
+
+Paxos has been the staple consensus algorithm for industry, 
 upon which the likes of Amazon \cite{dynamo}, Google \cite{chubby}, 
-and others would build out highly available global internet services.
-The Paxos consensus would sit at the bottom of the application stack, 
+and others have built out highly available global internet services.
+The Paxos consensus sits at the bottom of the application stack, 
 providing a consistent interface to resource management and allocation, 
 operating at much slower time scales than the highly-available applications facing the users.
-However, there has always been an understanding in the field that implementing Paxos is somewhat of a black art,
-permeated by tricks for two main things: 
-maintaining liveness in the face of asynchrony, and achieving consensus on more than one bit at a time.
 
-Like most consensus algorithms before it, the official Paxos algorithm only achieves consensus on one bit at a time,
-and involves an expensive leadership election process for each additional bit. 
-Hence a variety of so called Multi-Paxos have been proposed, but no single approach dominates, 
-and each implementation diverges in its own unique ways. 
-The resulting software ecosystem is clumsy, difficult to navigate, and in some cases overly liable to contain bugs.
-Some have worked to more clearly define these difficulties 
-and describe solutions \cite{chandra2007paxos}.
-
-Seeking to remedy this situation, in 2013, Ongaro and Ousterhout published Raft \cite{raft},
-an algorithm for consensus in asynchronous environments whose motivating design goal was understandability.
-Raft is much simpler to understand than Paxos.
-It has seen tremendous adoption in the open source community, 
+Since its debut, however, Raft has seen tremendous adoption, especially in the open source community,
 with implementations in virtually ever major language \cite{raft.github.io},
 and use as the backbone in major projects, 
-including CoreOs's distributed Linux distribution \cite{coreos_raft} and the open source time-series database InfluxDB \cite{influxdb,hashicorp_raft}.
+including CoreOs's distributed Linux distribution \cite{coreos_raft} 
+and the open source time-series database InfluxDB \cite{influxdb,hashicorp_raft}.
 
-Raft's major divergent design decisions from Paxos was to focus on the transaction-log first, rather than a single bit,
-and to allow a leader to persist in committing transactions until he goes down, 
+Raft's major divergent design decisions from Paxos was to 
+focus on the transaction-log first, rather than a single value,
+in particular to allow a leader to persist in committing transactions until he goes down, 
 at which point leadership election can kick in. 
 In some ways, this is similar to the approach taken by blockchains, 
 though the major advantage of blockchains is the ability to tolerate a different kind of fault.
@@ -157,9 +214,9 @@ Hence, the upper bound on faults tolerated by a Byzantine system is strictly low
 \begin{figure}[]
 	\includegraphics[width=\linewidth,height=\textheight,keepaspectratio]{figures/diagrams/byzantine.png}
     	\centering
-	\caption[Byzantine nodes tell lies]{
-A Byzantine node, C, tells A one thing and B another, causing them to come to different conclusions about the network.
-Here, simple majority vote results in a violation of safety due to only a single Byzantine node.}
+	\caption[Byzantine processes tell lies]{
+A Byzantine process, C, tells A one thing and B another, causing them to come to different conclusions about the network.
+Here, simple majority vote results in a violation of safety due to only a single Byzantine process.}
 	\label{fig:byzantine}
 \end{figure}
 
@@ -178,11 +235,10 @@ Hence, despite a resurgence in academic interest, including numerous improved va
 not much progress was made in the way of implementations and deployment.
 Furthermore, PBFT provides no guarantees if a third or more of the network co-ordinates to violate safety.
 
-
 \section{Cryptography, Trust, and Economics}
 
-\section{Process Calculus}
 
+\section{Process Calculus}
 
 
 
