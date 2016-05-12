@@ -1,5 +1,61 @@
 \chapter{Theory}
 
+This chapter introduces some theoretical formalisms for describing consensus networks.
+First and foremost, we introduce a formal definition of trust on the basis of mutual information,
+and show how the use of cryptography can increase the amount of trust in a system, 
+enabling higher-level forms of communication.
+Second, we formalize the consensus and atomic broadcast problems using process calculi 
+and define a blockchain as a generic means for transforming consenus into atomic broadcast.
+Third, we introduce Byzantine Failure Detectors for the detection of malicious processes,
+and show how they can be used in a consensus protocol to achieve accountability.
+Fourth, we consider probabilistic solutions to consensus, formalizing the common coin and proof-of-work approaches,
+and show how a generalization of PoW in asynchronous conditions results in a protocol like Casper.
+Finally, we describe how to formally introduce economics into the model, and discuss the resulting problem space.
+
+\section{Trust and Information}
+
+It is well known that \emph{trust}, defined as ...,
+is a crucial element to maintaining productive socioeconomic systems \cite{trust}.
+Intuitively, trust reduces uncertainty about the world, 
+and enables higher-order forms of organization to flourish.
+
+- communications channel, capacity as MI
+- crypto primitives are axes for high entropy systems with high MI 'paths' for 'correct' processes
+
+
+
+Suppose we have agents Alice and Bob, represented by random variables $A$ and $B$, 
+operating in an uncertain environment, $X$.
+Each agent mantains a representation of the world that defines a distribution over possible events 
+in the universe, which for each agent consists of the other agent and the environment.
+Let Alice's distribution be denoted $p_A(B, X) = p_A(B | X)p_A(X) $. 
+The distribution has some entropy, $H[p_A]$. 
+If Alice trusts Bob, we expect that the entropy, in particular that related to Bob, should decrease. 
+
+
+We then define ``$A$ trusts $B$'' as an
+
+
+Formally, we can define trust as a reduction in entropy 
+
+
+
+
+
+\emph{Trust} as expected mutual information.
+\emph{Correct-trust} as mutual information where you can see when it fails (crypto).
+Show that correct-trust increases possible trust.
+
+Digital signatures.
+Merkle trees, erasure codes for broadcast.
+Hash-chain links to simplify proposer logic.
+Reduce complexity of network protocols by moving elements from data to authenticators.
+
+
+
+
+
+
 \section{Consensus and Atomic Broadcast}
 The problem has been pitched as consensus or atomic broadcast (ABC).
 Consensus commits a value; ABC orders transactions.
@@ -72,7 +128,7 @@ some weak bisimulation $\sim$.
 
 Intuitevely, consensus can be derrived from ABC by deciding the first value fired on $d_i$,
 while ABC can be derrived from consensus by running the consensus protocol multiple times,
-once for each value to be atomically broadcast.
+once for each value, or batch of values, to be atomically broadcast.
 Thus $ C_{CNS}[ ] $ is a context which restricts $d_i$, such that it is only read from once,
 while $ C_{ABC}[ ] $ is a context which manages multiple instances of consensus, delivering on $d_i$ many times.
 
@@ -80,13 +136,59 @@ while $ C_{ABC}[ ] $ is a context which manages multiple instances of consensus,
 \section{Byzantine Failure Detectors}
 Failure detectors (FDs), an abstraction of timeouts,
 were introduced and used to solve consensus \cite{chandra1996unreliable}.
-We introduce byzantine failure detectors (BFD), which track byzantine faults,
-defining a form of \emph{accountability}.
-Most previous byz algos dont focus on detection, just tolerance.
+FDs enable processes to keep a list of other processes they suspect to have crashed.
+Though unreliable, in that they may be suspicious of correct processes,
+FDs can be constrained by abstract asymptotic properties ensuring that 
+eventually, crashed processes are suspect, and correct processes are not.
+
+Byzantine Failure Detectors (BFDs) are a different breed.
+While Byzantine traditionally means "arbitrary", 
+it is in practice trivial to enforce simple rules which restrict
+the set of messages which might affect the state.
+Furthermore, Byzantine behaviour wherein a process does not send a message when it should have 
+is indistinguishable from asynchrony.
+Thus, BFDs must only be concerned with a particular class of Byzantine behaviour,
+namely, that which is \emph{malicious}.
+Unlike FDs, BFDs are not unreliable - they can not mistakenly suspect other processes
+of being Byzantine, as triggering the BFD requires cryptographic proof.
+
+There are two forms of malicious behaviour, which we call divergent-broadcast (mDBC)
+and unjustified-broadcast (mUBC). In mDBC, a process sends conflicting messages to peers.
+Detecting mDBC simply requires receiving the conflicting messages.
+In mUBC, a process sends a message which claims something about its internal state which is untrue.
+To detect mUBC requires the use of functions from the particular consensus protocol itself,
+which must define a set of justification rules.
+Either form of malicious behaviour is sufficient to violate safety in a non-Byzantine protocol.
+
+We now define a BFD as satisfying the following property:
+
+\begin{itemize}
+\item{Eventually, every mDBC and mUBC is detected by at least one correct process}
+\end{itemize}
+
+In practice, using a BFD requires a correct process to keep a list of all messages it has delivered,
+and to reliably broadcast those messages to all other correct processes.
+Further, the BFD must be informed by the rules of the consensus protocol as to what constitutes a mUBC.
+
+Most BFT protocols are tolerant of Byzantine faults, but fail to detect them.
+Thus, while a BFD is not necessary for Byzantine consensus, we show that, for some 
+forms of the justification function, it is sufficient,
+and that their use elucidates deeper structure in the BFT problem.
+
+
+
+
+
+
+When no processes are malicious,
+every message from a process can be trusted as an accurate reflection of that process' state.
+
+
 
 FDs can be formalized with the pi-calculus, 
 and resulting consensus protocols subject to a matrix analysis \cite{nestmann2003modeling}.
 We'd like a similar analysis, with a more general notion of justification.
+Most previous byz algos dont focus on detection, just tolerance.
 
 Further, we'd like to show that justifications can be removed from the real-time
 protocol and moved to a post-failure recovery mode protocol, under some weak network assumptions,
@@ -116,16 +218,6 @@ allowing it to give strong (economic/probabilistic) serializability guarantees.
 GHOST weakens the synchrony assumption by using additional network information to inform fork choice.
 Is the asynchronous generalization of GHOST something like casper?
 How does the move from PoW to PoS complement that from synchrony to asynchrony?
-
-\section{Cryptography vs. Entropy}
-\emph{Trust} as expected mutual information.
-\emph{Correct-trust} as mutual information where you can see when it fails (crypto).
-Show that correct-trust increases possible trust.
-
-Digital signatures.
-Merkle trees, erasure codes for broadcast.
-Hash-chain links to simplify proposer logic.
-Reduce complexity of network protocols by moving elements from data to authenticators.
 
 \section{Economics}
 Suppose the consensus system is probabilistic, ala some stochastic process calculus.
