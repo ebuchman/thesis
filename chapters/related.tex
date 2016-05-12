@@ -73,7 +73,7 @@ This formulation of the problem has close ties to the relativism of modern physi
 wherein frames of reference are relative to an observer and the speed of light imposes a constraint on information propagation.
 
 \subsection{FLP}
-As discussed in Chapter \ref{ch:motivation}, 
+As discussed in Chapter \ref{ch:background}, 
 one of the primary factors in designing consensus algorithms are assumptions made about 
 network and/or processor synchrony. 
 A synchronous network is one in which messages are delivered within some fixed, 
@@ -180,7 +180,7 @@ How can the generals agree on a common plan of action if one or some of the gene
 The original paper provides the first proof that to tolerate $f$ Byzantine faults,
 a system must have at least $3f+1$ nodes. 
 The intuition behind this result was depicted in \ref{fig:byzantine} and discussed 
-throughout Chapters \ref{ch:motivation} and \ref{ch:tendermint}.
+throughout Chapters \ref{ch:background} and \ref{ch:tendermint}.
 A number of algorithms are provided in both papers as the first solutions to the problem,
 though they are designed to work only in the synchronous case, where the absence of a message can be detected.
 
@@ -197,7 +197,7 @@ The solution was iteratively improved to achieve optimal Byzantine agreement wit
 The next major advancement in BFT came in the form of the so called \emph{DLS} consensus algorithms,
 named after the authors Dwork, Lynch, and Stockmeyer \cite{dls}.
 The innovation of DLS was to define a middle ground between synchrony and asynchrony called \emph{partial synchrony}.
-Recall from Chapter \ref{ch:motivation} that a synchrony assumption is one which states that messages 
+Recall from Chapter \ref{ch:background} that a synchrony assumption is one which states that messages 
 are received within some known, finite amount of time, 
 or that processor clocks only deviate from eachother by some finite number of ticks.
 The secret to partial synchrony is to suppose one of the following:

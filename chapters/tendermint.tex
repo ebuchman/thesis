@@ -3,6 +3,9 @@
 
 This chapter presents the Tendermint consensus algorithm and communicates the intuitions underlying its security.
 
+\section{Motivation}
+...
+
 \section{Tendermint Overview}
 
 Tendermint consensus is an algorithm for the secure replication of a state
@@ -131,6 +134,16 @@ This assumption is discussed more fully in Chapter \ref{ch:related}.
 After the proposal, rounds proceed in a fully asynchronous manner - a validator makes progress only after hearing from more than two-thirds of the other validators.
 This relieves any sort of dependence on synchronized clocks or bounded network delays,
 but implies that the network will halt if one-third or more of the nodes become unresponsive.
+This circuit of weakly synchronous proposals, followed by asynchronous voting, 
+is depicted in Figure \ref{fig:consensus_logic}.
+
+\begin{figure}[]
+	\includegraphics[width=\linewidth,height=\textheight,keepaspectratio]{figures/diagrams/consensus_logic.png}
+    	\centering
+	\label{fig:consensus_logic}
+	\caption[Overview of Tendermint consensus logic]{
+After the proposal step, validators only make progress after hearing from two-thirds or more (+2/3) of other validators.}
+\end{figure}
 
 To round-skip safely, a small number of \emph{locking} rules are introduced which force validators to justify their votes.
 While we don't necessarily require them to broadcast their justifications in real time, we do expect them to keep the data,
