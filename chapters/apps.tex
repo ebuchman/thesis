@@ -11,8 +11,9 @@ and have it automatically replicated via Tendermint's BFT algorithm.
 Applications on the internet can in general be characterized as containing two fundamental components:
 
 \begin{itemize}
-\item{Engine: handles core security, networking, replication
-    functionality. This is typically a webserver, like Apache or Nginx, when powering a web app, or a consensus algorithm when powering a distributed application.}
+\item{Engine: handles core security, networking, replication. 
+This is typically a webserver, like Apache or Nginx, when powering a web app, 
+or a consensus algorithm when powering a distributed application.}
 \item{State-machine: the actual application logic that processes transactions received from the engine and updates internal state.}
 \end{itemize}
 
@@ -42,7 +43,7 @@ Tendermint aims to provide the fundamental interface and consensus engine upon w
 The Tendermint Socket Protocol (TMSP) defines the core interface by which the consensus engine communicates with the application state machine.
 The interface definition consists of a number of message types, specified using Google's Protocol Buffers \cite{protobuf}, 
 that are length-prefixed and transmitted over a socket. 
-A list of message types, there arguments, return values, and purpose is given in Figure \ref{fig:tmsp_msgs},
+A list of message types, their arguments, return values, and purpose is given in Figure \ref{fig:tmsp_msgs},
 and an overview of the architecture and message flow is shown in Figure \ref{fig:tmsp}.
 
 \begin{figure}[]
@@ -90,7 +91,6 @@ type Validator struct {
 	Power  uint64 
 }
 \end{verbatim}
-	\label{fig:tmsp_msgs}
 	\caption[TMSP Message Types]{
 The TMSP application interface as defined in Golang.
 TMSP messages are defined using Google's Protocol Buffers, and their serialized form is length prefixed before 
@@ -100,27 +100,28 @@ and $0$ is used to indicate no error.
 Messages are buffered client side until a \emph{Flush} message is sent,
 at which point all messages are transmitted. While the server design is asynchronous, message responses must be correctly ordered and match their request.
 }
+	\label{fig:tmsp_msgs}
 \end{figure}
 
 
 \begin{figure}[]
 	\includegraphics[width=\linewidth,height=\textheight,keepaspectratio]{figures/diagrams/tmsp.png}
     	\centering
-	\label{fig:tmsp}
 	\caption[TMSP Architecture]{
 The consensus logic communicates with the application logic via TMSP, a socket protocol. 
 Two sockets are maintained, one for the mempool to check the validity of new transactions,
 and one for the consensus to execute newly committed blocks.
 }
+	\label{fig:tmsp}
 \end{figure}
 
-TMSP is implemented as a fully asynchronous server, 
+TMSP is implemented as an ordered, asynchronous server, 
 where message types come in pairs of request and response,
 and where a special message type, Flush, pushes any buffered messages over the connection and awaits all responses.
 
 At the core of the TMSP are two messages: \emph{AppendTx} and \emph{Commit}.
-Once a block is committed by the consensus, 
-the engine calls AppendTx on each transaction in the block, 
+Once a block is decided by the consensus, 
+the engine calls \emph{AppendTx} on each transaction in the block, 
 passing it to the application state-machine to be processed.
 If the transaction is valid, it will result in a state-transition in the application.
 
@@ -146,7 +147,7 @@ In particular, applications are expected to maintain a second state-machine that
 This second state-machine is updated by \emph{CheckTx} messages and is reset to the latest committed state after every commit.
 In essence, the second state machine describes the transaction pool's filter rules.
 
-To some extent, \emph{CheckTx} can be used as an optimistic execution, 
+To some extent, \emph{CheckTx} can be used as an \emph{optimistic execution} \cite{optimistic_execution},
 returning a result to the transaction sender with the caveat that 
 the result may be wrong if a block is committed with a conflicting transaction
 before the transaction of interest is committed.
@@ -223,7 +224,7 @@ via compilers that compile programs to metered versions of themselves.
 It is difficult to solve this problem without significant overhead.
 In essence, a validator cannot tell if an execution is in an infinite loop or is just slow, but nearly complete.
 It may be possible to use the Tendermint consensus protocol to decide on transaction timeouts, 
-such that more than two-thirds of validators must agree that a transaction timed out and is thus considered invalid (ie. having no effect on the state)
+such that more than two-thirds of validators must agree that a transaction timed out and is thus considered invalid (ie. having no effect on the state).
 However, we do not pursue the idea further here, leaving it to future work. 
 In the meantime, it is expected that applications will undergo thorogh testing before being deployed in any consensus system,
 and that monitoring and governance mechanisms will be used to resurrect the system in the event of consensus failure.
