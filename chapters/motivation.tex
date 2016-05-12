@@ -91,7 +91,7 @@ and involves an expensive leadership election process for each additional bit.
 Hence a variety of so called Multi-Paxos have been proposed, but no single approach dominates, 
 and each implementation diverges in its own unique ways. 
 The resulting software ecosystem is clumsy, difficult to navigate, and in some cases overly liable to contain bugs.
-Some have worked to more more clearly define these difficulties 
+Some have worked to more clearly define these difficulties 
 and describe solutions \cite{chandra2007paxos}.
 
 Seeking to remedy this situation, in 2013, Ongaro and Ousterhout published Raft \cite{raft},
@@ -153,11 +153,11 @@ Despite this success, Byzantine fault tolerance was still considered expensive a
 and the most popular implementation was difficult to build on top of \cite{ppbft}.
 Hence, despite a resurgence in academic interest, including numerous improved variations \cite{yin2003separating, kotla2007zyzzyva}
 not much progress was made in the way of implementations and deployment.
-Furthermore, PBFT provides no guarantees in the face of a complete Byzantine failure, where a third or more of the network is malicious.
+Furthermore, PBFT provides no guarantees if a third or more of the network co-ordinates to violate safety.
 
 \section{The Need For Tendermint}
 
-The success of Bitcoin and its derivatives, especially Ethereum, and their promise of secure, autonomous, distributed, fault-tolerant execution of arbitrary code has caused virtually every major financial institution on the planet to start paying attention to the blockchain phenomenon. 
+The success of Bitcoin and its derivatives, especially Ethereum, and their promise of secure, autonomous, distributed, fault-tolerant execution of arbitrary code has caused virtually every major financial institution on the planet to become interested in the blockchain phenomenon. 
 In particular, there has emerged an understanding of two forms of the technology:
 On the one hand are the public blockchains, known affectionately as the Big Bad Public Blockchains or BBPBs, 
 whose protocols are dominated by in-built economic incentives bootstrapped by a native currency.

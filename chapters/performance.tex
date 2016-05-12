@@ -18,7 +18,7 @@ where the number of validators ranges, in multiples of 2, from 2 to 64.
 
 \section{Overview}
 
-The experiments in this chapter can be reproduced using the repository at https://github.com/Tendermint/network\_testing.
+The experiments in this chapter can be reproduced using the repository at https://github.com/tendermint/network\_testing.
 All experiments take place in docker containers running on \emph{Amazon EC2} instances of type \emph{t2.medium}.
 Instances are distributed across seven datacenters, spanning five continents.
 A second docker container, responsible for generating transactions, is run on each instance.
@@ -39,7 +39,7 @@ to perform actions on docker containers on many remote machines at once.
 
 Each validator connects directly to each other to avoid confounding effects of network topology.
 
-For experiments involving crash faults or byzantine behaviour, the number of faulty nodes is given by $N_{fault} = (N-1)/3$,
+For experiments involving crash faults or byzantine behaviour, the number of faulty nodes is given by $N_{fault} = \lfloor(N-1)/3\rfloor$,
 where $N$ is the total number of validators.
 
 \section{Throughput and Latency}
