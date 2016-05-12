@@ -275,6 +275,33 @@ to achieve secure replication of state.
 A more formal investigation of the information theoretic grounds of trust, cryptography,
 consensus, and economics, and in particular their inter-relationship, remains for future work.
 
+\section{Blockchain}
+
+A blockchain is, at heart, an integrity-focused approach to Byzantine Fault Tolerant Atomic Broadcast.
+The Bitcoin blockchain, for instance, uses a combination of economics and cryptographic randomization 
+to provide a strong probabilistic gaurantee that safety will not be violated, 
+given a weak synchrony condition, namely, 
+that blocks are gossipped much more rapidly than they are found via the partial-hash collision lottery.
+In practice, however, it is well known that Bitcoin's security guarantees are vulnerable to a number 
+of subtle attacks \cite{selfish_mining,block_witholding}.
+
+The blockchain gets its name from the two key optimizations it employs in solving ABC.
+The first is that it groups transactions in blocks in order to amortize the high commit latency 
+(on the order of ten minutes) over many transactions.
+The second is to link blocks via cryptographic hashes into an immutable chain,
+such that is easy to verify the historical record.
+Both optimizations are natural improvements to a naiive BFT-ABC,
+the former improving performance, the latter improving tolerance to certain kinds 
+of difficult to model Byzantine faults.
+
+Over the last few years, it has become common to ``blockchainize'' consensus algorithms,
+that is, to adopt them to ABC using the blockchain paradigm of hash-linked transaction batches.
+To the author's knowledge, Tendermint was the first such proposal, 
+upgrading a well known BFT algorithm from the late 80s \cite{dls},
+though it has since evolved to a consensus algorithm of its own.
+It has been followed by IBM, which upgraded PBFT to a blockchain \cite{obc_},
+and by JP Morgan, which upgraded a BFT version of Raft \cite{juno}.
+
 \section{Process Calculus}
 
 Distributed systems, where pieces of the system execute concurrently with one another,

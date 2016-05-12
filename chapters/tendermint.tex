@@ -5,22 +5,12 @@ This chapter presents the Tendermint consensus algorithm and communicates the in
 
 \section{Tendermint Overview}
 
-Tendermint consensus is an algorithm for the secure replication of a state
-machine that operates on batches, or blocks, of transactions at a time.
+Tendermint is a blockchain based algorithm for the secure replication of a state
+machine.
 The algorithm is summarized in Figure \ref{fig:tendermint_summary}, 
 its key properties as a replicated state machine are summarized in Figure \ref{fig:tendermint_guarantees}, 
 and its key security properties are summarized in Figure \ref{fig:tendermint_security}.
 The key data types are given in Figure \ref{fig:tendermint_types}.
-
-\lstset{xleftmargin=-1in}
-\floatstyle{plain}
-\restylefloat{figure}
-\begin{figure}[]
-	\input{figures/descriptions/data_structures.tex}
-	\label{fig:tendermint_types}
-\end{figure}
-\floatstyle{boxed}
-\restylefloat{figure}
 
 \begin{figure}[]
 	\input{figures/descriptions/consensus_rules.tex}
@@ -37,18 +27,33 @@ The key data types are given in Figure \ref{fig:tendermint_types}.
 	\label{fig:tendermint_security}
 \end{figure}
 
+\lstset{xleftmargin=-1in}
+\floatstyle{plain}
+\restylefloat{figure}
+\begin{figure}[]
+	\input{figures/descriptions/data_structures.tex}
+	\label{fig:tendermint_types}
+\end{figure}
+\floatstyle{boxed}
+\restylefloat{figure}
 
-Consensus begins with a set of \emph{validators}, each of which is responsible for maintaining a full copy of the replicated state,
-and for participating in consensus by proposing and voting on new blocks (batches of transactions).
-Each block is assigned an incrementing index, or \emph{height}, such that a valid blockchain has only one valid block at each height.
-At each height, validators take turns proposing new blocks in \emph{rounds}, such that for any given round there is at most one valid proposer.
+Tendermint begins with a set of \emph{validators}, each of which is responsible for maintaining a full copy of the replicated state,
+and for participating by proposing new blocks (batches of transactions), and voting on them.
+Each block is assigned an incrementing index, or \emph{height}, 
+such that a valid blockchain has only one valid block at each height.
+At each height, validators take turns proposing new blocks in \emph{rounds}, 
+such that for any given round there is at most one valid proposer.
 It may take multiple rounds to commit a block at a given height due to the asynchrony of the network,
 and the network may halt altogether if more than one-third of the validators are offline or partitioned.
 Validators engage in two phases of voting on a proposed block before it is committed, 
 and follow a simple locking mechanism which prevents any coalition of up to one third malicious validators from compromising safety.
 
-Each block contains some metadata, known as its \emph{header}, which includes the hash of the block at the previous height, resulting in a hash chain.
-The header also includes the block height, local time the block was proposed, and the Merkle root hash of transactions included in the block.
+Note that the core round-based voting mechanism is the consensus algorithm, 
+which is strung together into blocks to yield atomic broadcast.
+Each block contains some metadata, known as its \emph{header}, 
+which includes the hash of the block at the previous height, resulting in a hash chain.
+The header also includes the block height, local time the block was proposed, 
+and the Merkle root hash of transactions included in the block.
 
 The consensus algorithm can be roughly divided into the following, somewhat orthogonal, components:
 
@@ -66,15 +71,18 @@ As will be seen, Tendermint affords an ability to identify and hold accountable 
 
 \section{Blockchain}
 
-Tendermint consensus operates on batches (blocks) of transactions at a time.
+Tendermint operates on batches (blocks) of transactions at a time.
 Continuity is maintained from one block to the next by explicitly linking each block to the one before it 
 via it's cryptographic hash, forming a blockchain. 
 The blockchain contains the ordered transaction log and evidence that the block was committed 
 by the validators.
 
 \subsection{Why Blocks?}
-Most consensus algorithms commit transactions one at a time by design, and implement batching after the fact.
-Using blocks results in two primary optimizations, which give us more throughput and fault-tolerance:
+Consensus algorithms typically commit transactions one at a time by design, 
+and implement batching after the fact.
+As mentioned in Chapter \ref{ch:background}, 
+tackling the problem from the perspective of batched atomic broadcast
+results in two primary optimizations, which give us more throughput and fault-tolerance:
 
 \begin{itemize}
 \item{Bandwidth optimization: since every commit requires two rounds of communication across all validators, 
@@ -83,14 +91,19 @@ Using blocks results in two primary optimizations, which give us more throughput
 \end{itemize}
 
 Blocks induce another effect as well, which is more subtle but potentially important. 
-They increase the minimum latency of a transaction to that of the whole block, which for Tendermint is on the order of hundreds of milliseconds to seconds.
-Traditional serializable database systems provide commit latencies on the order of milliseconds to tens of milliseconds.
-They are able to do this because they are not Byzantine Fault Tolerant, requiring only one round of communication (instead of two)
+They increase the minimum latency of a transaction to that of the whole block, 
+which for Tendermint is on the order of hundreds of milliseconds to seconds.
+Traditional serializable database systems provide commit latencies on the 
+order of milliseconds to tens of milliseconds.
+They are able to do this because they are not Byzantine Fault Tolerant, 
+requiring only one round of communication (instead of two)
 and responses from over half of the replicas (instead of two-thirds).
-However, unlike the fast commit times interrupted by leader elections in other consensus algorithms,
-Tendermint provides a more regular pulse that is more responsive to the overall health of the network, in terms of node failures and asynchrony.
+However, unlike the fast commit times interrupted by leader elections in other algorithms,
+Tendermint provides a more regular pulse that is more responsive to the overall health of the network, 
+in terms of node failures and asynchrony.
 
-What role such pulses might play in the coherence of communicating autonomous systems on the internet is yet to be determined,
+What role such pulses might play in the coherence of 
+communicating autonomous systems on the internet is yet to be determined,
 though purposefully induced latency has shown promise in the financial markets \cite{iex}.
 
 \subsection{Block Structure}
