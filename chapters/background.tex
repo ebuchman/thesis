@@ -32,7 +32,7 @@ every process will compute the same state given the same transaction log.
 A summary of the replicated state machine architecture is given in Figure \ref{fig:replicated_state_machine}.
 
 \begin{figure}[]
-	\includegraphics[width=\linewidth,height=\textheight,keepaspectratio]{figures/diagrams/state_machine.png}
+	\includegraphics[width=\linewidth,height=\textheight,keepaspectratio]{figures/diagrams/state_machine.pdf}
     	\centering
 	\caption[Overview of replicated state machine architecture]{
 A replicated state machine replicates a transaction log and resulting state across multiple machines. 
@@ -215,7 +215,7 @@ thereby violating the safety condition.
 Hence, the upper bound on faults tolerated by a Byzantine system is strictly lower than a non-Byzantine one.
 
 \begin{figure}[]
-	\includegraphics[width=\linewidth,height=\textheight,keepaspectratio]{figures/diagrams/byzantine.png}
+	\includegraphics[width=\linewidth,height=\textheight,keepaspectratio]{figures/diagrams/byzantine.pdf}
     	\centering
 	\caption[Byzantine processes tell lies]{
 A Byzantine process, C, tells A one thing and B another, causing them to come to different conclusions about the network.
