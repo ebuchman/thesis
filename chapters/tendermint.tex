@@ -239,26 +239,41 @@ if they have seen a polka in a round greater than that in which they locked.
 Now that we have explained the protocol in detail, 
 we provide a formal specification in the $\pi$-calculus.
 
+%\begin{figure}[]
+\begin{figure}[]
+    	\centering
+	\input{figures/descriptions/tendermint-pi1}
+	\caption[Formal specification of Tendermint consensus in the $\pi$-calculus, part I]{Formal specification of Tendermint consensus in the $\pi$-calculus, part I}
+	\label{fig:tendermint_pi1}
+\end{figure}
+
+\begin{figure}[]
+    	\centering
+	\input{figures/descriptions/tendermint-pi2}
+	\caption[Formal specification of Tendermint consensus in the $\pi$-calculus, part II]{Formal specification of Tendermint consensus in the $\pi$-calculus, part II}
+	\label{fig:tendermint_pi}
+\end{figure}
+
+
 Let $Consensus := \prod_{i=1}^N Y_i $ represent a consensus protocol
 over a set of $N$ validators, each executing one of a mutually exclusive set of processes, $Y_i$.
 Internal state $s = \{r, p, v \}$ consists of a strictly increasing round, $r$,
 a proposal $p$, containing the proposed block for this round;
 and a set of votes, $v$, containing all votes at all rounds;
 We denote by $v_r^1$ and $v_r^2$ the set of prevotes and precommits, respectively, at round $r$.
-We define $proposer(r) = r \mod n$ to be the index of the proposer at round $r$.
+We define $proposer(r) = r \mod N$ to be the index of the proposer at round $r$.
 We represent a peer at a particular point in the protocol as $Y_i^{r, p, v}$.
-Processes $Y_i$ range over $PR_i$, $PV_i$, $PC_i$, $C_i$,
+Processes $Y_i$ range over $PR_i$, $PV_i$, $PC_i$, 
 respectively abbreviating 
-\emph{propose}, \emph{prevote}, \emph{precommit}, \emph{commit}.
+\emph{propose}, \emph{prevote}, \emph{precommit}.
 We introduce additional sub-functions for $PV$ and $PC$ to capture the recursion,
 denoted $PV1$, $PV2$, etc.
 
 Peers are connected using broadcast channels for each message type,
 namely $propose_i$, $prevote_i$, and $precommit_i$,
-as well as a channel for broadcasting new transactions, $b_i$,
-and one for deciding on, or committing, the next block, $d_i$.
-Via an abuse of notation, a single send on some $x_i$ can be received by each process along
-$x_i$.
+as well as a channel for deciding on, or committing, a value, $d_i$.
+Via an abuse of notation, a single send on a broadcast channel $xxx_i$ can be received by each process along
+$xxx_i$.
 
 We use only two message types: proposals and votes. 
 Each contains a round number, block (hash), and signature, 
@@ -266,12 +281,7 @@ denoted $msg.round$, $msg.block$, $msg.sig$.
 Note we can absorb the signature into the broadcast channel itself,
 but we need it for use as evidence in the event of Byzantine behaviour.
 
-The specification is given in Figure \ref{fig:tendermint-pi}
-
-\begin{figure}[]
-	\input{figures/descriptions/tendermint-pi}
-	\label{fig:tendermint-pi}
-\end{figure}
+The specification is given in two parts, in Figures \ref{fig:tendermint_pi1} and \ref{fig:tendermint_pi2}.
 
 \section{Blockchain}
 
