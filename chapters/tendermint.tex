@@ -1,12 +1,11 @@
 \chapter{Tendermint Consensus}
 \label{ch:tendermint}
 
-This chapter presents the Tendermint algorithm for consensus 
+This chapter presents the Tendermint consensus algorithm 
 and an associated blockchain for atomic broadcast.
 The BFT consensus problem is described in detail, 
 and a formal specification of Tendermint consensus is given in the $\pi$-calculus.
-The Tendermint blockchain is informally proven to satisfy atomic broadcast,
-following the original proof of safety for Raft.
+The Tendermint blockchain is informally proven to satisfy atomic broadcast.
 We leave it to future work to capture the full blockchain protocol in 
 a process calculus and to verify its properties.
 
@@ -172,7 +171,7 @@ A pre-commit for nil is a vote to actually move to the next round.
 If a validator receives more than two-thirds pre-commits for a single block, 
 it commits that block, computes the resulting state,
 and moves on to round 0 at the next height.
-If a validator receives more than two-thirds nil-pre-commits,
+If a validator receives more than two-thirds pre-commits for nil,
 it moves on to the next round.
 
 \subsection{Locks}
@@ -197,19 +196,19 @@ There are two rules of locking:
 
 
 For simplicity, a validator is considered to have locked on nil at round -1 at each height, 
-so that Unlock-on-Polka implies that a validator cannot precommit at all at a new height until they see a polka.
+so that Unlock-on-Polka implies that a validator cannot precommit at a new height until they see a polka.
 
 These rules can be understood more intuitively by way of examples. 
-Consider four validators, $A$, $B$, $C$, $D$, and suppose there is a proposal for $blockA$ at round $R$. 
+Consider four validators, $A$, $B$, $C$, $D$, and suppose there is a proposal for $blockX$ at round $R$. 
 Suppose there is a polka for $blockX$, 
 but $A$ doesn't see it, and precommits nil, 
 while the others precommit for $blockX$.
 Now suppose the only one to see all precommits is D, 
-while the others, say, don't see D's precommit (they only see their two precommits and Val1's nil-precommit).
+while the others, say, don't see D's precommit (they only see their two precommits and A's precommit nil).
 D will now commit the block, while the others go to round $R+1$.
 Since any of the validators might be the new proposer, 
 if they can propose and vote for any new block, say $blockY$, 
-then they might commit it and compromise safety, since $D$ already committed $blockA$.
+then they might commit it and compromise safety, since $D$ already committed $blockX$.
 Note that there isn't even any Byzantine behaviour here, just asynchrony!
 
 Locking solves the problem by forcing validators to stick with the block they pre-committed, 
@@ -276,10 +275,10 @@ The specification is given in Figure \ref{fig:tendermint-pi}
 
 \section{Blockchain}
 
-Tendermint operates on batches (blocks) of transactions at a time.
+Tendermint operates on batches, or blocks, of transactions at a time.
 Continuity is maintained from one block to the next by explicitly linking each block to the one before it 
 via it's cryptographic hash, forming a blockchain. 
-The blockchain contains the ordered transaction log and evidence that the block was committed 
+The blockchain contains both the ordered transaction log and evidence that the block was committed 
 by the validators.
 
 \subsection{Why Blocks?}
@@ -317,12 +316,6 @@ The purpose of blocks is to contain a batch of transactions, and to link to the 
 The link comes in two forms: the previous block hash,
 and the set of pre-commits which caused the previous block to be committed, also known as the $LastCommit$.
 Thus a block is composed of three parts: the block header, the list of transactions, and the $LastCommit$.
-The composition of the header is given in Figure \ref{fig:header}
-
-\begin{figure}[]
-	\input{figures/descriptions/block_header.tex}
-	\label{fig:header}
-\end{figure}
 
 \section{Safety}
 
@@ -428,6 +421,71 @@ In future work, we aim to provide a more formal proof of Tendermint's safety pro
 
 
 \section{Accountability}
+
+An accountable BFT algorithm is one that can identify all Byzantine validators 
+when there is a violation of safety. 
+Traditional BFT algorithms do not have this property,
+and provide no guarantees in the event safety is compromised.
+Of course, accountability can only apply when between one-third and two-thirds of
+validators are Byzantine.
+If more than two-thirds are Byzantine, they can completely dominate the protocol,
+and we have no guarantee that a correct validator will receive any evidence of their misdeeds.
+
+Futhermore, accountability can be at best eventual in asynchronous networks - 
+following a violation of safety, the delayed delivery of critical messages
+may make it impossible to determine which validators were Byzantine until some time after
+the safety violation is detected. 
+In fact, if correct processes can receive evidence of Byzantine behaviour, 
+but fail irreversibly before they are able to gossip it, 
+there may be cases where accountability is permanently compromised,
+though in practice such situations should be surmountable
+with advanced backup solutions.
+
+By enumerating the possible ways in which a violation of safety can occur,
+and showing that in each case, the Byzantine validators are identifiable,
+a protocol can be shown to be accountable.
+Tendermint's simplicity affords it a much simpler analysis than protocols 
+which have to manage leadership elections.
+
+There are only two ways for a violation of safety to occur in Tendermint,
+and both are accountable.
+In the first, a Byzantine proposer makes two conflicting proposals within a round,
+and Byzantine validators vote for both of them.
+In the second, Byzantine validators violate locking rules after some validators have already committed,
+causing other validators to commit a different block in a later round.
+Note that it is not possible to cause a violation of safety with two-thirds or fewer
+Byzantine validators using only violations of Unlock-on-Polka - 
+more than a third must violate Prevote-the-Lock for their to be a polka justifying a commit 
+for the remaining honest nodes.
+
+In the case of conflicting proposals and conflicting votes,
+it is trivial to detect the conflict by receiving both messages,
+and to identify culprits via their signatures.
+
+In the case of violating locking rules, following a violation of safety,
+correct validators must broadcast all votes they have seen at that height, 
+so that the evidence can be stitched together.
+The correct validators, which number something under two-thirds, 
+were collectively privy to all votes which caused the two blocks to be committed.
+Within those votes, if there are not a third or more validators signing conflicting votes,
+then there are a third or more violating Prevote-the-Lock.
+
+If a pre-vote or a pre-commit influenced a commit, it must have been seen by a correct validator.
+Thus, by collecting all votes, violations of Prevote-the-Lock can be detected
+by matching each pre-vote to the most recent pre-commit by the same validator, unless there isn't one.
+
+Similarly, violations of Unlock-on-Polka can be detected by matching each pre-commit
+to the polka that justifies it. 
+Note that this means a Byzantine validator can pre-commit before seeing a polka,
+and escape accountability if the appropriate polka eventually occurs.
+However, such cases cannot actually contribute to violations of safety 
+if the polka is happening anyways.
+
+The current design provides accountability following a post-crisis broadcast protocol,
+but it could be improved to allow accountability in real time. 
+That is, a commit could be changed to include not just the precommits, but all votes 
+justifying the precommits, going all the way back to the beginning of the height.
+That way, if safety is violated, the unjustified votes can be detected immediately.
 
 \section{Faults and Availability}
 
