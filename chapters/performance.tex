@@ -111,12 +111,12 @@ To evaluate performance in the face of network asynchrony, twenty percent of all
 from one to ten seconds.
 \fi
 
-\begin{figure}[]
-	Crash-fault latency statistics	\\\\
+\begin{table}
+	Crash-fault latency statistics \\\\
 	\input{figures/throughput/crash_tables}
 	\caption[Latency statistics under crash faults]{Every three seconds, a random $N_{fault}$ validators were crashed, and restarted three seconds later. This crash-restart procedure continued for 200 blocks. Each table reports the minimum, maximum, average, median, and $95^{th}$ percentile of the block latencies, for varying values of the TimeoutPropose parameter.}
 	\label{fig:exp:crash_failure}
-\end{figure}
+\end{table}
 
 
 \section{Byzantine Failures}
@@ -136,14 +136,14 @@ Taken together, these behaviours explicitly violate the double signing and locki
 Despite these faults, which would cause many systems to fail completely and immediately,
 Tendermint maintains respectable latencies, in some cases better and in others worse than crash faults.
 
-\begin{figure}[]
+\begin{table}[]
 	Byzantine-fault latency statistics \\\\
 	\input{figures/throughput/byz_tables}
 	\caption[Latency statistics under byzantine faults]{$N_{fault}$ validators were set to be byzantine.
 Byzantine validators propose conflicting blocks and vote on any proposal as soon as they see it.
 Each table reports the minimum, maximum, average, median, and $95^{th}$ percentile of the block latencies, for varying values of the TimeoutPropose parameter.}
 	\label{fig:exp:byz_failure}
-\end{figure}
+\end{table}
 
 
 
