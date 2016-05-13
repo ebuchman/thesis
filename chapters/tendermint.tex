@@ -1,44 +1,24 @@
 \chapter{Tendermint Consensus}
 \label{ch:tendermint}
 
-This chapter presents the Tendermint consensus algorithm and communicates the intuitions underlying its security.
+This chapter presents the Tendermint algorithm for consensus 
+and an associated blockchain for atomic broadcast.
+The BFT consensus problem is described in detail, 
+and a formal specification of Tendermint consensus is given in the $\pi$-calculus.
+The Tendermint blockchain is informally proven to satisfy atomic broadcast,
+following the original proof of safety for Raft.
+We leave it to future work to capture the full blockchain protocol in 
+a process calculus and to verify its properties.
 
 \section{Tendermint Overview}
 
-Tendermint is a blockchain based algorithm for the secure replication of a state
-machine.
-The algorithm is summarized in Figure \ref{fig:tendermint_summary}, 
-its key properties as a replicated state machine are summarized in Figure \ref{fig:tendermint_guarantees}, 
-and its key security properties are summarized in Figure \ref{fig:tendermint_security}.
-The key data types are given in Figure \ref{fig:tendermint_types}.
+Tendermint is a secure state-machine replication algorithm in the blockchain paradigm.
+It provides a form of BFT-ABC that is furthermore accountable - 
+if safety is violated, it is always possible to verify who acted maliciously.
 
-\begin{figure}[]
-	\input{figures/descriptions/consensus_rules.tex}
-	\label{fig:tendermint_summary}
-\end{figure}
-
-\begin{figure}[]
-	\input{figures/descriptions/safety_guarantees.tex}
-	\label{fig:tendermint_guarantees}
-\end{figure}
-
-\begin{figure}[]
-	\input{figures/descriptions/security_guarantees.tex}
-	\label{fig:tendermint_security}
-\end{figure}
-
-\lstset{xleftmargin=-1in}
-\floatstyle{plain}
-\restylefloat{figure}
-\begin{figure}[]
-	\input{figures/descriptions/data_structures.tex}
-	\label{fig:tendermint_types}
-\end{figure}
-\floatstyle{boxed}
-\restylefloat{figure}
-
-Tendermint begins with a set of \emph{validators}, each of which is responsible for maintaining a full copy of the replicated state,
-and for participating by proposing new blocks (batches of transactions), and voting on them.
+Tendermint begins with a set of \emph{validators}, identified by their public key,
+where each validator is responsible for maintaining a full copy of the replicated state,
+and for proposing new blocks (batches of transactions), and voting on them.
 Each block is assigned an incrementing index, or \emph{height}, 
 such that a valid blockchain has only one valid block at each height.
 At each height, validators take turns proposing new blocks in \emph{rounds}, 
@@ -46,7 +26,8 @@ such that for any given round there is at most one valid proposer.
 It may take multiple rounds to commit a block at a given height due to the asynchrony of the network,
 and the network may halt altogether if more than one-third of the validators are offline or partitioned.
 Validators engage in two phases of voting on a proposed block before it is committed, 
-and follow a simple locking mechanism which prevents any coalition of up to one third malicious validators from compromising safety.
+and follow a simple locking mechanism which prevents any coalition of up to 
+one third malicious validators from compromising safety.
 
 Note that the core round-based voting mechanism is the consensus algorithm, 
 which is strung together into blocks to yield atomic broadcast.
@@ -55,19 +36,243 @@ which includes the hash of the block at the previous height, resulting in a hash
 The header also includes the block height, local time the block was proposed, 
 and the Merkle root hash of transactions included in the block.
 
+\section{Consensus}
+
 The consensus algorithm can be roughly divided into the following, somewhat orthogonal, components:
 
 \begin{itemize}
 
 \item{Proposals: a new block must be proposed by the correct proposer at each round, and gossiped to the other validators. If a proposal is not received in sufficient time, the proposer should be skipped.}
 
-\item{Votes: two phases of voting must occur to ensure optimal Byzantine fault tolerance. They are called \emph{pre-vote} and \emph{pre-commit}. A set of pre-commits from more than two-thirds of the validators for the same block at the same round is a \emph{commit}.}
+\item{Votes: two phases of voting must occur to ensure optimal Byzantine fault tolerance. They are called \emph{pre-vote} and \emph{pre-commit}. $A$ set of pre-commits from more than two-thirds of the validators for the same block at the same round is a \emph{commit}.}
 
 \item{Locks: Tendermint ensures that no two validators commit a different block at the same height, presuming less than one-third of the validators are malicious. This is achieved using a locking mechanism which determines how a validator may pre-vote or pre-commit depending on previous pre-votes and pre-commits at the same height. Note that this locking mechanism must be carefully designed so as to not compromise liveness.}
 
 \end{itemize}
 
-As will be seen, Tendermint affords an ability to identify and hold accountable malicious validators, thus providing greater security guarantees than competing algorithms in the event that one-third or more Byzantine validators compromise safety.
+\begin{figure}[]
+	\includegraphics[width=\linewidth,height=\textheight,keepaspectratio]{figures/diagrams/consensus_logic.png}
+    	\centering
+	\caption[Overview of Tendermint consensus logic]{
+After the proposal step, validators only make progress after hearing from two-thirds or more (+2/3) of other validators. The dotted arrow extends the consensus into atomic broadcast by moving to the next height.}
+	\label{fig:consensus_logic}
+\end{figure}
+
+In order to provide tolerance to a single Byzantine fault, 
+a Tendermint network must contain at minimum four validators.
+Each validator must possess an asymmetric cryptographic key-pair for producing digital signatures.
+Validators start from a common initial state, 
+which contains the ordered list, $\mathcal{L}$, of validators.
+Each validator is identified via their public key, and 
+all proposals and votes must be signed by the respective private key.
+This ensures that proposals and votes can always be verified by any observer.
+It is helpful to assume that up to one-third of validators are malicious, 
+co-operating in arbitrary ways to subvert system safety or liveness.
+
+Consensus begins at round 0; the first proposer is the first validator in $\mathcal{L}$.
+The outcome of a round is either a commit, or a decision to move to the next round.
+With a new round comes the next proposer.
+Using multiple rounds gives validators multiple opportunities 
+to come to consensus in the event of network asynchrony or validator failures.
+
+In contrast to algorithms which require a form of leader election, 
+Tendermint has a new leader (the proposer) for each round.
+Validators vote to skip to the next round in the same way they vote to accept the proposal,
+lending the protocol a uniformity of mechanism that is absent 
+from algorithms with an explicit leader-election program.
+
+The beginning of each round has a weak dependence on synchrony as it utilizes local clocks to determine when to skip a proposer.
+That is, if a validator does not receive a proposal within a locally measured \emph{TimeoutPropose} of entering a new round, it can vote to skip the proposer.
+Inherent in this mechanism is the assumption that, at least eventually, the proposal will be delivered within \emph{TimeoutPropose}, which may itself increment with each round.
+This assumption is discussed more fully in Chapter \ref{ch:related}.
+
+After the proposal, rounds proceed in a fully asynchronous manner - a validator makes progress only after hearing from more than two-thirds of the other validators.
+This relieves any sort of dependence on synchronized clocks or bounded network delays,
+but implies that the network will halt if one-third or more of the nodes become unresponsive.
+This circuit of weakly synchronous proposals, followed by asynchronous voting, 
+is depicted in Figure \ref{fig:consensus_logic}.
+
+To round-skip safely, a small number of \emph{locking} rules 
+are introduced which force validators to justify their votes.
+While we don't necessarily require them to broadcast their justifications in real time, 
+we do expect them to keep the data,
+such that it can be brought forth as evidence in the event that safety 
+is compromised by sufficient Byzantine failures.
+This accountability mechanism enables Tendermint to provide 
+stronger guarantees in the face of such failure than eg.~PBFT,
+which provides no guarantees if a third or more of the validators are Byzantine.
+
+Validators communicate using a diverse set of messages for managing the blockchain, 
+application state, peer network, and consensus.
+The core consensus algorithm, however, consists of just two messages:
+
+\begin{itemize}
+\item{\emph{ProposalMsg}: a proposal for a block at a given height and round, signed by the proposer.}
+\item{\emph{VoteMsg}: a signed vote for a proposal.}
+\end{itemize}
+
+In practice, we use additional messages to optimize the gossiping of block data and votes, as discussed in Chapter \ref{ch:subprotocols}.
+
+\subsection{Proposals}
+
+Each round begins with a proposal. 
+The propser for the given round takes a batch of recently received transactions from its local cache (the Mempool, see Chapter \ref{ch:subprotocols}),
+composes a block, and broadcasts a signed ProposalMsg containing the block.
+If the proposer is Byzantine, it might broadcast different proposals to different validators.
+
+Proposers are ordered via a simple, deterministic round robin, 
+so only a single proposer is valid for a given round, 
+and every validator knows the correct proposer. 
+If a proposal is received for a lower round, or from an incorrect proposer, it is rejected.
+
+Cycling of proposers is necessary for Byzantine tolerance. 
+For instance, in Raft, if an elected leader is Byzantine and maintains strong network connections to other nodes,
+it can completely compromise the system, destroying all safety and liveness guarantees.
+Tendermint preserves safety via the voting and locking mechanisms, 
+and maintains liveness by cycling proposers, so if one won't process any transactions, others can pick up.
+Perhaps more interestingly, validators can vote through governance modules (see Chapter \ref{ch:governance}) to remove or replace Byzantine validators.
+
+\subsection{Votes}
+
+Once a complete proposal is received by a validator, 
+it signs a pre-vote for that proposal and broadcasts it to the network.
+If a validator does not receive a correct proposal within \emph{ProposalTimeout}, 
+it prevotes for \emph{nil} instead.
+
+In asynchronous environments with Byzantine validators, 
+a single stage of voting, where each validator casts only one vote,
+is not sufficient to ensure safety.
+In essence, because validators can act fraudulently, 
+and because there are no guarantees on message delivery time,
+a rogue validator can co-ordinate some validators to commit a value
+while others, having not seen the commit, 
+go to a new round, within which they commit a different value.
+
+A single round of voting allows validators to tell each other what they know about the proposal.	
+But to tolerate Byzantine faults (which amounts, essentially to lies, fraud, deceipt, etc.), 
+they must also tell each other what they know about what other validators have professed to know about the proposal.
+In otherwords, a second stage ensures that enough validators witnessed the result of the first stage.
+
+A pre-vote for a block is thus a vote to prepare the network to commit the block.
+A pre-vote for nil is a vote to prepare the network to move to the next round.
+In an ideal round with an online proposer, more than two-thirds of validators will pre-vote for the proposal.
+A set of more than two-thirds of pre-votes for a single block at a given round is known as a \emph{polka}\footnote{The original term used was PoL, or PoLC, for Proof-of-Lock or Proof-of-Lock-Change. The term evolved to polka as it was realized the validators are doing the polka.}.
+A set of more than two-thirds of pre-votes for nil is a \emph{nil-polka}
+
+When a validator receives a polka (read: more than two-thirds pre-votes for a single block), 
+it has received a signal that the network is prepared to commit the block,
+and serves as justification for the validator to sign and broadcast a pre-commit vote for that block.
+Sometimes, due to network asynchrony, a validator may not receive a polka, or there may not have been one. 
+In that case, the validator is not justified in signing a pre-commit for that block, 
+and must therefore sign and publish a pre-commit vote for nil.
+That is, it is considered malicious behaviour to sign a pre-commit without justification from a polka.
+
+A pre-commit is a vote to actually commit a block.
+A pre-commit for nil is a vote to actually move to the next round.
+If a validator receives more than two-thirds pre-commits for a single block, 
+it commits that block, computes the resulting state,
+and moves on to round 0 at the next height.
+If a validator receives more than two-thirds nil-pre-commits,
+it moves on to the next round.
+
+\subsection{Locks}
+
+Ensuring safety across rounds can be tricky, 
+as circumstances must be avoided which would provide justification for two different blocks to be committed at two different rounds at the same height.
+In Tendermint, this problem is solved via a \emph{locking} mechanism.
+In essence, once a pre-commit is cast, a validator is \emph{locked} on the associated block, and must follow certain locking rules.
+There are two rules of locking:
+
+\begin{itemize}
+\item{Prevote-the-Lock: a validator must pre-vote for the block they are locked on,
+	and propose it if they are the proposer.	
+	This prevents validators from pre-committing one block in one round, 
+	and then contributing to a polka for a different block in the next round, 
+	thereby compromising safety.}
+\item{Unlock-on-Polka: a validator may only release a lock after seeing a polka at a round greater than that at which it locked.
+	This allows validators to unlock if they pre-committed something the rest of the network doesn't want to commit,
+	thereby protecting liveness, but does it in a way that does not compromise safety,
+	by only allowing unlocking if there has been a polka in a round after that in which the validator became locked.}
+\end{itemize}
+
+
+For simplicity, a validator is considered to have locked on nil at round -1 at each height, 
+so that Unlock-on-Polka implies that a validator cannot precommit at all at a new height until they see a polka.
+
+These rules can be understood more intuitively by way of examples. 
+Consider four validators, $A$, $B$, $C$, $D$, and suppose there is a proposal for $blockA$ at round $R$. 
+Suppose there is a polka for $blockX$, 
+but $A$ doesn't see it, and precommits nil, 
+while the others precommit for $blockX$.
+Now suppose the only one to see all precommits is D, 
+while the others, say, don't see D's precommit (they only see their two precommits and Val1's nil-precommit).
+D will now commit the block, while the others go to round $R+1$.
+Since any of the validators might be the new proposer, 
+if they can propose and vote for any new block, say $blockY$, 
+then they might commit it and compromise safety, since $D$ already committed $blockA$.
+Note that there isn't even any Byzantine behaviour here, just asynchrony!
+
+Locking solves the problem by forcing validators to stick with the block they pre-committed, 
+since other validators might have committed based on those precommits (as $D$ did in this example).
+In essence, once more than two-thirds precommit a block in a round, the network is locked on that block,
+which is to say it must be impossible to produce a valid polka for a different block at a higher round.
+This is direct motivation for Prevote-the-Lock.
+
+Prevote-the-Lock is not sufficient, however. 
+There must be a way to unlock, lest we sacrifice liveness.
+Consider a round where $A$ and $B$ precommitted $blockX$ while $C$ and $D$ precommitted nil - a split vote.
+They all move to the next round, and $blockY$ is proposed, which $C$ and $D$ prevote for.
+Suppose $A$ is Byzantine, and prevotes for $blockY$ as well (despite being locked on $blockX$), resulting in a polka.
+Suppose $B$ does not see the polka and precommits nil, while $A$ goes off-line and $C$ and $D$ precommit $blockY$. 
+They move to the next round, but $B$ is still locked on $blockX$, while $C$ and $D$ are now locked on $blockY$, 
+and since $A$ is offline, they can never get a polka. 
+Hence, we've compromised liveness with less than a third (here, only one) Byzantine validators.
+
+The obvious justification for unlocking is a polka. 
+Once $B$ sees the polka for $blockY$ (which $C$ and $D$ used to jusitfy their precommits for $blockY$), 
+it ought to be able to unlock, and hence precommit $blockY$.
+This is the motivation for Unlock-on-Polka, 
+which allows validators to unlock (and precommit a new block),
+if they have seen a polka in a round greater than that in which they locked.
+
+\subsection{Formal Specification}
+
+Now that we have explained the protocol in detail, 
+we provide a formal specification in the $\pi$-calculus.
+
+Let $Consensus := \prod_{i=1}^N Y_i $ represent a consensus protocol
+over a set of $N$ validators, each executing one of a mutually exclusive set of processes, $Y_i$.
+Internal state $s = \{r, p, v \}$ consists of a strictly increasing round, $r$,
+a proposal $p$, containing the proposed block for this round;
+and a set of votes, $v$, containing all votes at all rounds;
+We denote by $v_r^1$ and $v_r^2$ the set of prevotes and precommits, respectively, at round $r$.
+We define $proposer(r) = r \mod n$ to be the index of the proposer at round $r$.
+We represent a peer at a particular point in the protocol as $Y_i^{r, p, v}$.
+Processes $Y_i$ range over $PR_i$, $PV_i$, $PC_i$, $C_i$,
+respectively abbreviating 
+\emph{propose}, \emph{prevote}, \emph{precommit}, \emph{commit}.
+We introduce additional sub-functions for $PV$ and $PC$ to capture the recursion,
+denoted $PV1$, $PV2$, etc.
+
+Peers are connected using broadcast channels for each message type,
+namely $propose_i$, $prevote_i$, and $precommit_i$,
+as well as a channel for broadcasting new transactions, $b_i$,
+and one for deciding on, or committing, the next block, $d_i$.
+Via an abuse of notation, a single send on some $x_i$ can be received by each process along
+$x_i$.
+
+We use only two message types: proposals and votes. 
+Each contains a round number, block (hash), and signature, 
+denoted $msg.round$, $msg.block$, $msg.sig$.
+Note we can absorb the signature into the broadcast channel itself,
+but we need it for use as evidence in the event of byzantine behaviour.
+
+The specification is given in Figure \ref{fig:tendermint-pi}
+
+\begin{figure}[]
+	\input{figures/descriptions/tendermint-pi}
+	\label{fig:tendermint-pi}
+\end{figure}
 
 \section{Blockchain}
 
@@ -118,177 +323,6 @@ The composition of the header is given in Figure \ref{fig:header}
 	\input{figures/descriptions/block_header.tex}
 	\label{fig:header}
 \end{figure}
-
-\section{Tendermint Basics}
-
-In order to provide tolerance to a single Byzantine fault, a Tendermint network must contain at minimum four validators.
-Each validator must possess an asymmetric cryptographic key-pair for producing digital signatures.
-Validators start from a common \emph{genesis} state, which contains the initial list of validators in terms of their public keys.
-All proposals and votes must be signed by the respective validator's private key, and can hence be verified by every other validator.
-It is helpful to assume that up to one-third of validators are malicious, co-operating in arbitrary ways to subvert system safety or liveness.
-
-Consensus begins for block 1, round 0; the proposer is the first validator listed in the genesis.
-The outcome of a round is either a commit, or a decision to move to the next round.
-With a new round comes the next proposer.
-Using multiple rounds gives validators multiple opportunities to come to consensus in the event of network asynchrony or validator failures.
-
-In contrast to algorithms which require a form of leader election, Tendermint has a new leader (the proposer) for each round.
-Validators vote to skip to the next round in the same way they vote to accept the proposal,
-lending the protocol a uniformity of mechanism that is absent from algorithms with an explicit leader-election program.
-
-The beginning of each round has a weak dependence on synchrony as it utilizes local clocks to determine when to skip a proposer.
-That is, if a validator does not receive a proposal within a locally measured \emph{TimeoutPropose} of entering a new round, it can vote to skip the proposer.
-Inherent in this mechanism is the assumption that, at least eventually, the proposal will be delivered within \emph{TimeoutPropose}, which may itself increment with each round.
-This assumption is discussed more fully in Chapter \ref{ch:related}.
-
-After the proposal, rounds proceed in a fully asynchronous manner - a validator makes progress only after hearing from more than two-thirds of the other validators.
-This relieves any sort of dependence on synchronized clocks or bounded network delays,
-but implies that the network will halt if one-third or more of the nodes become unresponsive.
-This circuit of weakly synchronous proposals, followed by asynchronous voting, 
-is depicted in Figure \ref{fig:consensus_logic}.
-
-\begin{figure}[]
-	\includegraphics[width=\linewidth,height=\textheight,keepaspectratio]{figures/diagrams/consensus_logic.png}
-    	\centering
-	\caption[Overview of Tendermint consensus logic]{
-After the proposal step, validators only make progress after hearing from two-thirds or more (+2/3) of other validators.}
-	\label{fig:consensus_logic}
-\end{figure}
-
-To round-skip safely, a small number of \emph{locking} rules are introduced which force validators to justify their votes.
-While we don't necessarily require them to broadcast their justifications in real time, we do expect them to keep the data,
-such that it can be brought forth as evidence in the event that safety is compromised by sufficient Byzantine failures.
-This accountability mechanism enables Tendermint to provide stronger guarantees in the face of such failure than eg.~PBFT,
-which provides no guarantees if a third or more of the validators are Byzantine.
-
-Validators communicate using a diverse set of messages for managing the blockchain, application state, peer network, and consensus.
-The core consensus algorithm, however, consists of just two messages:
-
-\begin{itemize}
-\item{\emph{ProposalMsg}: a proposal for a block at a given height and round, signed by the proposer.}
-\item{\emph{VoteMsg}: a signed vote for a proposal.}
-\end{itemize}
-
-In practice, we use additional messages to optimize the gossiping of block data and votes, as discussed in Chapter \ref{ch:subprotocols}.
-
-\section{Proposals}
-
-Each round begins with a proposal. 
-The propser for the given round takes a batch of recently received transactions from its local cache (the Mempool, see Chapter \ref{ch:subprotocols}),
-composes a block, and broadcasts a signed ProposalMsg containing the block.
-If the proposer is Byzantine, it might broadcast different proposals to different validators.
-
-Proposers are ordered via a simple, deterministic round robin, 
-so only a single proposer is valid for a given round, 
-and every validator knows the correct proposer. 
-If a proposal is received for a lower round, or from an incorrect proposer, it is rejected.
-
-Cycling of proposers is necessary for Byzantine tolerance. 
-For instance, in Raft, if an elected leader is Byzantine and maintains strong network connections to other nodes,
-it can completely compromise the system, destroying all safety and liveness guarantees.
-Tendermint preserves safety via the voting and locking mechanisms, 
-and maintains liveness by cycling proposers, so if one won't process any transactions, others can pick up.
-Perhaps more interestingly, validators can vote through governance modules (see Chapter \ref{ch:governance}) to remove or replace Byzantine validators.
-
-\section{Votes}
-
-Once a complete proposal is received by a validator, 
-it signs a pre-vote for that proposal and broadcasts it to the network.
-If a validator does not receive a correct proposal within \emph{ProposalTimeout}, 
-it signs and broadcasts a \emph{nil-pre-vote} instead.
-
-In Byzantine environments, a single stage of voting,
-where each validator casts only one vote,
-is not sufficient to ensure safety.
-This can be seen via a proof by contradiction.
-Suppose that a single round of voting, where more than two-thirds vote for a single block, were sufficient to commit the block.
-Consider a network with validators Val1, Val2, Val3, and Val4, where Val1 is Byzantine.
-Suppose Val1 both votes for the proposal, and nil-votes (it is Byzantine).
-Suppose Val2 and Val3 vote, while Val4 nil-votes (it didn't receive the proposal in time).
-Now, suppose Val2 sees the pre-votes from Val1, itself, and Val3, and hence commits the proposed block,
-but Val3 and Val4 only see messages from each other and the nil-prevote from Val1.
-Now Val3 and Val4 go to the next round, while Val2 has already committed, and only Val1 is Byzantine.
-Val1 also goes to the next round and the three of them commit a block.
-Now Val2 has committed one block while Val3 and Val4 have committed another while less than one-third of the validators (only Val1) are Byzantine,
-thus violating safety. 
-
-The importance of the example is to illustrate why using only a single round of voting
-is not sufficient if some validators can be Byzantine.
-A single round of voting allows validators to tell each other what they know about the proposal.	
-But to tolerate Byzantine faults (which amounts, essentially to lies, fraud, deceipt, etc.), 
-they must also tell each other what they know about what other validators have professed to know about the proposal.
-
-Thus, pre-voting is a preparation phase, in which validators synthesize what other validators know.
-A pre-vote for a block is a vote to prepare the network to commit the block.
-A nil-pre-vote is a vote to prepare the network to move to the next round.
-In an ideal round with an online proposer, more than two-thirds of validators will pre-vote for the proposal.
-A set of more than two-thirds of pre-votes for a single block at a given round is known as a \emph{polka}\footnote{The original term used was PoL, or PoLC, for Proof-of-Lock or Proof-of-Lock-Change. The term evolved to polka as it was realized the validators are doing the polka.}.
-A set of more than two-thirds of pre-votes for nil is a \emph{nil-polka}
-
-When a validator receives a polka (read: more than two-thirds pre-votes for a single block), 
-it has received a signal that the network is prepared to commit the block,
-and serves as justification for the validator to sign and broadcast a pre-commit vote for that block.
-Sometimes, due to network asynchrony, a validator may not receive a polka, or there may not have been one. 
-In that case, the validator is not justified in signing a pre-commit for that block, 
-and must therefore sign and publish a pre-commit vote for nil (nil-pre-commit).
-That is, it is considered malicious behaviour to sign a pre-commit without justification from a polka.
-
-A pre-commit is a vote to actually commit a block.
-A nil-pre-commit is a vote to actually move to the next round.
-If a validator receives more than two-thirds pre-commits for a single block, 
-it commits that block, computes the resulting state,
-and moves on to round 0 at the next height.
-If a validator receives more than two-thirds nil-pre-commits,
-it moves on to the next round.
-
-\section{Locks}
-
-Ensuring safety across rounds can be tricky, 
-as circumstances must be avoided which would provide justification for two different blocks to be committed at two different rounds at the same height.
-In Tendermint, this problem is solved via a \emph{locking} mechanism.
-In essence, once a pre-commit is cast, a validator is \emph{locked} on the associated block, and must follow certain locking rules.
-There are two rules of locking:
-
-\begin{itemize}
-\item{Prevote-the-Lock: a validator must pre-vote for the block they are locked on. 
-	This prevents validators from pre-committing one block in one round, 
-	and then contributing to a polka for a different block in the next round, 
-	thereby compromising safety.}
-\item{Release-Lock-on-Polka: a validator may only release a lock after seeing a polka or nil-polka at a round greater than that at which it locked.
-	This allows validators to unlock if they pre-committed something the rest of the network doesn't want to commit,
-	thereby protecting liveness, but does it in a way that does not compromise safety,
-	by only allowing unlocking if there has been a polka in a round after that in which the validator became locked.}
-\end{itemize}
-
-
-For simplicity, a validator is considered to have locked on nil at round -1 at each height, so that Release-Lock-on-Polka implies that a validator cannot precommit at all at a new height until they see a polka.
-
-These rules can be understood more intuitively by way of examples. 
-Consider again our four validators, and suppose there is a proposal for $blockA$ at round $R$. 
-Suppose there is a polka for $blockA$, but Val1 doesn't see it, and precommits nil, while the others precommit for $blockA$.
-Now suppose the only one to see all precommits is Val4, while the others, say, don't see Val4's precommit (they only see their two precommits and Val1's nil-precommit).
-Val4 will now commit the block, while the others go to round $R+1$.
-Since any of the validators might be the new proposer, if they can propose and vote for any new block, say $blockB$, then they might commit it and compromise safety, since Val4 already committed $blockA$.
-Note that there isn't even any Byzantine behaviour here, just asynchrony!
-
-Locking solves the problem by forcing validators to stick with the block they pre-committed, since other validators might have committed based on those precommits (as Val4 did in this example).
-In essence, once more than two-thirds precommit a block in a round, the network is locked on that block,
-which is to say it must be impossible to produce a valid polka for a different block at a higher round.
-This is direct motivation for Prevote-the-Lock.
-
-Prevote-the-Lock is not sufficient, however. There must be a way to unlock, lest we sacrifice liveness.
-Consider a round where Val1 and Val2 precommitted $blockA$ while Val3 and Val4 precommitted nil.
-They all move to the next round, and $blockB$ is proposed, which Val3 and Val4 prevote for.
-Suppose Val1 is Byzantine, and prevotes for $blockB$ as well (despite being locked on $blockA$), resulting in a polka.
-Suppose Val2 does not see the polka and precommits nil, while Val1 goes off-line and Val3 and Val4 precommit $blockB$. 
-They move to the next round, but Val2 is still locked on $blockA$, while Val3 and Val4 are now locked on $blockB$, 
-and since Val1 is offline, they can never get a polka. Hence, we've compromised liveness with less than a third (here, only one) Byzantine validators.
-
-The obvious justification for unlocking is a polka. Once Val2 sees the polka for $blockB$ (which Val3 and Val4 used to jusitfy their precommits for $blockB$), 
-it ought to be able to unlock, and hence precommit $blockB$.
-This is the motivation for Release-Lock-on-Polka, which allows validators to unlock (and precommit a new block) if they have seen a polka in a round greater than that in which they locked.
-
-A complete description of Tendermint consensus is given in Figure \ref{fig:tendermint_consensus_protocol}.
 
 \section{Safety}
 

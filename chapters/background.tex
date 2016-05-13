@@ -1,6 +1,8 @@
 \chapter{Background}
 \label{ch:background}
 
+\renewcommand{\|}{\;|\;}
+
 Distributed consensus systems have become a critical component of modern internet infrastructure, 
 powering every major internet application at some level or another.
 This chapter introduces the necessary background material for understanding and discussing these systems.
@@ -310,23 +312,25 @@ They are further difficult to formally verify,
 as most techniques for formal verification, and in fact the very foundations of computer science,
 have been specifically developed with sequential computation in mind.
 
-Process calculi are a family of models of computation introduced 
+Process calculi are a family of models introduced 
 to provide a formal basis for concurrent computation.
-The most popular calculus, the Comunicating Sequential Processes (CSP),
+The most popular calculus, the Comunicating Sequential Processes (CSP) \cite{csp}
 forms the theoretical foundation for many modern programming languages which 
-include concurrency primitives in the language design.
+include concurrency primitives in the language design \cite{csp_go}.
 
 In the 80s, Robin Milner introduced the Calculus of Communicating Systems (CCS), 
-designed to be a concurrent analog of the sequential lambda calculus.
+designed to be a concurrent analog of the sequential lambda calculus that underlies most functional programming languages.
 While the lambda calculus has function application as its basic unit of computation,
-CCS uses communication between two concurrent processes over a shared channel.
+CCS uses communication between two concurrent processes over a shared channel as its basic operational primitive.
 A more general form of CCS, the $\pi$-calculus, 
 enables mobility in the communication graph between processes, 
-such that the channels of communication can themselves be passed along other channels.
+such that the channels of communication can themselves be passed along other channels,
+thereby blurring the distinction between data, variables, and channels.
+The result is a coherent, minimalistic model of computation more powerful than its sequential predecessors.
 
 The $\pi$-calculus has proven to be a highly effective tool for the study of concurrent systems,
 with applications from business process management \cite{pi_biz} to cellular biology \cite{stochastic_pi}.
-The remarkably simple notion dramatically simplifies the description of concurrent protocols.
+The remarkably simple notation simplifies the description of concurrent protocols.
 Furthermore, the well known equivalence between computation and logic \cite{curry_howard} enables
 logical systems to be defined complementary to the various process calculi,
 providing formal means to discuss and verify the properties of systems specified in an appropriate calculus.
@@ -334,20 +338,52 @@ providing formal means to discuss and verify the properties of systems specified
 While we use the $\pi$-calculus to specify the Tendermint algorithm, 
 we leave use of an associated formal logic, and the corresponding verification of properties, to future work.
 
-The grammar of the $\pi$-calculus is as follows:
+The grammar of the $\pi$-calculus, in Backus-Naur form, is as follows:
 
 
+\begin{center}
+	\begin{tabular}{l }
+		{$\!\begin{aligned}
+			P & := & 0  & & \text{ \emph{void}}\\
+			    & \; \| & P \| P  & & \text{ \emph{par}} \\
+			    & \; \| & \alpha.P  & & \text{ \emph{guard}} \\
+			    & \; \| & \alpha.P  + \alpha.P & & \text{ \emph{guarded-choice}} \\
+			    & \; \| & (\nu x) P & & \text{ \emph{fresh}}\\ \\
+
+			\alpha & := & \tau & & \text{ \emph{null}} \\
+			    & \; \| & x!(y) & & \text{ \emph{send}} \\
+			    & \; \| & x?(y) & & \text{ \emph{receive}}\\
+		\end{aligned}$} \\ 
+	\end{tabular}
+\end{center}
+
+Each grammatical rule is labelled with a reference to its functional meaning.
+In essence, a process may be the empty process, $0$, 
+or it may be two processes running concurrently, $P \| P$.
+A guarded processes, $\alpha.P$, only allows process $P$ to execute after an action, $\alpha$,
+has occured.
+The action can be a null action, $\tau$, or it can be the sending, $x!(y)$, 
+or receiving, $x?(y)$, of $y$ along $x$.
+Guarded choice injects non-determinism into the operation of the calculus, 
+such that the processes $\alpha.P + \beta.Q$ will non-deterministically execute
+$\alpha$ or $\beta$, and then run $P$ or $Q$, respectively.
+Finally, a new channel, $x$, can be created via $(\nu x) P$, such that $x$ is only accessible in $P$.
+
+A structural congruence on processes is defined as the largest relation satisfying
 
 
+Structural congruence permits certain forms of re-arranging of a process term that will still yield the same process.
+On the other hand, an operational semantics defines the actual non-reversible computational steps that a process may execute.
+Effectively, the only relevant operation is communication, known as the \emph{comm} rule:
 
 
+Now, given a $\pi$-calculus process, we can follow its execution by applying the comm rule.
+For instance, the process
 
 
+Applied - functions, other notation, broadcast, etc.
 
-
-
-
-
+Logic ...
 
 
 \section{The Need For Tendermint}

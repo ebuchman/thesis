@@ -10,8 +10,8 @@
 \underline{Broadcast Rules}
 \begin{description}
 	\item[No Double Signing:] a validator only signs for each message type (proposal, prevote, precommit) once at a given height and round.
-	\item[Prevote The Lock:] A validator is locked on the last block they precommitted, and must prevote for that block in future rounds at that height.
-	\item[Unlock On Polka:] a validator may only unlock if there have been $+\frac{2}{3}$ prevotes at a round after they locked. 
+	\item[Prevote the Lock:] A validator is locked on the last block they precommitted. They must propose it and prevote for it in future rounds, until they unlock.
+	\item[Unlock on Polka:] a validator may only unlock if there has been a polka at a round after they locked.
 \end{description}
 Violation of any of the Broadcast Rules is detectable and should be punished.
 
