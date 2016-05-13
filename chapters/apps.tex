@@ -147,7 +147,7 @@ In particular, applications are expected to maintain a second state-machine that
 This second state-machine is updated by \emph{CheckTx} messages and is reset to the latest committed state after every commit.
 In essence, the second state machine describes the transaction pool's filter rules.
 
-To some extent, \emph{CheckTx} can be used as an \emph{optimistic execution} \cite{optimistic_execution},
+To some extent, \emph{CheckTx} can be used as an \emph{optimistic execution} 
 returning a result to the transaction sender with the caveat that 
 the result may be wrong if a block is committed with a conflicting transaction
 before the transaction of interest is committed.
