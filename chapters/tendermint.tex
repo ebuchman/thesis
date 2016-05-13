@@ -243,14 +243,24 @@ we provide a formal specification in the $\pi$-calculus.
 \begin{figure}[]
     	\centering
 	\input{figures/descriptions/tendermint-pi1}
-	\caption[Formal specification of Tendermint consensus in the $\pi$-calculus, part I]{Formal specification of Tendermint consensus in the $\pi$-calculus, part I}
+	\caption[Formal specification of Tendermint consensus in the $\pi$-calculus, part I]{Formal specification of Tendermint consensus in the $\pi$-calculus, part I.
+$chooseProposal(p)$ must return $p$ if it is not $\emptyset$, and otherwise should gather transactions from the mempool as described in Chapter \ref{cite:subprotocols}. 
+After receiving a proposal or timing out, validators move onto prevote,
+where they broadcast their prevote and wait to receive prevotes from the others.
+If a vote is received for a later round, we skip ahead to that round.
+ }
 	\label{fig:tendermint_pi1}
 \end{figure}
 
 \begin{figure}[]
     	\centering
 	\input{figures/descriptions/tendermint-pi2}
-	\caption[Formal specification of Tendermint consensus in the $\pi$-calculus, part II]{Formal specification of Tendermint consensus in the $\pi$-calculus, part II}
+	\caption[Formal specification of Tendermint consensus in the $\pi$-calculus, part II]{Formal specification of Tendermint consensus in the $\pi$-calculus, part II.
+Validators broadcast their precommit and wait to receive precommits from the others.
+If a vote is received for a later round, we skip ahead to that round.
+When more than two-thirds pre-commit for block $b$, we fire $b$ on channel $d_i$, signalling the commit,
+and terminating the protocol.
+}
 	\label{fig:tendermint_pi}
 \end{figure}
 

@@ -69,9 +69,10 @@ The primary contributions of this thesis are as follows:
 
     \item Evaluation of the implementation's performance and characteristics in normal, faulty, and malicious conditions on large deployments (Chapter \ref{ch:performance}). Tendermint consensus is mostly asynchronous, with minimal dependence on synchronized clocks, and can tolerate up to a third of its nodes behaving arbitrarily. 
 
-    \item Discussion and contributions to implementation of many other elements necessary for a complete system, such as membership changes, crisis recovery, client design, and security (Chapters \ref{ch:governance} and \ref{ch:clients}).
+    \item Contributions towards the design and implementation of many other elements necessary for a complete system, such as membership changes, crisis recovery, client design, and security (Chapters \ref{ch:governance} and \ref{ch:clients}).
 
-    \item An informal proof of correctness (Chapter \ref{ch:tendermint}).
+    \item A formal specification of Tendermint in the $\pi$-calculus and 
+an informal proof of correctness of its safety and accountability (Chapter \ref{ch:tendermint}).
 
     \item An explanation of blockchains and the Tendermint consensus algorithm in the context of classical academic consensus research (Chapter \ref{ch:related}).
 \end{itemize}

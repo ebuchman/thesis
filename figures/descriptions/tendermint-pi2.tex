@@ -1,0 +1,24 @@
+		
+\begin{tabular}{l}
+		\hline \\
+		$PC_i^{r,p,v}:= precommit_i ! (p) \| (\nu \> c) ( \prod_{j=1}^n precommit_j ? (w) . c!(w)  \| PC1_i^{r,p,v}(c))$ \\\\
+
+		\hline \\
+		{$\!\begin{aligned}
+		PC1_i^{r,p,v}(c) := 
+			& \text{ if } max_{b}(|\left\{ w \in v_r^2 : w.block = b\right\}|) > \frac{2}{3} N \text{ then} \\
+				& \quad d_i!(b) \\
+			& \text{else if }  | v_r^2 | > \frac{2}{3} N \text{ then} \\ 
+				& \quad PR_i^{r+1,\emptyset,v} \\ 
+			& \text{else} \\
+				& \quad c?(pc, vote) .\text{ if } vote.round < r \text{ then} \\ 
+						& \quad  \quad	pc?(w).c!(pc, w) \\ 
+						& \quad  \text{else if } vote.round = r \text{ then} \\ 
+
+						& \quad  \quad	PC1_i^{r,p,vote::v}(c) \\
+						& \quad  \text{else } \\
+						& \quad  \quad PR_i^{vote.round, p, vote::v} \\
+		\end{aligned}$} \\\\
+		\hline\\
+
+\end{tabular}

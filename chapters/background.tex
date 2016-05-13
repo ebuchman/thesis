@@ -337,10 +337,10 @@ Furthermore, the well known equivalence between computation and logic \cite{abra
 logical systems to be defined complementary to the various process calculi,
 providing formal means to discuss and verify the properties of systems specified in an appropriate calculus.
 
-While we use the $\pi$-calculus to specify the Tendermint algorithm, 
-we leave use of an associated formal logic, and the corresponding verification of properties, to future work.
+Our presentation of the $\pi$-calculus is sufficient merely to specify the Tendermint algorithm.
+For a more complete introduction, see \cite{milner1992calculus}.
 
-The grammar of the $\pi$-calculus, in Backus-Naur form, is as follows:
+The grammar of a simple $\pi$-calculus, in Backus-Naur form, is as follows:
 
 
 \begin{center}
@@ -351,17 +351,20 @@ The grammar of the $\pi$-calculus, in Backus-Naur form, is as follows:
 			    & \; \| & \alpha.P  & & \text{ \emph{guard}} \\
 			    & \; \| & \alpha.P  + \alpha.P & & \text{ \emph{guarded-choice}} \\
 			    & \; \| & (\nu x) P & & \text{ \emph{fresh}}\\ \\
+			    & \; \| & F^{s}(y) & & \text{ \emph{func}}\\ \\
 
 			\alpha & := & \tau & & \text{ \emph{null}} \\
 			    & \; \| & x!(y) & & \text{ \emph{send}} \\
 			    & \; \| & x?(y) & & \text{ \emph{receive}}\\
+			    & \; \| & susp_i & & \text{ \emph{suspect}}\\
 		\end{aligned}$} \\ 
 	\end{tabular}
 \end{center}
 
 Each grammatical rule is labelled with a reference to its functional meaning.
-In essence, a process may be the empty process, $0$, 
-or it may be two processes running concurrently, $P \| P$.
+A process may be the empty process, $0$.
+It may be the parallel composition of two processes, $P \| P$,
+denoting two processes running concurrently.
 A guarded processes, $\alpha.P$, only allows process $P$ to execute after an action, $\alpha$,
 has occured.
 The action can be a null action, $\tau$, or it can be the sending, $x!(y)$, 
@@ -369,28 +372,47 @@ or receiving, $x?(y)$, of $y$ along $x$.
 Guarded choice injects non-determinism into the operation of the calculus, 
 such that the processes $\alpha.P + \beta.Q$ will non-deterministically execute
 $\alpha$ or $\beta$, and then run $P$ or $Q$, respectively.
-Finally, a new channel, $x$, can be created via $(\nu x) P$, such that $x$ is only accessible in $P$.
+A new channel, $x$, can be created via $(\nu x) P$, such that $x$ is only accessible in $P$.
+Functional forms $F^{s}(y)$ allow us to pass variables $s$ and $y$ into 
+the process called $F$, which may cause it self to execute recursively. 
+Typically, we let $s$ be state-like variables, while $y$ are channels in the calculus.
+Finally, since we are interested in consensus in asynchronous networks, 
+we employ an abstraction of timeouts knows as unreliable failure detectors \cite{chandra1996unreliable},
+and model them as a non-deterministic action \cite{nestmann2003modeling}.
+The $susp_i$ action is triggered when process $i$ is suspected of having failed -
+in other words, after some timeout.
 
-A structural congruence on processes is defined as the largest relation satisfying
+Note that we may use $\sum P$ to denote guarded-choice over more than two processes,
+and $\prod P$ to denote the parallel composition of more than two processes.
 
-(TODO)
-
-Structural congruence permits certain forms of re-arranging of a process term that will still yield the same process.
-On the other hand, an operational semantics defines the actual non-reversible computational steps that a process may execute.
+An operational semantics defines the actual non-reversible computational steps that a process may execute.
 Effectively, the only relevant operation is communication, known as the \emph{comm} rule:
 
+\begin{equation}
+( x?(y).P | x!(z) )  \rightarrow P\{z/y\}
+\end{equation} 
+The notation $P\{z/y\}$ means that all occurences of $y$ in $P$ are replaced with $z$.
+In other words, $z$ was sent on $x$, received as $y$, and fed to $P$.
 
-(TODO)
+Given a $\pi$-calculus process, we can follow its execution by applying the comm rule.
+For instance, 
 
-Now, given a $\pi$-calculus process, we can follow its execution by applying the comm rule.
-For instance, the process
+\begin{equation}
+( x?(y).y!(x) | x!(z) )  \rightarrow z!(x)
+\end{equation} 
 
+Now, we can use a formal logic to express properties a process might satisfy.
+For instance, the modal Hennessy–Milner logic can express that a process
+will satisfy some other logic expression after some or all forms of an action have occured \cite{milner1993modal}
+By adding more complex operators to the logic, 
+formal systems can be built up which easily describe important properties of distributed systems,
+such as safety and liveness \cite{stirling1991local}, and localization \cite{caires2003spatial}.
+Systems written in the $\pi$-calculus can then be formally verified to satisfy 
+the relevant properties by model checking software \cite{vieira2004spatial}.
 
-(TODO)
-Applied - functions, other notation, broadcast, etc.
-
-Logic ...
-
+While we use the $\pi$-calculus to specify the Tendermint algorithm, 
+we leave use of an associated formal logic, 
+and the corresponding verification of properties, to future work.
 
 \section{The Need For Tendermint}
 
