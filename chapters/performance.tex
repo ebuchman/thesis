@@ -57,49 +57,78 @@ This serves as a control scenario for evaluating the performance drop in the fac
 Experiments are run on validator set sizes doubling in size from two to 64, and on block sizes doubling from 128 to 32768.
 Transactions are preloaded on each validator. Each experiment is run for 16 blocks. 
 
-
 \begin{figure}[]
-	\includegraphics[width=\linewidth,height=\textheight,keepaspectratio]{figures/throughput/latency-throughput.png}
-    	\centering
-	\caption[Latency-throughput in non-faulty network]{Latency-throughput tradeoff on nodes distributed around the globe}
-	\label{fig:exp_throughput_latency}
+	\centering
+	\begin{subfigure}{0.8 \textwidth}
+		\includegraphics[width=\linewidth,height=\textheight,keepaspectratio]{figures/throughput/latency-throughput.png}
+	\end{subfigure}
+
+	\begin{subfigure}{0.8 \textwidth}
+		\includegraphics[width=\linewidth,height=\textheight,keepaspectratio]{figures/throughput/throughput-blocksize.png}
+	\end{subfigure}
+	\centering
+	\caption[Latency-Throughput tradeoff in non-faulty global network]{Larger blocks incur diminishing 
+returns in transaction throughput, with an ultimate capacity at around 10,000 txs/s}
+	\label{fig:exp:throughput}
 \end{figure}
 
-As can be seen in Figure \ref{fig:exp_throughput_latency}, 
+As can be seen in Figure \ref{fig:exp:throughput},
 Tendermint easily handles thousands of transactions per second with around one second block latency,
 though there appears to be a capacity limit at around ten thousand transactions per second.
 A block of 16384 transactions is about 4 MB in size, and analysis of network bandwidth shows each connection
 easily reaching upwards of 20MB/s, though analysis of the logs shows that at high block sizes, 
 validators can spend upwards of two seconds waiting for block parts.
-Transaction throughput as a function of blocksize is shown in Figure \ref{fig:exp:throughput_blocksize}.
-Thus it is likely that a more efficient block-part broadcast algorithm may alleviate this bottleneck.
-Additionally, experiments in single data centers, as shown in Figure \ref{fig:exp:single},
-demonstrate that much higher throughputs are possible. We leave further investigations of this capacity limit to future work.
-
+Additionally, experiments in single data centers, as shown in Figure \ref{fig:exp:throughput:single},
+demonstrate that much higher throughputs are possible,
+while experiments on much larger machines, with 32 vCPU, exhibit more consistent performance,
+relieving the capacity limit, as shown in Figure \ref{fig:exp:throughput:large}.
+We leave further investigations of this capacity limit to future work.
 
 \begin{figure}[]
-	\includegraphics[width=\linewidth,height=\textheight,keepaspectratio]{figures/throughput/throughput-blocksize.png}
-    	\centering
-	\caption[Throughput-blocksize in non-faulty network]{Larger blocks incur diminishing returns in transaction throughput, with an ultimate capacity at around 10,000 txs/s}
-	\label{fig:exp:throughput_blocksize}
+	\centering
+	\begin{subfigure}{0.8 \textwidth}
+		\includegraphics[width=\linewidth,height=\textheight,keepaspectratio]{figures/throughput/single_datacenter/latency-throughput.png}
+		\centering
+	\end{subfigure}
+
+	\begin{subfigure}{0.8 \textwidth}
+		\includegraphics[width=\linewidth,height=\textheight,keepaspectratio]{figures/throughput/single_datacenter/throughput-blocksize.png}
+	\end{subfigure}
+	\caption[Latency-throughput tradeoff in non-faulty local network]{Latency-throughput tradeoff in a single datacenter shows Tendermint is capable of tens of thousands of transactions per second}
+	\label{fig:exp:throughput:single}
 \end{figure}
 
+
+
 \begin{figure}[]
-	\includegraphics[width=\linewidth,height=\textheight,keepaspectratio]{figures/throughput/single_datacenter/latency-throughput.png}
-    	\centering
-	\caption[Latency-throughput in non-faulty network, single data center]{Latency-throughput tradeoff in a single datacenter shows Tendermint is capable of tens of thousands of transactions per second}
-	\label{fig:exp:single}
+	\centering
+	\begin{subfigure}{0.8 \textwidth}
+		\includegraphics[width=\linewidth,height=\textheight,keepaspectratio]{figures/throughput/large_instances/latency-throughput.png}
+		\centering
+	\end{subfigure}
+
+	\begin{subfigure}{0.8 \textwidth}
+		\includegraphics[width=\linewidth,height=\textheight,keepaspectratio]{figures/throughput/large_instances/throughput-blocksize.png}
+	\end{subfigure}
+	\centering
+	\caption[Throughput-blocksize in non-faulty global network on large machines]{On larger machines, 
+with 32 vCPU and 60 GB of RAM, transaction throughput increases linearly with block-size, 
+relieving the capacity limits found on smaller machines}
+	\label{fig:exp:throughput:large}
 \end{figure}
 
 \section{Crash Failures}
 
-To evaluate the performance of a network subject to crash failures, every three seconds $N_{fault}$ validators are randomly selected,
+To evaluate the performance of a network subject to crash failures, 
+every three seconds $N_{fault}$ validators were randomly selected,
 stopped, and restarted three seconds later.
 Experiments are run for validator set sizes doubling from 2 to 32, for varying values of TimeoutPropose.
 In each experiment, the block size is 2048.
 
-The results in Figure \ref{fig:exp:crash_failure} demonstrate that performance under this crash failure scenario drops by about 
-$50\%$, and that larger TimeoutPropose values help mediate latencies. While the average latency increases to about two seconds,
+The results in Table \ref{fig:exp:crash_failure} demonstrate that 
+performance under this crash failure scenario drops by about 
+$50\%$, and that larger TimeoutPropose values help mediate latencies. 
+While the average latency increases to about two seconds,
 the median is closer to one second, and latencies may run as high as ten or twenty seconds.
 
 
@@ -112,9 +141,8 @@ from one to ten seconds.
 \fi
 
 \begin{table}
-	Crash-fault latency statistics \\\\
 	\input{figures/throughput/crash_tables}
-	\caption[Latency statistics under crash faults]{Every three seconds, a random $N_{fault}$ validators were crashed, and restarted three seconds later. This crash-restart procedure continued for 200 blocks. Each table reports the minimum, maximum, average, median, and $95^{th}$ percentile of the block latencies, for varying values of the TimeoutPropose parameter.}
+	\caption[Latency statistics under crash faults]{Crash-fault latency statistics. Every three seconds, a random $N_{fault}$ validators were crashed, and restarted three seconds later. This crash-restart procedure continued for 200 blocks. Each table reports the minimum, maximum, average, median, and $95^{th}$ percentile of the block latencies, for varying values of the TimeoutPropose parameter.}
 	\label{fig:exp:crash_failure}
 \end{table}
 
@@ -134,19 +162,32 @@ by making the following changes:
 
 Taken together, these behaviours explicitly violate the double signing and locking rules. 
 Despite these faults, which would cause many systems to fail completely and immediately,
-Tendermint maintains respectable latencies, in some cases better and in others worse than crash faults.
+Tendermint maintains respectable latencies, in some cases better and in others worse than crash faults (Table \ref{fig:exp:byz_failure})
 
 \begin{table}[]
-	Byzantine-fault latency statistics \\\\
 	\input{figures/throughput/byz_tables}
-	\caption[Latency statistics under byzantine faults]{$N_{fault}$ validators were set to be byzantine.
+	\caption[Latency statistics under byzantine faults]{Byzantine-fault latency statistics.
 Byzantine validators propose conflicting blocks and vote on any proposal as soon as they see it.
 Each table reports the minimum, maximum, average, median, and $95^{th}$ percentile of the block latencies, for varying values of the TimeoutPropose parameter.}
 	\label{fig:exp:byz_failure}
 \end{table}
 
+\section{Random Network Delay}
 
+Another form of fault, which may attributed either to Byzantine behaviour or to network asynchrony,
+is to inject random delays into every read and write to a network connection.
+In this experiment, before every read and write on every network connection,
+a faulty validator slept for $X$ milliseconds, where $X$ is drawn uniformly on $(0, 3000)$.
+As can be seen in Table \ref{fig:exp:delay}, 
+performance drops to a thousand transaction per second, falling further with largest TimeoutPropose values.
+The drop in 
 
+\begin{table}[]
+	\input{figures/throughput/delay_tables}
+	\caption[Latency statistics under randomized delays]{Random delay latency statistics. $N_{fault}$ validators were set to inject a random delay
+before every read and write, where the delay time was chosen uniformly on $(0, 3000)$ milliseconds.}
+	\label{fig:exp:delay}
+\end{table}
 
 \ifx
 \section{A real application: ErisDB}
