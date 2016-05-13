@@ -3,7 +3,7 @@
 
 So far, this thesis has reviewed the basic elements of the Tendermint consensus protocol and application environment.
 Critical elements of operating the system in the real world, such as managing validator set changes
-and recovering from crisis, have not yet been discussed. 
+and recovering from a crisis, have not yet been discussed. 
 
 This chapter proposes an approach to these problems that formalizes the role of governance in a consensus system.
 As validator sets come to encompass more decentralized sets of agents, competent governance systems 
@@ -15,7 +15,7 @@ The basic functionality of governance is to filter proposals for action, typical
 The most basic implementation of governance as software is a module that enables users to make proposals,
 vote on them, and tally the votes. 
 Proposals may be programmatic, in which case they may execute automatically following a successful vote,
-or they may be non-programmatic, in which case their execution is a manual excercise.
+or they may be non-programmatic, in which case their execution is a manual exercise.
 
 To enable certain actions in Tendermint, such as changing the validator set or upgrading the software,
 a governance module has been implemented, called Governmint.
@@ -33,7 +33,7 @@ which have been shown to have a superior ability to satisfy voter preferences \c
 
 Validator set changes are a critical component of real world consensus algorithms that many previous approaches have failed to specify 
 or have been left as a black art. 
-Raft took pains to expound a sound protocol for validator set changes which required the change pass through consensus, 
+Raft took pains to expound a sound protocol for validator set changes, which required the change pass through consensus, 
 using a new message type.
 Tendermint takes a similar approach, though it is standardized through the TMSP interface using the \emph{EndBlock} message,
 which is run after all the \emph{AppendTx} messages, but before \emph{Commit}.
@@ -50,7 +50,7 @@ must utilize the validator set as it was at $H$,
 since it may contain signatures from a validator that was removed.
 
 Changes to voting power are applied for $H+1$ such that the next proposer 
-is effected by the update. 
+is affected by the update. 
 In particular, the validator that otherwise should have been the next proposer may be removed.
 The round robin algorithm should handle this gracefully, simply moving on to the next proposer in line.
 Since the same block is replicated on at least two-thirds of validators, 
@@ -59,9 +59,9 @@ they will all make the same update and expect the same next proposer.
 
 \section{Punishing Byzantine Validators}
 
-One of the salient points of Bitcoin's design is its incentive comptability, 
+One of the salient points of Bitcoin's design is its incentive structure, 
 in so far as the goal of the protocol was to incentivize validators to behave correctly
-by rewarding them. While this makes sense in the context of Bitcoin's conensus protocol,
+by rewarding them. While this makes sense in the context of Bitcoin's consensus protocol,
 a superior incentive may be to provide strong dis-incentives, such that validators
 have real \emph{skin-in-the-game} \cite{taleb2014skin}, rather than a soft opportunity cost.
 
@@ -111,32 +111,30 @@ Soft forks are meant to be backwards compatible, and to use degrees of freedom i
 by users who have not upgraded, but which provide new features to users which do.
 Hard forks, on the other hand, are non-backwards compatible upgrades that,
 in Bitcoin's case, may cause violations of safety, 
-
 and in Tendermint's case, cause the system to halt.
 
-To cope, developers of the Bitcoin software have rolled out a series of softforks which validators can vote for
-by signalling in new blocks. 
+To cope, developers of the Bitcoin software have rolled out a series of soft forks for which validators can vote by signalling in new blocks. 
 Once a certain threshold of validators are signalling for the update,
 it automatically takes effect across the network, at least for users with a version of the software supporting the update.
 The utility of the Bitcoin system has grown tremendously on account of these softforks, 
-and is exepected to continue to do so on account of upcoming ones.
+and is expected to continue to do so on account of upcoming ones.
 Interestingly, the failure of the community to successfully hard fork the software has
 on the one hand raised concerns about the long term stability of the system,
 and on the other triggered excitement and inspiration about the system's resilience to corrupt governance - its ungovernability.
 
-While there are many reasons to take the latter stance, 
-given the overwhelming government corruption apparent in the world today,
-cryptography and distributed consensus provide a new set of tools that enables a degree
+There are many reasons to take the latter stance, 
+given the overwhelming government corruption apparent in the world today.
+Still, cryptography and distributed consensus provide a new set of tools that enables a degree
 of transparency and accountability otherwise not imaginable in the paper-pen-handshake world of modern governments,
 nor even the digital world of the traditional web, which suffers tremendously from sufficiently robust authentication systems.
 
 In a system using Governmint, developers would be identifiable entities on the blockchain,
 and may submit proposals for software upgrades. 
-The mechanic is quite similar to that of a Pull Request on Github, 
+The mechanism is quite similar to that of a Pull Request on Github, 
 only it is integrated into a live running system,
 and the agreement passes through the consensus protocol.
 Clients should be written with configurable update parameters, 
-so they can specify whether to update automatically or to require they are notified first.
+so they can specify whether to update automatically or to require that they are notified first.
 
 Of course, any software upgrade which is not thoroughly vetted could pose a danger to the system,
 and a conservative approach to upgrades should be taken in general.
@@ -175,7 +173,7 @@ such as permanent crash failures and the compromise of private keys.
 However, such approaches must be carefully thought out, 
 as they may undermine the safety guarantees of the underlying protocol.
 We leave investigation of these methods to future work, 
-other than to note the importance of the socio-economic context a blockchain is embedded in to understand its ability to recover from crisis.
+but note the importance of the socio-economic context in which a blockchain is embedded, in terms of understanding its ability to recover from crisis.
 
 Regardless of how crisis recovery proceeds, its success depends on integration with clients.
 If clients do not accept the new blockchain, the service is effectively offline.

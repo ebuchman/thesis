@@ -6,7 +6,7 @@ Go is a C-like language with a rich standard library, concurrency primitives for
 and a development environment optimized for simplicity and efficiency.
 
 The code uses a number of packages which are modular enough to be isolated as their own libraries.
-These packages were written in the most part by Jae Kwon, with bug fixes, tests, and the occasional feature contributed by the author.
+These packages were written for the most part by Jae Kwon, with bug fixes, tests, and the occasional feature contributed by the author.
 The most important of these packages are described in the following sub-sections.
 
 \section{Binary Serialization}
@@ -19,14 +19,13 @@ It is somewhat inspired by Go's type system, especially its use of interface typ
 which can be implemented as one of many concrete types.
 Interfaces can be registered and each concrete implementation given a leading type-byte in its encoding.
 
-See github.com/tendermint/go-wire for more details.
+See https://github.com/tendermint/go-wire for more details.
 
 \section{Cryptography}
 
 Consensus algorithms such as tendermint use three primary cryptographic primitives: digital signatures, hash functions, and authenticated encryption.
-While many implementations exist of these primitives, 
-choosing a cryptography library for enterprise software is no trivial task, given especially the profound insecurity of the world's most used security library 
-(i.e. OpenSSL \cite{openssl}).
+While many implementations of these primitives exist, 
+choosing a cryptography library for enterprise software is no trivial task, given especially the profound insecurity of the world's most used security library, OpenSSL \cite{openssl}.
 
 Contributing to the insecurity of cryptographic systems is the potential deliberate undermining of their security properties by government agencies 
 such as the NSA, who, in collaboration with the NIST, have designed and standardized many of the most popular cryptographic algorithms in use today. 
@@ -37,15 +36,15 @@ Tendermint, similarly, uses only such algorithms.
 
 Tendermint uses RIPEMD160 as its cryptographic hash function, which produces 20-byte outputs. 
 It is used in the Merkle trees of transactions and validator signatures, and for computing the block hash.
-Go provides an implementation its extended library. RIPEMD160 is also used as one of two hashing functions by Bitcoin in the derivation of addresses from public keys.
+Go provides an implementation of its extended library. RIPEMD160 is also used as one of two hashing functions by Bitcoin in the derivation of addresses from public keys.
 
-As it's digital signature scheme, Tendermint uses Schnorr signatures over the ED25519 elliptic curve. 
+As its digital signature scheme, Tendermint uses Schnorr signatures over the ED25519 elliptic curve. 
 ED25519 was designed in the open by Dan Bernstein \cite{ed25519}, with the intention of being high performance and easy to implement without introducing vulnerabilities.
 Bernstein also introduced NaCl, a high level library for doing authenticated encryption that uses the ED25519 curve. Tendermint uses the implemention provided by Go in its extended library.
 
 \section{Merkle Hash Tree}
 
-Merkle trees function much like other tree based data-structures, 
+Merkle trees function much like other tree-based data-structures, 
 with the additional feature that it is possible to produce a proof of membership of a key in the tree that is logarithmic in the size of the tree.
 This is done by recursively concatenating and hashing keys in pairs until only a single hash is left, the root hash of the tree.
 For any leaf in the tree, a trail of hashes leading from it to the root serves as proof of its membership.
@@ -57,7 +56,7 @@ The IAVL tree can be used for storing state of dynamic size, allowing lookups, i
 
 \section{RPC}
 
-Tendermint exposes HTTP API's for querying the blockchain, network information, and consensus state, and for broadcasting transactions.
+Tendermint exposes HTTP APIs for querying the blockchain, network information, and consensus state, and for broadcasting transactions.
 The same API is available via three methods: GET requests using URI encoded parameters, POST requests using the JSONRPC standard \cite{jsonrpc}, 
 and websockets using the JSONRPC standard. Websockets are the preferred method for high transaction throughput, 
 and are necessary for receiving events.
@@ -65,14 +64,14 @@ and are necessary for receiving events.
 
 \section{P2P Networking}
 
-The P2P subprotocols used by Tendermint is described more fully in Chapter \ref{ch:subprotocols}.
+The P2P subprotocols used by Tendermint are described more fully in Chapter \ref{ch:subprotocols}.
 
 \section{Reactors}
 
 The Tendermint node is composed of multiple concurrent reactors, 
 each managing a state machine sending and receiving messages to peers over the network, as described in Chapter \ref{ch:subprotocols}.
 Reactors synchronize by locking shared datastructures, but the points of synchronization are kept to a minimum,
-so each reactor runs mostly concurrently with the others.
+so that each reactor runs mostly concurrently with the others.
 
 \subsection{Mempool}
 
@@ -81,7 +80,7 @@ which caches transactions before they are packed in blocks and committed.
 The mempool uses a subset of the application's state machine to check the validity of transactions.
 Transactions are kept in a concurrent linked list structure, allowing safe writes and many concurrent reads.
 New, valid transactions are added to the end of the list. 
-A routine for each peer traverses the list sending each transaction to the peer, in order, only once.
+A routine for each peer traverses the list, sending each transaction to the peer, in order, only once.
 The list is also scanned to collect transactions for a new proposal, 
 and is updated every time a block is committed: committed transactions are removed, 
 uncommitted transactions are re-run through CheckTx, and those that have become invalid are removed.
@@ -113,6 +112,6 @@ Once the blockchain reactor finishes syncing up, it turns on the consensus react
 
 \section{Conclusion}
 
-The implementation of Tendermint in Go takes advantage of the languages concurrency primitives, garbage collection, 
+The implementation of Tendermint in Go takes advantage of the language's concurrency primitives, garbage collection, 
 and type safety, to provide a clear, modular, easy to read code base with many reusable components. 
 As will be seen in Chapter \ref{ch:performance}, the implementation obtains high performance and is robust to many different kinds of fault.
