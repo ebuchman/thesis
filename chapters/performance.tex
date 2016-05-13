@@ -23,8 +23,11 @@ All experiments take place in docker containers running on \emph{Amazon EC2} ins
 Instances are distributed across seven datacenters, spanning five continents.
 A second docker container, responsible for generating transactions, is run on each instance.
 Transactions are 250 bytes in size (a reasonable size for including a few 32 or 64 byte hashes and signatures),
-where the leading bytes are Big-Endian encoded integers representing transaction number and validator index for that instance,
-the trailing 16 bytes are randomly drawn from the operating system, and the intermediate bytes are just zeroes.
+and were constructed to be debuggable, to be quick to generate, and to contain some stochasticity.
+Thus, the leading bytes are Big-Endian encoded integers 
+representing transaction number and validator index for that instance,
+the trailing 16 bytes are randomly drawn from the operating system, 
+and the intermediate bytes are just zeroes.
 
 A network monitoring tool is used to maintain active websocket connections to each validator's Tendermint RPC server,
 and uses its local time when it receives a new committed block for the first time as the official commit time for that block.
