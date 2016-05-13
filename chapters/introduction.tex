@@ -65,7 +65,7 @@ The primary contributions of this thesis are as follows:
 
     \item A complete description of the Tendermint consensus algorithm and platform architecture (Chapters \ref{ch:tendermint}-\ref{ch:apps}). Tendermint provides provably optimal Byzantine Fault Tolerant consensus, is easy to understand and reason about, flexible to build on top of, and provides a foundation for advanced and secure socio-political and economic systems. 
 
-    \item Significant contributions to a high performance implementation of the consensus algorithm in Golang, most notably a refactor of the core consensus state machine to be more robust, deterministic, and understandable, as well as countless bug fixes and performance improvements.
+    \item Significant contributions to a high performance implementation of the consensus algorithm in Go, most notably a refactor of the core consensus state machine to be more robust, deterministic, and understandable, as well as countless bug fixes and performance improvements.
 
     \item Evaluation of the implementation's performance and characteristics in normal, faulty, and malicious conditions on large deployments (Chapter \ref{ch:performance}). Tendermint consensus is mostly asynchronous, with minimal dependence on synchronized clocks, and can tolerate up to a third of its nodes behaving arbitrarily. 
 
@@ -86,5 +86,5 @@ the peer-to-peer network,
 and the interface for building arbitrary applications on top 
 (Chapters \ref{ch:tendermint}-\ref{ch:apps});
 mechanisms for governance and membership changes, and how clients interact with Tendermint (Chapters \ref{ch:governance} and \ref{ch:clients});
-outlines the implementation in Golang and evaluates its fault tolerance and performance (Chapters \ref{ch:implementation} and \ref{ch:performance});
+outlines the implementation in Go and evaluates its fault tolerance and performance (Chapters \ref{ch:implementation} and \ref{ch:performance});
 and discusses related work (Chapter \ref{ch:related}).

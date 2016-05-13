@@ -1,8 +1,8 @@
 \chapter{Implementation}
 \label{ch:implementation}
 
-The reference implementation of Tendermint is written in Golang \cite{golang} and hosted at https://github.com/tendermint/tendermint.
-Golang is a C-like language with a rich standard library, concurrency primitives for light-weight massively concurrent executions,
+The reference implementation of Tendermint is written in Go \cite{golang} and hosted at https://github.com/tendermint/tendermint.
+Go is a C-like language with a rich standard library, concurrency primitives for light-weight massively concurrent executions,
 and a development environment optimized for simplicity and efficiency.
 
 The code uses a number of packages which are modular enough to be isolated as their own libraries.
@@ -113,6 +113,6 @@ Once the blockchain reactor finishes syncing up, it turns on the consensus react
 
 \section{Conclusion}
 
-The implementation of Tendermint in Golang takes advantage of the languages concurrency primitives, garbage collection, 
+The implementation of Tendermint in Go takes advantage of the languages concurrency primitives, garbage collection, 
 and type safety, to provide a clear, modular, easy to read code base with many reusable components. 
 As will be seen in Chapter \ref{ch:performance}, the implementation obtains high performance and is robust to many different kinds of fault.
