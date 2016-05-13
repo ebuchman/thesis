@@ -1,0 +1,227 @@
+
+@article{girard1987linear,
+  title={Linear logic},
+  author={Girard, Jean-Yves},
+  journal={Theoretical computer science},
+  volume={50},
+  number={1},
+  pages={1--101},
+  year={1987},
+  publisher={Elsevier}
+}
+
+@incollection{bove2009dependent,
+  title={Dependent types at work},
+  author={Bove, Ana and Dybjer, Peter},
+  booktitle={Language engineering and rigorous software development},
+  pages={57--99},
+  year={2009},
+  publisher={Springer}
+}
+
+@inproceedings{wilcox2015verdi,
+  title={Verdi: A framework for implementing and formally verifying distributed systems},
+  author={Wilcox, James R and Woos, Doug and Panchekha, Pavel and Tatlock, Zachary and Wang, Xi and Ernst, Michael D and Anderson, Thomas},
+  booktitle={Proceedings of the 36th ACM SIGPLAN Conference on Programming Language Design and Implementation},
+  pages={357--368},
+  year={2015},
+  organization={ACM}
+}
+
+@inproceedings{woos2016planning,
+  title={Planning for change in a formal verification of the raft consensus protocol},
+  author={Woos, Doug and Wilcox, James R and Anton, Steve and Tatlock, Zachary and Ernst, Michael D and Anderson, Thomas},
+  booktitle={Proceedings of the 5th ACM SIGPLAN Conference on Certified Programs and Proofs},
+  pages={154--165},
+  year={2016},
+  organization={ACM}
+}
+
+@book{csp,
+	title={Communicating sequential processes},
+	author={Hoare, Charles Antony Richard},
+	year={1978},
+	publisher={Springer}
+}
+
+@article{misra1989simple,
+  title={A simple proof of a simple consensus algorithm},
+  author={Misra, Jayadev},
+  journal={Information processing letters},
+  volume={33},
+  number={1},
+  pages={21--24},
+  year={1989},
+  publisher={Elsevier},
+  note={proof of simple consensus with N > 4t+1 using equational reasoning}
+}
+
+
+@inproceedings{tsuchiya2007model,
+  title={Model Checking of Consensus Algorit},
+  author={Tsuchiya, Tatsuhiro and Schiper, Andr{\'e}},
+  booktitle={Reliable Distributed Systems, 2007. SRDS 2007. 26th IEEE International Symposium on},
+  pages={137--148},
+  year={2007},
+  organization={IEEE},
+  annote={
+	only uses model checking (ie temporal logic) to verify.
+ 	uses Heard-Of model, which captures synchrony degree and any type of non-malicious fault
+	"first time standard model checking allows one to completely verify asynchronous consensus algorithms"
+  }
+}
+
+@techreport{charron2006heard,
+  title={The heard-of model: Unifying all benign failures},
+  author={Charron-Bost, Bernadette and Schiper, Andr{\'e}},
+  year={2006}
+}
+
+
+@incollection{francalanza2007fault,
+  title={A fault tolerance bisimulation proof for consensus},
+  author={Francalanza, Adrian and Hennessy, Matthew},
+  booktitle={Programming Languages and Systems},
+  pages={395--410},
+  year={2007},
+  publisher={Springer},
+  annote={
+	fine tune bisimulation techniques for partial failure settings
+	some processes are reliable, thus immortal
+	decompose to two parts: non-fault tolerant basic correctness, correctness preservation given faults
+	based on riely1997distributed
+	"We view our calculus as a partial-failure calculus rather than a distributed calculus as it permits action synchronisations across locations. This implies a tighter synchronisation assumption between locations, which in our calculus merely embody units of failure."
+	op semantics are basic CCS plus perfect failure detection (susp) and dynamic failures (halt)
+
+  }
+}
+
+
+@book{riely1997distributed,
+  title={Distributed processes and location failures},
+  author={Riely, James and Hennessy, Matthew},
+  year={1997},
+  publisher={Springer}
+}
+
+
+@article{chandra1996unreliable,
+  title={Unreliable failure detectors for reliable distributed systems},
+  author={Chandra, Tushar Deepak and Toueg, Sam},
+  journal={Journal of the ACM (JACM)},
+  volume={43},
+  number={2},
+  pages={225--267},
+  year={1996},
+  publisher={ACM},
+  note={
+    show atomic broadcast and consensus are same thing in asynchronous networks
+    failure detectors: completeness and accuracy
+    completeness - all faulty processes eventually suspected
+    accuracy - restrict mistakes
+    defines weakes failure detector necessary and sufficient for consensus
+    defines the hierarchy and shows where we go from tolerating any num of faults to only (n-1)/2
+    
+  }
+}
+
+@incollection{nestmann2003modeling,
+  title={Modeling consensus in a process calculus},
+  author={Nestmann, Uwe and Fuzzati, Rachele and Merro, Massimo},
+  booktitle={CONCUR 2003-Concurrency Theory},
+  pages={399--414},
+  year={2003},
+  publisher={Springer},
+  note={builds on chandra1996unreliable using simpler form of weakest failure detector
+	models failure detector in pi calc, 
+	complete pi calc description of algorithm!
+	"matrix" view of network history allows to see all sent messages and state of receval,
+		useful for proofs
+  }
+}
+
+
+@article{palamidessi2003comparing,
+  title={Comparing the expressive power of the synchronous and asynchronous $ pi $-calculi},
+  author={Palamidessi, Catuscia},
+  journal={Mathematical Structures in Computer Science},
+  volume={13},
+  number={05},
+  pages={685--719},
+  year={2003},
+  publisher={Cambridge Univ Press},
+  note={
+	this paper is actually an updated of the original, from 1997
+	asynch pi-calc can't encode mixed gaurded choice, 
+	where the encoding is uniform, ie. [[ P | Q ]] = [[ P ]] | [[ Q ]].
+	and [[ \sigma(P) ]]  = \sigma( [[ P ]] ) where sigma is an automorphism (injective renaming function)
+	mixed gaurd has an initial symmetry that needs to be broken, 
+	which can be seen as a leader election process, which is impossible in async
+	pi calc for symmetric network.
+	electoral system is one in which a the projection of a computation on each process
+	has the procecesses all outputting the same value on their out chan
+  }
+}
+
+@article{nestmann2000good,
+  title={What is a “good” encoding of guarded choice?},
+  author={Nestmann, Uwe},
+  journal={Information and computation},
+  volume={156},
+  number={1},
+  pages={287--319},
+  year={2000},
+  publisher={Elsevier},
+  note={
+	important are compositionality and divergence freedom (no infinite loops)
+	clarifies the Palamedessi result
+	mixed choice can be done if willing to relax Palamedessi assumptions,
+	either with randomized agreement (though apparently this disqualifies Palamedessi's reasonableness,
+	though we know it can converge happen with probability 1), or arbitrary total order over the nodes, 
+	which would break symmetry.
+	an awesome paper
+  }
+}
+
+@article{phillips2004correct,
+  title={A correct abstract machine for the stochastic pi-calculus},
+  author={Phillips, Andrew and Cardelli, Luca},
+  journal={Electronic Notes in Theoretical Computer Science},
+  year={2004},
+  note={
+	how to implement the stochastic pi calculus
+  }
+}
+
+
+@article{priami1995stochastic,
+  title={Stochastic $\pi$-calculus},
+  author={Priami, Corrado},
+  journal={The Computer Journal},
+  volume={38},
+  number={7},
+  pages={578--589},
+  year={1995},
+  publisher={Br Computer Soc},
+  note={originally extension of pi-calc to probabilistic rates
+	choice becomes probabilistic rather than non-deterministic
+	delays are drawn from exponential distribution. memoryless.
+	continuity of prob distribution ensures the prob of two events ending at same time is 0 (contention in the choice)
+	rates on input/output can be independent, so rate of synch is that of the smaller one
+	prob of a transition is rate of its action divided by the total rate leaving the state
+	
+  }
+}
+
+
+@inproceedings{ene1999expressiveness,
+  title={Expressiveness of point-to-point versus broadcast communications},
+  author={Ene, Cristian and Muntean, Traian},
+  booktitle={Fundamentals of Computation Theory},
+  pages={258--268},
+  year={1999},
+  organization={Springer}
+}
+
+
+

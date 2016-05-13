@@ -74,7 +74,7 @@ This formulation of the problem has close ties to the relativism of modern physi
 wherein frames of reference are relative to an observer and the speed of light imposes a constraint on information propagation.
 
 \subsection{FLP}
-As discussed in Chapter \ref{ch:motivation}, 
+As discussed in Chapter \ref{ch:background}, 
 one of the primary factors in designing consensus algorithms are assumptions made about 
 network and/or processor synchrony. 
 A synchronous network is one in which messages are delivered within some fixed, 
@@ -181,7 +181,7 @@ How can the generals agree on a common plan of action if one or some of the gene
 The original paper provides the first proof that to tolerate $f$ Byzantine faults,
 a system must have at least $3f+1$ nodes. 
 The intuition behind this result was depicted in \ref{fig:byzantine} and discussed 
-throughout Chapters \ref{ch:motivation} and \ref{ch:tendermint}.
+throughout Chapters \ref{ch:background} and \ref{ch:tendermint}.
 A number of algorithms are provided in both papers as the first solutions to the problem,
 though they are designed to work only in the synchronous case, where the absence of a message can be detected.
 
@@ -198,7 +198,7 @@ The solution was iteratively improved to achieve optimal Byzantine agreement wit
 The next major advancement in BFT came in the form of the so called \emph{DLS} consensus algorithms,
 named after the authors Dwork, Lynch, and Stockmeyer \cite{dls}.
 The innovation of DLS was to define a middle ground between synchrony and asynchrony called \emph{partial synchrony}.
-Recall from Chapter \ref{ch:motivation} that a synchrony assumption is one which states that messages 
+Recall from Chapter \ref{ch:background} that a synchrony assumption is one which states that messages 
 are received within some known, finite amount of time, 
 or that processor clocks only deviate from each other by some finite number of ticks.
 The secret to partial synchrony is to suppose one of the following:
@@ -350,7 +350,7 @@ with different varieties of features \cite{buterin2013ethereum}.
 Ethereum sought a more pure mandate: to have no features.
 Instead, Ethereum provides a Turing complete virtual machine, the Ethereum Virtual Machine (EVM), for transaction execution above the consensus,
 and provides a means for users to upload code to the EVM that can execute upon the processing of future transactions.
-So-called \emph{smart contracts} \cite{} offer the promise of automatically enforced execution of code in a public setting, 
+So-called \emph{smart contracts} \cite{szabo1997formalizing} offer the promise of automatically enforced execution of code in a public setting, 
 using strong cryptography and BFT replication. 
 The Ethereum project was successful in one of the largest crowdfunds to date, over \$18 million USD, 
 and the market capitalization of its native token, ether, which is used to pay for transaction execution and code uploads,
@@ -411,9 +411,9 @@ The network still eventually delivers messages, with some average synchrony,
 but with precise timing can stop all system progress.
 The experiment is carried out on PBFT directly in \cite{honeybadger}, and would work similarly against Tendermint.
 
-The solution to this problem is HoneyBadgerBFT, a fully asynchronous atomic broadcast protocol \cite{honeybadger}.
 HoneyBadgerBFT utilizes a series of cryptographic techniques, including secret sharing, erasure coding, 
-and threshold signatures to design a high performance asynchronous BFT consensus protocol.
+and threshold signatures to design a high performance asynchronous BFT consensus protocol
+that over comes this problem, on account of not incurring any synchrony assumptions, as it is fully leaderless.
 However, it requires a trusted dealer for initial setup and for validator changes, 
 and it relies on relatively new cryptographic assumptions about the hardness of certain problems that have 
 yet to withstand the test of time.

@@ -1,0 +1,108 @@
+
+\documentclass[12pt]{report}
+\usepackage[utf8]{inputenc}
+\usepackage{graphicx}
+\usepackage{listings}
+\usepackage{lstautogobble}
+\usepackage{amsmath} 
+\graphicspath{ {images/} }
+\usepackage{float}
+\floatstyle{boxed} 
+\restylefloat{figure}
+
+
+\renewcommand{\|}{\;|\;}
+
+\begin{document}
+
+Here we attempt a general depiction of consensus protocols, drawing on Nestmann (2003),
+which models the non-Byzantine consensus protocol of Chandra and Touegg (1996).
+We model only the consensus, rather than full ABC, but describe how to 
+easily extend the model to ABC.
+
+Let $Consensus := \prod_{i=1}^N Y_i $ represent a consensus protocol
+over a set of $N$ validators, each executing one of a mutually exclusive set of processes, $Y_i$.
+Internal state $s = \{r, p, v \}$ consists of a strictly increasing round, $r$,
+a proposal $p$, containing the proposed block for this round;
+and a set of votes, $v$, containing all votes at all rounds;
+We denote by $v_r^1$ and $v_r^2$ the set of prevotes and precommits, respectively, at round $r$.
+We define $proposer(r) = r \mod n$ to be the index of the proposer at round $r$.
+We represent a peer at a particular point in the protocol as $Y_i^{r, p, v}$.
+Processes $Y_i$ range over $PR_i$, $PV_i$, $PC_i$, $C_i$,
+respectively abbreviating 
+\emph{propose}, \emph{prevote}, \emph{precommit}, \emph{commit}.
+We introduce additional sub-functions for $PV$ and $PC$ to capture the recursion,
+denoted $PV1$, $PV2$, etc.
+
+Peers are connected using broadcast channels for each message type,
+namely $propose_i$, $prevote_i$, and $precommit_i$,
+as well as a channel for broadcasting new transactions, $b_i$,
+and one for deciding on, or committing, the next block, $d_i$.
+Via an abuse of notation, a single send on some $x_i$ can be received by each process along
+$x_i$.
+
+We use only two message types: proposals and votes. 
+Each contains a round number, block (hash), and signature, 
+denoted $msg.round$, $msg.block$, $msg.sig$.
+Note we can absorb the signature into the broadcast channel itself,
+but we need it for use as evidence in the event of byzantine behaviour.
+
+
+\begin{center}
+	\begin{tabular}{l }
+		\hline \\
+		$Consensus := \prod_{i=1}^N [ PR_i^{0,\emptyset,\emptyset,} \| D_i]$ \\\\
+
+		\hline \\
+		{$\!\begin{aligned}
+		PR_i^{r,p,v} := 
+			& \text{if } i=proposer(r) \text{ then } \\
+				& \quad propose_i ! (prop) \| PV_i^{r,prop,v} \text{, where } prop = chooseProposal(p)\\
+			& \text{ else if } p \neq \emptyset \text{ then}  \\
+				& \quad PV_i^{r,p,v}  \\
+			& \text{else} \\ 
+				& \quad propose_{proposer(r)} ? (prop).PV_i^{r,prop,v} + susp_{proposer(r)}.PV_i^{r,\emptyset,v} \\
+		\end{aligned}$} \\\\
+
+		\hline \\
+		$PV_i^{r,p,v}:= prevote_i ! (r,p) \| (\nu \> c) ( \prod_{j=1}^n prevote_j ? (w) . c!(w)  \| PV1_i^{r,p,v}(c))$ \\\\
+
+		\hline \\
+		{$\!\begin{aligned}
+		PV1_i^{r,p,v}(c) := 
+			& \text{ if } max_{b}(|\left\{ w \in v_r^1 : w.block = b\right\}|) > \frac{2}{3} N \text{ then} \\
+				& \quad PC_i^{r,b,v} \\
+			& \text{else if }  | v_r^1 | > \frac{2}{3} N \text{ then} \\ 
+				& \quad PC_i^{r,\emptyset,v} \\ 
+			& \text{else} \\
+				& \quad c?(vote) . PV1_i^{r,p,vote::v}(c) \\
+		\end{aligned}$} \\\\
+
+		\hline \\
+		$PC_i^{r,p,v}:= precommit_i ! (r,p) \| (\nu \> c) ( \prod_{j=1}^n precommit_j ? (w) . c!(w)  \| PC1_i^{r,p,v}(c))$ \\\\
+
+		\hline \\
+		{$\!\begin{aligned}
+		PC1_i^{r,p,v}(c) := 
+			& \text{ if } max_{b}(|\left\{ w \in v_r^2 : w.block = b\right\}|) > \frac{2}{3} N \text{ then} \\
+				& \quad C_i^{r,b,v} \\
+			& \text{else if }  | v_r^2 | > \frac{2}{3} N \text{ then} \\ 
+				& \quad PR_i^{r+1,\emptyset,v} \\ 
+			& \text{else} \\
+				& \quad c?(vote) . PC1_i^{r,p,vote::v}(c) \\
+		\end{aligned}$}
+
+
+	\end{tabular}
+\end{center}
+
+
+
+
+
+
+
+
+
+
+\end{document}

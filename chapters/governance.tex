@@ -24,7 +24,10 @@ each of which can vote internally on proposals, some of which may result in prog
 like changing the validator set, or upgrading governmint itself (for instance to add new proposal types or other voting mechanisms).
 
 The system utilizes digital signatures to authenticate voters, 
-and majority rule with weighted voters, where weights are determined ahead of time.
+and may use a variety of possible voting schemes.
+Of particular interest are quadratic voting schemes,
+where the cost to vote is quadratic in the weight of the vote,
+which have been shown to have a superior ability to satisfy voter preferences \cite{quadratic_voting}.
 
 \section{Validator Set Changes}
 
@@ -60,15 +63,32 @@ One of the salient points of Bitcoin's design is its incentive structure,
 in so far as the goal of the protocol was to incentivize validators to behave correctly
 by rewarding them. While this makes sense in the context of Bitcoin's consensus protocol,
 a superior incentive may be to provide strong dis-incentives, such that validators
-have real \emph{skin-in-the-game} \cite{taleb2014skin}.
+have real \emph{skin-in-the-game} \cite{taleb2014skin}, rather than a soft opportunity cost.
 
-Disincentives can be achieved in Tendermint using an approach first proposed by Vitalik Buterin \cite{slasher}.
-In essence, two validators must make a security deposit in order to participate in consensus.
+Disincentives can be achieved in Tendermint using an approach first proposed by Vitalik Buterin \cite{slasher} as a so-called Proof-of-Stake protocol.
+In essence, validators must make a security deposit (``they must bond some stake'')
+in order to participate in consensus.
 In the event that they are found to double-sign proposals or votes, 
 other validators can publish evidence of the transgression in the form of a transaction, 
 which the application state can use to change the validator set by removing the transgressor, burning its deposit.
-This has the effect of associating an economic cost with Byzantine behaviour, 
-and enables one to estimate the cost of violating safety by turning a third or more of the validators Byzantine.
+This has the effect of associating an explicit economic cost with Byzantine behaviour, 
+and enables one to estimate the cost of violating safety by bribing a third or more of the validators to be Byzantine.
+
+Note that a consensus protocol may specify more behaviours to be punished than just double signing.
+In particular, we are interested in punishing any strong signalling behaviour which is unjustified - typically, any reported change in state that is not based on the reported state of others.
+For instance, in a version of Tendermint where all precommits 
+must come with the polka that justifies them,
+validators may be punished for broadcasting unjustified precommits.
+Note, however, that we cannot just punish for any unexpected behaviour - 
+for instance, a validator proposing when it is not their round to propose
+may be a basis for optimizations which pre-empt asynchrony or crashed nodes.
+
+In fact, a generalization of Tendermint along these two lines, 
+of 1) looser forms of justification and 2) allowing validators to propose before their term,
+gives rise to a family of protocols similar in nature to that proposed by Vlad Zamfir,
+under the guise Casper, as the consensus mechanism for a future version of ethereum \cite{casper}.
+A more formal account of the relationship between the protocols, 
+and of the characteristics of anti-Byzantine justifications, remains for future work.
 
 \section{Software Upgrades}
 
@@ -83,7 +103,7 @@ While Ethereum has already managed a successful, non-backwards-compatible upgrad
 due to its strong leadership and unified community,
 Bitcoin has been unable to make some needed upgrades,
 despite a plethora of software engineering ills,
-on account of the lack of strong leadership and a viciously divided community.
+on account of the a viciously divided community and a lack of strong leadership.
 
 Upgrades to blockchains are typically differentiated as being \emph{soft forks} or \emph{hard forks},
 on account of the scope of the changes.
@@ -100,8 +120,7 @@ The utility of the Bitcoin system has grown tremendously on account of these sof
 and is expected to continue to do so on account of upcoming ones.
 Interestingly, the failure of the community to successfully hard fork the software has
 on the one hand raised concerns about the long term stability of the system,
-and on the other triggered excitement and inspiration about the system's ungovernability,
-and hence resilience to corrupt governance.
+and on the other triggered excitement and inspiration about the system's resilience to corrupt governance - its ungovernability.
 
 There are many reasons to take the latter stance, 
 given the overwhelming government corruption apparent in the world today.
@@ -128,23 +147,29 @@ a traditional consensus system provides little or no guarantees,
 and typically requires manual intervention.
 
 Tendermint assures that those responsible for violating safety can be identified,
-but requires a robust, censorship-resistant publishing medium in which evidence can be published 
-so that the culprits can be determined. 
-The phase in which evidence is published 
+such that any client who can access at least one honest validator 
+can discern with cryptographic certainty who the dishonest validators are,
+and thereby chose to follow the honest validators onto a new chain with a validator set excluding those who were Byzantine.
 
-For instance, suppose a third or more validators double-sign, 
+For instance, suppose a third or more validators violate locking rules,
 causing two blocks to be committed at height $H$.
-The honest validators can determine who double-signed by gossipping the votes.
+The honest validators can determine who double-signed by gossipping all the votes.
 At this point, they cannot use the consensus protocol, because the basic fault assumptions have been violated.
-One approach is for each validator to wait until they have all the evidence for every vote at $H$.
-This implies strong assumptions about network connectivity and availability during the crisis,
+One approach is for each validator to wait until they have all 
+Note that being able to at this point accumulate all votes for $H$ 
+implies strong assumptions about network connectivity and availability during the crisis,
 which, if it cannot be provided by the p2p network, may require validators use alternative means, 
 such as social media and high availability services, to communicate evidence.
 A new blockchain can be started by the full set of remaining honest nodes, 
 once at least two-thirds of them have gathered all the evidence.
 
-Alternative approaches to crisis recovery may utilize Governmint, 
-for instance, to recover from the permanent crash failure of a third or more validators.
+Alternatively, modifying the Tendermint protocol so that precommits require polka
+would ensure that those responsible for the fork could be punished immediately,
+and would not require an additional publishing period. 
+This modification remains for future work.
+
+More complex uses of Governmint are possible for accomodating various particularities of crisis,
+such as permanent crash failures and the compromise of private keys.
 However, such approaches must be carefully thought out, 
 as they may undermine the safety guarantees of the underlying protocol.
 We leave investigation of these methods to future work, 
