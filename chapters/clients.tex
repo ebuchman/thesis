@@ -6,8 +6,11 @@ This chapter reviews some considerations pertaining to clients that interact wit
 \section{Discovery}
 
 Network discovery occurs simply by dialing some set of seed nodes over TCP.
-The p2p network uses authenticated encryption, but the public keys of the validators must be verified somehow out of band.
-Indeed, in these systems, the genesis state itself must be communicated out of band, and ideally is the only thing that must be communicated, 
+The p2p network uses authenticated encryption, 
+but the public keys of the validators must be verified somehow out of band, 
+that is, via an alternative medium not within the purview of the protocol.
+Indeed, in these systems, the genesis state itself must be communicated out of band, 
+and ideally is the only thing that must be communicated, 
 as it should also contain the public keys used by validators for authenticated encryption, 
 which are different than those used for signing votes in consensus.
 
