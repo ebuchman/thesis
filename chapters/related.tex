@@ -29,10 +29,10 @@ of Tony Hoare on models for describing communicating processes \cite{csp}.
 
 A host of concurrency problems with catchy names were popularized around this time,
 including the cigarette smokers problem \cite{cigarette_smokers}, where smokers sit around a table, 
-each with a different ingredient, and must successfully roll a full cigarette,
+each with a different ingredient, and must successfully roll a full cigarette;
 the dinning philosophers problem \cite{dining_philosophers},
 where philosophers sitting around a table must take turns eating and thinking,
-but each can only eat while its neighbours are thinking,
+but each can only eat while its neighbours are thinking;
 and the two-generals or co-ordinated attack problem \cite{gettier},
 where two generals must co-ordinate from afar to attack an enemy city at the same time.
 
@@ -147,21 +147,7 @@ where crash failures can be detected, and utilize a co-ordinator process that se
 
 \subsection{Broadcast Protocols}
 
-The problem of ordering a set of transactions in a distributed setting subject to faults has also been known as 
-the problem of \emph{total order broadcast} or \emph{atomic broadcast} \cite{defago2004total}.
-In particular, an atomic broadcast protocol is expected to satisfy the following properties:
-
-\begin{itemize}
-\item{Validity}: if a correct process broadcasts a message, it is eventually received.
-\item{Agreement}: if a process receives a message, then all correct processes eventually receive that message.
-\item{Integrity}: a message is received at most once by a process, and only if it was sent by another process.
-\item{Total Order}: if two messages are received by two processes, the messages are received in the same order.
-\end{itemize}
-
-Atomic broadcast is built above a simpler primitive, known as \emph{reliable broadcast}, 
-the difference being that atomic broadcast ensures the messages are totally ordered,
-while reliable broadcast ensures only that the messages are delivered.
-That is, reliable broadcast satisfies all the above properties except the final one.
+The two most important broadcast protocols, RBC and ABC, were introduced in Chapter \ref{ch:background}.
 A taxonomy and survey of solutions to the problem is provided in \cite{defago2004total}.
 
 \section{Byzantine}
@@ -360,7 +346,23 @@ Ethereum currently uses a modified form of Proof-of-Work called Greedy Heaviest 
 but is planning to move to a more secure economic consensus algorithm modeled around Proof of Stake.
 
 \subsection{Proof-of-Stake}
-...
+
+Proof-of-Stake (PoS) was first proposed as an alternative to Proof-of-Work for use in the 
+PPCoin \cite{king2012ppcoin}.
+Under PoS, proposals are made by, and voted on, 
+those who can prove ownership of some stake of coins in the network.
+While eliminating the excessive energy of costs of PoW, 
+naiive implementations of PoS are vulnerable to so called ``nothing-at-stake'' attacks,
+wherein validators may propose and vote on multiple blocks at a given height,
+resulting in a dramatic violation of safety, with no incentive to converge.
+While the problems with naiive PoS are well known \cite{poelstra2014distributed},
+many popular cryptocurrencies still use it.
+
+The nothing-at-stake problem can be rectified with a mechanism known as \emph{slasher} \cite{slasher},
+whereby validators must place a security deposit in order to be eligible to validate blocks,
+such that the deposit can be \emph{slashed} if the validator is found to propose or vote for conflicting blocks.
+Tendermint was the first implementation of such an approach,
+though other BFT algorithms may work as well.
 
 \subsection{HyperLedger}
 
