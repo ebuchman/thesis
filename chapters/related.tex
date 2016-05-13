@@ -410,9 +410,9 @@ The network still eventually delivers messages, with some average synchrony,
 but with precise timing can stop all system progress.
 The experiment is carried out on PBFT directly in \cite{honeybadger}, and would work similarly against Tendermint.
 
-The solution to this problem is HoneyBadgerBFT, a fully asynchronous atomic broadcast protocol \cite{honeybadger}.
 HoneyBadgerBFT utilizes a series of cryptographic techniques, including secret sharing, erasure coding, 
-and threshold signatures to design a high performance asynchronous BFT consensus protocol.
+and threshold signatures to design a high performance asynchronous BFT consensus protocol
+that over comes this problem, on account of not incurring any synchrony assumptions, as it is fully leaderless.
 However, it requires a trusted dealer for initial setup and for validator changes, 
 and it relies on relatively new cryptographic assumptions about the hardness of certain problems that have 
 yet to withstand the test of time.
