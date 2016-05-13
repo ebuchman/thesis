@@ -36,7 +36,7 @@ Tendermint, similarly, uses only such algorithms.
 
 Tendermint uses RIPEMD160 as its cryptographic hash function, which produces 20-byte outputs. 
 It is used in the Merkle trees of transactions and validator signatures, and for computing the block hash.
-Go provides an implementation of its extended library. RIPEMD160 is also used as one of two hashing functions by Bitcoin in the derivation of addresses from public keys.
+Go provides an implementation in its extended library. RIPEMD160 is also used as one of two hashing functions by Bitcoin in the derivation of addresses from public keys.
 
 As its digital signature scheme, Tendermint uses Schnorr signatures over the ED25519 elliptic curve. 
 ED25519 was designed in the open by Dan Bernstein \cite{ed25519}, with the intention of being high performance and easy to implement without introducing vulnerabilities.
