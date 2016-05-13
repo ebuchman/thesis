@@ -265,7 +265,7 @@ We use only two message types: proposals and votes.
 Each contains a round number, block (hash), and signature, 
 denoted $msg.round$, $msg.block$, $msg.sig$.
 Note we can absorb the signature into the broadcast channel itself,
-but we need it for use as evidence in the event of byzantine behaviour.
+but we need it for use as evidence in the event of Byzantine behaviour.
 
 The specification is given in Figure \ref{fig:tendermint-pi}
 
@@ -326,38 +326,96 @@ The composition of the header is given in Figure \ref{fig:header}
 
 \section{Safety}
 
-Here we sketch a brief proof of Tendermint's safety guarantee, namely, 
-the State Machine Safety property, that for two validators to apply different blocks at the same height
-requires at least one-third of validators to be Byzantine.
+Here we sketch a brief proof that Tendermint satisfies atomic broadcast,
+which is defined as satisfying:
 
-Referring back to the safety guarantees in Figure \ref{fig:tendermint_guarantees}, 
-note that Proposer Safety, Validator Append Only, and Proposer Completeness are trivially satisfied by the protocol, 
-in particular through the use of a round-robin for the proposer selection and hash links to connect blocks,
-and by not allowing blocks to be overwritten.
+\begin{itemize}
+\item validity - if a correct process broadcasts $m$, it eventually delivers $m$
+\item agreement - if a correct process delivers $m$, all correct processes eventually deliver $m$
+\item integrity - $m$ is only delivered once, and only if broadcast by its sender
+\item total order - if correct processes $p$ and $q$ deliver $m$ and $m'$, then $p$ delivers $m$ before $m'$ iff $q$ delivers $m$ before $m'$
+\end{itemize}
 
-Suppose that two blocks are committed at the same height.
-Let the blocks be $blockA$ and $blockB$, and let them be committed in rounds $R_A$ and $R_B$, respectively, with $R_A < R_B$.
-Since each commit requires more than two-thirds of validators, 
-two commits requires that more than a third of validators sign for both commits.
-Let this set of validators be $D$.
-Note that if $R_A = R_B$, a single proposer must have proposed two blocks at the same round, 
-and the validators in $D$ must have precommitted for both $blockA$ and $blockB$ in that same round, 
-making the proof trivial, since double signing within a round is Byzantine.
+Note that if we take $m$ to be a block,
+Tendermint does not satisfy validity,
+since there is no guarantee that a proposed block is eventually committed, 
+as validators may move to a new round and commit a different block.
+If we take $m$ to be a batch of transactions in a block, 
+then we can satisfy validity by having validators re-propose the same batch until it is committed.
+However, to satisfy the first half of integrity 
+we must introduce an additional rule that forbids a correct validator from 
+proposing a block or pre-committing for a block containing a 
+batch of transactions that has already been committed.
+Fortunately, batches can be indexed by their merkle root,
+and a lookup performed before proposals and pre-commits.
 
-With blocks committed in different rounds, however, 
-we must show that at least a third of validators violated the locking rules.
-We already know that the validators from $D$ lock on $blockA$ in $R_A$.
-To unlock from $blockA$, and precommit for $blockB$, 
-they must observe a polka for $blockB$ at round $R_P$, where $R_A < R_P <= R_B$.
-A polka requires more than two-thirds of validators to prevote for the same block.
-Since more than two-thirds locked on $blockA$ at round $R_A$, 
-a polka for a different block at a higher round requires more than a third to violate Prevote-the-Lock.
-Given Proposer Safety, Validator Append Only, and Proposer Completenes,
-this guarantees State Machine Safety assuming less than one-third of validators are Byzantine.
+Alternatively, if we take message $m$ to be a transaction, 
+then we can satisfy validity by asserting a \emph{persistence}
+property on the mempool, namely, that a transaction persists in the mempool 
+until it is committed.
+However, to satisfy the first half of integrity we must 
+rely on the application state to enforce some ruleset over 
+transactions such that a given transaction is only valid once. 
+This can be done, for instance, using sequence numbers on accounts,
+as is done in ethereum, 
+or by keeping a list of unused resources, each of which can only be used once,
+as is done in Bitcoin.
+Since there are multiple approaches,
+Tendermint does not in itself ensure that a message is only delivered once,
+but allows the application developer to specify.
+Note that the second half of integrity is trivially satisfied,
+since only transactions in blocks proposed by a correct proposer can be committed.
 
-In future work, we aim to provide a more formal proof of Tendermint's correctness 
-and the ability to identify validators which violated locking rules.
+To show that Tendermint satisfies the remaining properties,
+we introduce a new property, \emph{state machine safety},
+and show that a protocol satisfing state machine safety satisfies
+agreement and total order.
+State machine safety states that if a correct validator commits a block at some height $H$,
+no other correct valdiator will ever commit a different block at $H$.
+Given that all messages are eventually received, 
+this immediately implies agreement, since if a correct validator commits a block $B$ at height $H$ 
+containing a transaction $m$, all other correct validators will be unable to commit any other block,
+and hence must eventually commit $B$, thereby delivering $m$.
 
+Now, it remains to show that state machine safety satisfies total order,
+and that Tendermint satisfies state machine safety.
+To see the former, consider two messages $m$ and $m'$ delivered by validators $p$ and $q$.
+State machine safety ensures that $p$ delivers $m$ at height $H_m$ if and only if
+$q$ delivers $m$ at height $H_m$, and that $p$ delivers $m'$ at height $H_{m'}$ 
+if and only if $q$ delivers $m'$ at height $H_{m'}$. 
+Without loss of generality, and since height is strictly increasing, let $H_m < H_{m'}$.
+Then we have that $p$ delivers $m$ before $m'$ if and only if $q$ delivers $m$ before $m'$,
+which is exactly the statement of total order.
+
+Finally, to show Tendermint satisfies state machine safety when less than a third of 
+validators are Byzantine, we proceed by way of contradiction.
+Suppose Tendermint does not satisfy state machine safety, 
+allowing more than one block to be committed at the same height.
+Then we show that at least one-third of validators must be Byzantine for that to happen,
+contradicting our assumption.
+
+Consider a correct validator having committed block $B$ at height $H$ and round $R$.
+To commit a block means the validator witnessed pre-commits 
+for block $B$ in round $R$ from more than two-thirds of validators.
+Suppose another block $C$ is committed at height $H$. 
+We have two options: either it was committed in round $R$, or round $S > R$.
+
+If it was committed in round $R$, then more than two-thirds of validators
+must have pre-committed for it in round $R$, which means that at least a third of validators 
+pre-committed for both blocks $B$ and $C$ in round $R$, which is clearly Byzantine.
+Suppose block $C$ was instead committed in round $S > R$.
+Since more than two-thirds pre-committed for $B$, they are locked on $B$ in round $S$,
+and thus must pre-vote for $B$. To pre-commit for block $C$, they must 
+witness a polka for $C$, which requires more than two-thirds to pre-vote for $C$.
+However, since more than two-thirds are locked on and required to pre-vote for $B$,
+a polka for $C$ would require at least one third of validators to violate Prevote-the-Lock,
+which is clearly Byzantine.
+Thus, to violate state machine safety, at least one third of validators must be Byzantine.
+Therefore, Tendermint satisfies state machine safety when less than a third of validators are Byzantine.
+
+Given the above, then, Tendermint satisfies atomic broadcast.
+
+In future work, we aim to provide a more formal proof of Tendermint's safety property.
 
 %
 %- Proposer Safety condition implied by protocol
@@ -369,35 +427,45 @@ and the ability to identify validators which violated locking rules.
 %
 
 
+\section{Accountability}
+
 \section{Faults and Availability}
 
-As a BFT consensus algorithm, Tendermint can tolerate Byzantine failure in up to (but not including) one-third of validators.
-This means nodes can crash, send different and contradictory messages to different peers, refuse to relay messages, or otherwise behave arbitrarily,
+As a BFT consensus algorithm, Tendermint can tolerate Byzantine failure in up to 
+(but not including) one-third of validators.
+This means nodes can crash, send different and contradictory messages to different peers, 
+refuse to relay messages, or otherwise behave arbitrarily,
 without compromising safety or liveness (with the usual FLP caveat for liveness).
 
-There are two places in the protocol where we can make optimizations for asynchrony by utilizing timeouts based on local clocks:
-after receiving two-thirds or more pre-votes, but not for a single block or nil, and after receiving two-thirds or more pre-commits, 
+There are two places in the protocol where we can make optimizations 
+for asynchrony by utilizing timeouts based on local clocks:
+after receiving two-thirds or more pre-votes, but not for a single block or nil, 
+and after receiving two-thirds or more pre-commits, 
 but not for a single block or nil.
 In each case, we can sleep for some amount of time to give slower or delayed votes a chance to be received,
 thereby reducing the likelihood of going to a new round without committing a block.
-Clocks do not need to be synced across validators, as they are reset each time a validator observes votes from two-thirds or more others.
+Clocks do not need to be synced across validators, 
+as they are reset each time a validator observes votes from two-thirds or more others.
 
 If a third or more of validators crash, the network halts, 
 as no validator is able to make progress without hearing from more than two-thirds of the validator set.
 The network remains available for reads, but no new commits can be made.
 As soon as validators come back on-line, they can carry on from where they left in a round. 
 The consensus state-machine should employ a write-ahead log,
-such that a recovered validator can quickly return to the step it was in when it crashed.
+such that a recovered validator can quickly return to the step it was in when it crashed,
+ensuring it doesn't accidentally violate a rule.
 
 If a third or more of validators are Byzantine, they can compromise safety a number of ways, 
 for instance, by proposing two blocks for the same round, and voting both of them through to commit, 
-or by pre-committing on two different blocks at the same height but in different rounds by violating the rules on locking.
+or by pre-committing on two different blocks at the same height but in 
+different rounds by violating the rules on locking.
 In each case, there is clear, identifiable evidence that certain validators misbehaved. 
 In the first instance, they signed two proposals at the same round, a clear violation of the rules.
 In the second, they may have pre-voted for a different block in round $R$ than they locked on in $R-1$, 
 a violation of the Prevote-the-Lock rule.
 
-When using economic and governance components to incentivize and manage the consensus (Chapter  \ref{ch:governance})
+When using economic and governance components to incentivize 
+and manage the consensus (Chapter  \ref{ch:governance})
 these additional accountability guarantees become critical.
 
 \section{Conclusion}
