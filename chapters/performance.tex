@@ -126,7 +126,7 @@ When messages don't need to cross the public Internet, Tendermint is capable of 
 		\includegraphics[width=\linewidth,height=\textheight,keepaspectratio]{figures/throughput/large_instances/throughput-blocksize.pdf}
 	\end{subfigure}
 	\centering
-	\caption[Throughput-blocksize in non-faulty global network on large machines]{Large machines.
+	\caption[Latency-Throughput trade-off in non-faulty global network of large machines]{Large machines.
 With 32 vCPU and 60 GB of RAM, transaction throughput increases linearly with block-size, 
 relieving the capacity limits found on smaller machines.}
 	\label{fig:exp:throughput:large}
@@ -209,7 +209,7 @@ which may be the result of a naive algorithm for handling Byzantine votes.
 
 \begin{table}[]
 	\input{figures/throughput/byz_tables}
-	\caption[Latency statistics under byzantine faults]{Byzantine-fault latency statistics.
+	\caption[Latency statistics under Byzantine faults]{Byzantine-fault latency statistics.
 Byzantine validators propose conflicting blocks and vote on any proposal as soon as they see it.
 Each table reports the minimum, maximum, average, median, and $95^{th}$ percentile of the block latencies, for varying values of the TimeoutPropose parameter.}
 	\label{fig:exp:byz_failure}
