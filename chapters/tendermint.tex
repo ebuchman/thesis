@@ -188,7 +188,8 @@ There are two rules of locking:
 	This prevents validators from pre-committing one block in one round, 
 	and then contributing to a polka for a different block in the next round, 
 	thereby compromising safety.}
-\item{Unlock-on-Polka: a validator may only release a lock after seeing a polka at a round greater than that at which it locked.
+\item{Unlock-on-Polka: a validator may only release a lock after seeing a polka 
+(more than two-thirds prevoting for a single block) at a round greater than that at which it locked.
 	This allows validators to unlock if they pre-committed something the rest of the network doesn't want to commit,
 	thereby protecting liveness, but does it in a way that does not compromise safety,
 	by only allowing unlocking if there has been a polka in a round after that in which the validator became locked.}

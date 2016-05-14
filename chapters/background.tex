@@ -19,7 +19,7 @@ The state machine is driven by a set of inputs, known as \emph{transactions},
 where each transaction may or may not, depending on its validity, cause a state transition and return a result.
 More formally, a transaction is an \emph{atomic} operation on a database, 
 meaning it either completes or doesn't occur at all, 
-and can't be left in an intermediate state \cite{gray1981transaction}
+and can't be left in an intermediate state \cite{gray1981transaction}.
 The state transition logic is governed by the state machine's state transition function,
 which maps a transaction and the current state to a new state and a return value.
 The state transition function is also sometimes referred to as \emph{application logic}.
@@ -84,8 +84,8 @@ Relying on synchrony to ensure liveness can cause the consensus to halt, and the
 The former case is usually considered more severe, as reconciling conflicting logs can be a daunting or impossible task. 
 
 In practice, synchronous solutions are only used where the message latency is under 
-extremely well defined control, for instance between controllers on an airplane \cite{hoyme1993safebus}.
-or between datacenters that all posses a syncronized atomic clock \cite{corbett2013spanner}.
+extremely well defined control, for instance between controllers on an airplane \cite{hoyme1993safebus},
+or between datacenters that utilizing syncronized atomic clocks \cite{corbett2013spanner}.
 Thus, while many efficient synchronous solutions exist,
 the general unreliability of computer networks is too great a risk for them to be used in practice
 without significant additional costs.
@@ -113,7 +113,7 @@ achieved tremendous improvements in speed \cite{honeybadger}
 In order for a process to replicate its state on other processes, 
 it must have access to basic communication primitives which allow it to disseminate, or deliver, information.
 One of the most useful such primitives is \emph{reliable broadcast}.
-Reliable broadcast (RBC) is a broadcast primitive satisfying \cite{chandra1996unreliable}, for message $m$:
+Reliable broadcast (RBC) is a broadcast primitive satisfying, for message $m$ \cite{chandra1996unreliable}:
 
 \begin{itemize}
 \item validity - if a correct process broadcasts $m$, it eventually delivers $m$
@@ -121,7 +121,7 @@ Reliable broadcast (RBC) is a broadcast primitive satisfying \cite{chandra1996un
 \item integrity - $m$ is only delivered once, and only if broadcast by its sender
 \end{itemize}
 
-In essence, RBC enables a message to be eventually delivered on all correct processes.
+In essence, RBC enables a message to be eventually delivered once on all correct processes.
 
 Another, more useful primitive is \emph{atomic broadcast} (ABC), 
 which satisfies RBC and an additional property \cite{chandra1996unreliable}:
@@ -130,7 +130,7 @@ which satisfies RBC and an additional property \cite{chandra1996unreliable}:
 \item total order - if correct processes $p$ and $q$ deliver $m$ and $m'$, then $p$ delivers $m$ before $m'$ iff $q$ delivers $m$ before $m'$
 \end{itemize}
 
-In other words, atomic broadcast is a reliable broadcast where values are delivered in the same order on each host. 
+Atomic broadcast is thus a reliable broadcast where values are delivered in the same order on each host. 
 Note this is exactly the problem of replicating a transaction log.
 While colloquially, the problem may be referred to as consensus, 
 the standard definition of the consensus primitive satisfies the following \cite{chandra1996unreliable}:
@@ -282,8 +282,8 @@ consensus, and economics, and in particular their inter-relationship, remains fo
 
 A blockchain is, at heart, an integrity-focused approach to Byzantine Fault Tolerant Atomic Broadcast.
 The Bitcoin blockchain, for instance, uses a combination of economics and cryptographic randomization 
-to provide a strong probabilistic gaurantee that safety will not be violated, 
-given a weak synchrony condition, namely, 
+to provide a strong probabilistic guarantee that safety will not be violated, 
+given a weak synchrony assumption, namely, 
 that blocks are gossipped much more rapidly than they are found via the partial-hash collision lottery.
 In practice, however, it is well known that Bitcoin's security guarantees are vulnerable to a number 
 of subtle attacks \cite{courtois2014subversive,eyal2014majority}.
