@@ -21,7 +21,7 @@ To enable certain actions in Tendermint, such as changing the validator set or u
 a governance module has been implemented, called Governmint.
 Governmint is a minimum viable governance application with support for multiple groups of entities,
 each of which can vote internally on proposals, some of which may result in programmatic execution of actions,
-like changing the validator set, or upgrading governmint itself (for instance to add new proposal types or other voting mechanisms).
+like changing the validator set, or upgrading Governmint itself (for instance to add new proposal types or other voting mechanisms).
 
 The system utilizes digital signatures to authenticate voters, 
 and may use a variety of possible voting schemes.
@@ -45,7 +45,7 @@ This provides a generic means for applications to update the validator set witho
 
 If the block at height $H$ returns an updated validator set, 
 then the block at height $H+1$ will reflect the update.
-Note, however, that the \emph{LastValidation} in block $H+1$
+Note, however, that the \emph{LastCommit} in block $H+1$
 must utilize the validator set as it was at $H$, 
 since it may contain signatures from a validator that was removed.
 
@@ -76,9 +76,9 @@ and enables one to estimate the cost of violating safety by bribing a third or m
 
 Note that a consensus protocol may specify more behaviours to be punished than just double signing.
 In particular, we are interested in punishing any strong signalling behaviour which is unjustified - typically, any reported change in state that is not based on the reported state of others.
-For instance, in a version of Tendermint where all precommits 
+For instance, in a version of Tendermint where all pre-commits 
 must come with the polka that justifies them,
-validators may be punished for broadcasting unjustified precommits.
+validators may be punished for broadcasting unjustified pre-commits.
 Note, however, that we cannot just punish for any unexpected behaviour - 
 for instance, a validator proposing when it is not their round to propose
 may be a basis for optimizations which pre-empt asynchrony or crashed nodes.
@@ -93,7 +93,7 @@ and of the characteristics of anti-Byzantine justifications, remains for future 
 \section{Software Upgrades}
 
 Governmint can also be used as a natural means for negotiating software upgrades on a possibly decentralized network.
-Software upgrades on the public internet are a notoriously challenging operation,
+Software upgrades on the public Internet are a notoriously challenging operation,
 requiring careful planning to maintain backwards compatibility for users that don't upgrade right away,
 and to not upset loyal users of the software by introducing bugs, removing features, adding complexity, or,
 perhaps worst of all, updating automatically without permission.
@@ -103,7 +103,7 @@ While Ethereum has already managed a successful, non-backwards-compatible upgrad
 due to its strong leadership and unified community,
 Bitcoin has been unable to make some needed upgrades,
 despite a plethora of software engineering ills,
-on account of the a viciously divided community and a lack of strong leadership.
+on account of a viciously divided community and a lack of strong leadership.
 
 Upgrades to blockchains are typically differentiated as being \emph{soft forks} or \emph{hard forks},
 on account of the scope of the changes.
@@ -163,12 +163,12 @@ such as social media and high availability services, to communicate evidence.
 A new blockchain can be started by the full set of remaining honest nodes, 
 once at least two-thirds of them have gathered all the evidence.
 
-Alternatively, modifying the Tendermint protocol so that precommits require polka
+Alternatively, modifying the Tendermint protocol so that pre-commits require polka
 would ensure that those responsible for the fork could be punished immediately,
 and would not require an additional publishing period. 
 This modification remains for future work.
 
-More complex uses of Governmint are possible for accomodating various particularities of crisis,
+More complex uses of Governmint are possible for accommodating various particularities of crisis,
 such as permanent crash failures and the compromise of private keys.
 However, such approaches must be carefully thought out, 
 as they may undermine the safety guarantees of the underlying protocol.

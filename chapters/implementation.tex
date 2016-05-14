@@ -40,7 +40,7 @@ Go provides an implementation in its extended library. RIPEMD160 is also used as
 
 As its digital signature scheme, Tendermint uses Schnorr signatures over the ED25519 elliptic curve. 
 ED25519 was designed in the open by Dan Bernstein \cite{ed25519}, with the intention of being high performance and easy to implement without introducing vulnerabilities.
-Bernstein also introduced NaCl, a high level library for doing authenticated encryption that uses the ED25519 curve. Tendermint uses the implemention provided by Go in its extended library.
+Bernstein also introduced NaCl, a high level library for doing authenticated encryption that uses the ED25519 curve. Tendermint uses the implementation provided by Go in its extended library.
 
 \section{Merkle Hash Tree}
 
@@ -51,7 +51,7 @@ For any leaf in the tree, a trail of hashes leading from it to the root serves a
 This makes Merkle trees particularly useful for p2p file-sharing applications, where pieces of a large file can be verified as belonging to the file without
 having all the pieces. Tendermint uses this mechanism to gossip block parts on the network, where the root hash is included in the block proposal.
 
-Tendermint also provides a self-balancing, Merklized binary tree, modeled after the AVL tree \cite{avl}, as a TMSP service called Merkleeyes.
+Tendermint also provides a self-balancing, Merkle binary tree, modeled after the AVL tree \cite{avl}, as a TMSP service called Merkleeyes.
 The IAVL tree can be used for storing state of dynamic size, allowing lookups, inserts, and removals in logarithmic time.
 
 \section{RPC}

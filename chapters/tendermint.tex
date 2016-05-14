@@ -115,7 +115,7 @@ In practice, we use additional messages to optimize the gossiping of block data 
 \subsection{Proposals}
 
 Each round begins with a proposal. 
-The propser for the given round takes a batch of recently received transactions from its local cache (the Mempool, see Chapter \ref{ch:subprotocols}),
+The proposer for the given round takes a batch of recently received transactions from its local cache (the Mempool, see Chapter \ref{ch:subprotocols}),
 composes a block, and broadcasts a signed ProposalMsg containing the block.
 If the proposer is Byzantine, it might broadcast different proposals to different validators.
 
@@ -136,7 +136,7 @@ Perhaps more interestingly, validators can vote through governance modules (see 
 Once a complete proposal is received by a validator, 
 it signs a pre-vote for that proposal and broadcasts it to the network.
 If a validator does not receive a correct proposal within \emph{ProposalTimeout}, 
-it prevotes for \emph{nil} instead.
+it pre-votes for \emph{nil} instead.
 
 In asynchronous environments with Byzantine validators, 
 a single stage of voting, where each validator casts only one vote,
@@ -148,9 +148,9 @@ while others, having not seen the commit,
 go to a new round, within which they commit a different value.
 
 A single round of voting allows validators to tell each other what they know about the proposal.	
-But to tolerate Byzantine faults (which amounts, essentially to lies, fraud, deceipt, etc.), 
+But to tolerate Byzantine faults (which amounts, essentially to lies, fraud, deceit, etc.), 
 they must also tell each other what they know about what other validators have professed to know about the proposal.
-In otherwords, a second stage ensures that enough validators witnessed the result of the first stage.
+In other words, a second stage ensures that enough validators witnessed the result of the first stage.
 
 A pre-vote for a block is thus a vote to prepare the network to commit the block.
 A pre-vote for nil is a vote to prepare the network to move to the next round.
@@ -189,7 +189,7 @@ There are two rules of locking:
 	and then contributing to a polka for a different block in the next round, 
 	thereby compromising safety.}
 \item{Unlock-on-Polka: a validator may only release a lock after seeing a polka 
-(more than two-thirds prevoting for a single block) at a round greater than that at which it locked.
+(more than two-thirds pre-voting for a single block) at a round greater than that at which it locked.
 	This allows validators to unlock if they pre-committed something the rest of the network doesn't want to commit,
 	thereby protecting liveness, but does it in a way that does not compromise safety,
 	by only allowing unlocking if there has been a polka in a round after that in which the validator became locked.}
@@ -197,15 +197,15 @@ There are two rules of locking:
 
 
 For simplicity, a validator is considered to have locked on nil at round -1 at each height, 
-so that Unlock-on-Polka implies that a validator cannot precommit at a new height until they see a polka.
+so that Unlock-on-Polka implies that a validator cannot pre-commit at a new height until they see a polka.
 
 These rules can be understood more intuitively by way of examples. 
 Consider four validators, $A$, $B$, $C$, $D$, and suppose there is a proposal for $blockX$ at round $R$. 
 Suppose there is a polka for $blockX$, 
-but $A$ doesn't see it, and precommits nil, 
-while the others precommit for $blockX$.
-Now suppose the only one to see all precommits is D, 
-while the others, say, don't see D's precommit (they only see their two precommits and A's precommit nil).
+but $A$ doesn't see it, and pre-commits nil, 
+while the others pre-commit for $blockX$.
+Now suppose the only one to see all pre-commits is D, 
+while the others, say, don't see D's pre-commit (they only see their two pre-commits and A's pre-commit nil).
 D will now commit the block, while the others go to round $R+1$.
 Since any of the validators might be the new proposer, 
 if they can propose and vote for any new block, say $blockY$, 
@@ -213,26 +213,26 @@ then they might commit it and compromise safety, since $D$ already committed $bl
 Note that there isn't even any Byzantine behaviour here, just asynchrony!
 
 Locking solves the problem by forcing validators to stick with the block they pre-committed, 
-since other validators might have committed based on those precommits (as $D$ did in this example).
-In essence, once more than two-thirds precommit a block in a round, the network is locked on that block,
+since other validators might have committed based on those pre-commits (as $D$ did in this example).
+In essence, once more than two-thirds pre-commit a block in a round, the network is locked on that block,
 which is to say it must be impossible to produce a valid polka for a different block at a higher round.
 This is direct motivation for Prevote-the-Lock.
 
 Prevote-the-Lock is not sufficient, however. 
 There must be a way to unlock, lest we sacrifice liveness.
-Consider a round where $A$ and $B$ precommitted $blockX$ while $C$ and $D$ precommitted nil - a split vote.
+Consider a round where $A$ and $B$ pre-committed $blockX$ while $C$ and $D$ pre-committed nil - a split vote.
 They all move to the next round, and $blockY$ is proposed, which $C$ and $D$ prevote for.
 Suppose $A$ is Byzantine, and prevotes for $blockY$ as well (despite being locked on $blockX$), resulting in a polka.
-Suppose $B$ does not see the polka and precommits nil, while $A$ goes off-line and $C$ and $D$ precommit $blockY$. 
+Suppose $B$ does not see the polka and pre-commits nil, while $A$ goes off-line and $C$ and $D$ pre-commit $blockY$. 
 They move to the next round, but $B$ is still locked on $blockX$, while $C$ and $D$ are now locked on $blockY$, 
 and since $A$ is offline, they can never get a polka. 
 Hence, we've compromised liveness with less than a third (here, only one) Byzantine validators.
 
 The obvious justification for unlocking is a polka. 
-Once $B$ sees the polka for $blockY$ (which $C$ and $D$ used to jusitfy their precommits for $blockY$), 
-it ought to be able to unlock, and hence precommit $blockY$.
+Once $B$ sees the polka for $blockY$ (which $C$ and $D$ used to jusitfy their pre-commits for $blockY$), 
+it ought to be able to unlock, and hence pre-commit $blockY$.
 This is the motivation for Unlock-on-Polka, 
-which allows validators to unlock (and precommit a new block),
+which allows validators to unlock (and pre-commit a new block),
 if they have seen a polka in a round greater than that in which they locked.
 
 \subsection{Formal Specification}
@@ -257,7 +257,7 @@ If a vote is received for a later round, we skip ahead to that round.
     	\centering
 	\input{figures/descriptions/tendermint-pi2}
 	\caption[Formal specification of Tendermint consensus in the $\pi$-calculus, part II]{Formal specification of Tendermint consensus in the $\pi$-calculus, part II.
-Validators broadcast their precommit and wait to receive precommits from the others.
+Validators broadcast their pre-commit and wait to receive pre-commits from the others.
 If a vote is received for a later round, we skip ahead to that round.
 When more than two-thirds pre-commit for block $b$, we fire $b$ on channel $d_i$, signalling the commit,
 and terminating the protocol.
@@ -271,17 +271,17 @@ over a set of $N$ validators, each executing one of a mutually exclusive set of 
 Internal state $s = \{r, p, v \}$ consists of a strictly increasing round, $r$,
 a proposal $p$, containing the proposed block for this round;
 and a set of votes, $v$, containing all votes at all rounds;
-We denote by $v_r^1$ and $v_r^2$ the set of prevotes and precommits, respectively, at round $r$.
+We denote by $v_r^1$ and $v_r^2$ the set of prevotes and pre-commits, respectively, at round $r$.
 We define $proposer(r) = r \mod N$ to be the index of the proposer at round $r$.
 We represent a peer at a particular point in the protocol as $Y_i^{r, p, v}$.
 Processes $Y_i$ range over $PR_i$, $PV_i$, $PC_i$, 
 respectively abbreviating 
-\emph{propose}, \emph{prevote}, \emph{precommit}.
+\emph{propose}, \emph{prevote}, \emph{pre-commit}.
 We introduce additional sub-functions for $PV$ and $PC$ to capture the recursion,
 denoted $PV1$, $PV2$, etc.
 
 Peers are connected using broadcast channels for each message type,
-namely $propose_i$, $prevote_i$, and $precommit_i$,
+namely $propose_i$, $prevote_i$, and $pre-commit_i$,
 as well as a channel for deciding on, or committing, a value, $d_i$.
 Via an abuse of notation, a single send on a broadcast channel $xxx_i$ can be received by each process along
 $xxx_i$.
@@ -504,8 +504,8 @@ if the polka is happening anyways.
 
 The current design provides accountability following a post-crisis broadcast protocol,
 but it could be improved to allow accountability in real time. 
-That is, a commit could be changed to include not just the precommits, but all votes 
-justifying the precommits, going all the way back to the beginning of the height.
+That is, a commit could be changed to include not just the pre-commits, but all votes 
+justifying the pre-commits, going all the way back to the beginning of the height.
 That way, if safety is violated, the unjustified votes can be detected immediately.
 
 \section{Faults and Availability}

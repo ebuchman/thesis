@@ -31,7 +31,7 @@ and were constructed to be debuggable, to be quick to generate, and to contain s
 Thus, the leading bytes are Big-Endian encoded integers 
 representing transaction number and validator index for that instance,
 the trailing 16 bytes are randomly drawn from the operating system, 
-and the intermediate bytes are just zeroes.
+and the intermediate bytes are just zeros.
 
 A network monitoring tool is used to maintain active websocket connections 
 to each validator's Tendermint RPC server,
@@ -80,7 +80,7 @@ Transactions are preloaded on each validator. Each experiment is run for 16 bloc
 		\includegraphics[width=\linewidth,height=\textheight,keepaspectratio]{figures/throughput/throughput-blocksize.pdf}
 	\end{subfigure}
 	\centering
-	\caption[Latency-Throughput tradeoff in non-faulty global network]{Latency-throughput tradeoff.
+	\caption[Latency-Throughput trade-off in non-faulty global network]{Latency-throughput trade-off.
 Larger blocks incur diminishing 
 returns in transaction throughput, with an ultimate capacity at around 10,000 txs/s}
 	\label{fig:exp:throughput}
@@ -108,8 +108,8 @@ We leave further investigations of this capacity limit to future work.
 	\begin{subfigure}{0.8 \textwidth}
 		\includegraphics[width=\linewidth,height=\textheight,keepaspectratio]{figures/throughput/single_datacenter/throughput-blocksize.pdf}
 	\end{subfigure}
-	\caption[Latency-throughput tradeoff in non-faulty local network]{Single datacenter.
-When messages don't need to cross the public internet, Tendermint is capable of tens of thousands of transactions per second.}
+	\caption[Latency-throughput trade-off in non-faulty local network]{Single datacenter.
+When messages don't need to cross the public Internet, Tendermint is capable of tens of thousands of transactions per second.}
 	\label{fig:exp:throughput:single}
 \end{figure}
 
@@ -189,9 +189,9 @@ A more explicit Byzantine failure can be injected through the following modifica
 to the state machine:
 
 \begin{itemize}
-\item{Conflicting proposals: during its time to propose, a Byzantine validator signs two conflicting proposals and broadcasts each, along with a prevote and precommit, to separate halves of its connected peers.} 
+\item{Conflicting proposals: during its time to propose, a Byzantine validator signs two conflicting proposals and broadcasts each, along with a pre-vote and pre-commit, to separate halves of its connected peers.} 
 \item{No nil votes: a Byzantine validator never signs a nil-vote.}
-\item{Sign every proposal: a Byzantine validator submits a prevote and a precommit for every proposal it sees, as soon as it sees it.}
+\item{Sign every proposal: a Byzantine validator submits a pre-vote and a pre-commit for every proposal it sees, as soon as it sees it.}
 \end{itemize}
 
 Taken together, these behaviours explicitly violate the double signing and locking rules. 
@@ -205,7 +205,7 @@ Tendermint maintains respectable latencies, as can be seen from Table \ref{fig:e
 Since these faults have little to do with asynchrony,
 there is no real discernible effect from TimeoutPropose.
 The performance also falls off with larger validator sets,
-which may be the result of a naiive algorithm for handling Byzantine votes.
+which may be the result of a naive algorithm for handling Byzantine votes.
 
 \begin{table}[]
 	\input{figures/throughput/byz_tables}
@@ -246,7 +246,7 @@ of between 10,000 and 15,000 transactions per second.
 Block latencies in HoneyBadgerBFT, however, are much higher, 
 closer to 10 seconds for validator sets of size 8, 16, and 32, and even more for larger ones.
 
-A well known tool for studying consensus implementations is jepsen \cite{jepsen},
+A well known tool for studying consensus implementations is Jepsen \cite{jepsen},
 which is used to test the consistency guarantees of databases by simulating 
 many forms of network partition. 
 Testing Tendermint with Jepsen remains an exciting area for future work.

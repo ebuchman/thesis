@@ -51,7 +51,7 @@ Many systems, however, do not require tolerance to Byzantine faults as they are 
 where there is presumably no malicious behaviour and the code is written correctly.
 In these circumstances, which are common in data-centers managed by large companies like Google or Amazon,
 fault tolerant computing is used to defend against various faults,
-whether it be a break in a network link, power failure in a server rack, or a dead harddrive.
+whether it be a break in a network link, power failure in a server rack, or a dead hard-drive.
 
 \subsection{Clocks}
 
@@ -199,9 +199,9 @@ Each round has a corresponding proposer, and processes can \emph{lock} on a valu
 the proposer will propose that value.
 A round begins with processes gossiping the values they deem acceptable.
 The proposer will propose a value if it has heard from at least $N - f$ processes that the value is acceptable.
-Any process which receives the proposed value should lock on it, and send an acknowledgement message
+Any process which receives the proposed value should lock on it, and send an acknowledgment message
 that it has done so.
-If the proposer receives acknowledgement from $f+1$ processes, it commits the value.
+If the proposer receives acknowledgment from $f+1$ processes, it commits the value.
 
 Variations on the basic protocol are discussed for different combinations of assumptions,
 and many proofs are provided of its soundness.
@@ -264,13 +264,13 @@ Alternatively, this may be a useful approach in low-fault circumstance.
 The phenomenon is referred to as \emph{zero-conf transactions} in Bitcoin and is widely warned against,
 given Bitcoin's weak consistency guarantees.
 
-Others have focused on the possibility of running indepedent transactions concurrently to achieve higher throughputs \cite{kotla2004high}.
+Others have focused on the possibility of running independent transactions concurrently to achieve higher throughputs \cite{kotla2004high}.
 This is the approach that has begun to be researched in the blockchain community, especially by Ethereum, in order to produce a scalable blockchain architecture.
 
 \section{Non-Byzantine}
 
 In parallel to the BFT algorithms, a number of non-BFT algorithms have emerged, and a 
-number of important highly available internet services have been built on top of them.
+number of important highly available Internet services have been built on top of them.
 
 \subsection{Paxos}
 
@@ -339,7 +339,7 @@ Instead, Ethereum provides a Turing complete virtual machine, the Ethereum Virtu
 and provides a means for users to upload code to the EVM that can execute upon the processing of future transactions.
 So-called \emph{smart contracts} \cite{szabo1997formalizing} offer the promise of automatically enforced execution of code in a public setting, 
 using strong cryptography and BFT replication. 
-The Ethereum project was successful in one of the largest crowdfunds to date, over \$18 million USD, 
+The Ethereum project was successful in one of the largest crowd-funds to date, over \$18 million USD, 
 and the market capitalization of its native token, ether, which is used to pay for transaction execution and code uploads,
 has since reached \$1 billion USD.
 
@@ -353,10 +353,10 @@ PPCoin \cite{king2012ppcoin}.
 Under PoS, proposals are made by, and voted on, 
 those who can prove ownership of some stake of coins in the network.
 While eliminating the excessive energy of costs of PoW, 
-naiive implementations of PoS are vulnerable to so called ``nothing-at-stake'' attacks,
+naive implementations of PoS are vulnerable to so called ``nothing-at-stake'' attacks,
 wherein validators may propose and vote on multiple blocks at a given height,
 resulting in a dramatic violation of safety, with no incentive to converge.
-While the problems with naiive PoS are well known \cite{poelstra2014distributed},
+While the problems with naive PoS are well known \cite{poelstra2014distributed},
 many popular cryptocurrencies still use it.
 
 The nothing-at-stake problem can be rectified with a mechanism known as \emph{slasher} \cite{slasher},
@@ -425,4 +425,4 @@ yet to withstand the test of time.
 
 Tendermint emerges from and complements a rich history of consensus science which spans the gamut of synchrony and fault-tolerance assumptions. 
 The invention of the blockchain and of Raft have rekindled the fire in consensus research and spawned a new generation 
-of protocols and software for co-ordination over the internet.
+of protocols and software for co-ordination over the Internet.

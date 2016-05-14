@@ -3,8 +3,8 @@
 
 \renewcommand{\|}{\;|\;}
 
-Distributed consensus systems have become a critical component of modern internet infrastructure, 
-powering every major internet application at some level or another.
+Distributed consensus systems have become a critical component of modern Internet infrastructure, 
+powering every major Internet application at some level or another.
 This chapter introduces the necessary background material for understanding and discussing these systems.
 In addition, it introduces the pi-calculus, a formal language for describing concurrent processes,
 which will be used to specify the Tendermint algorithm in Chapter \ref{ch:tendermint}.
@@ -85,7 +85,7 @@ The former case is usually considered more severe, as reconciling conflicting lo
 
 In practice, synchronous solutions are only used where the message latency is under 
 extremely well defined control, for instance between controllers on an airplane \cite{hoyme1993safebus},
-or between datacenters that utilizing syncronized atomic clocks \cite{corbett2013spanner}.
+or between datacenters that utilizing synchronized atomic clocks \cite{corbett2013spanner}.
 Thus, while many efficient synchronous solutions exist,
 the general unreliability of computer networks is too great a risk for them to be used in practice
 without significant additional costs.
@@ -161,7 +161,7 @@ on the one hand by providing the first real-world, practical, fault-tolerant con
 and on the other by being so difficult to understand and explain.
 Each implementation of the algorithm used its own unique bag of ad-hoc techniques
 to build ABC from Paxos, making the ecosystem difficult to navigate, understand, and utilize.
-Unfortunately, there was little work on improving the problem framing to make it more understandable.
+Unfortunately, there was little work on improving the problem framing to make it more understandable,
 though there were efforts to delineate solutions to the various difficulties \cite{chandra2007paxos}.
 
 In 2013, Ongaro and Ousterhout published Raft \cite{raft},
@@ -173,7 +173,7 @@ though it is not described as such.
 
 Paxos has been the staple consensus algorithm for industry, 
 upon which the likes of Amazon \cite{dynamo}, Google \cite{chubby}, 
-and others have built out highly available global internet services.
+and others have built out highly available global Internet services.
 The Paxos consensus sits at the bottom of the application stack, 
 providing a consistent interface to resource management and allocation, 
 operating at much slower time scales than the highly-available applications facing the users.
@@ -240,7 +240,7 @@ Furthermore, PBFT provides no guarantees if a third or more of the network co-or
 
 \section{Cryptography, Trust, and Economics}
 
-Fundamentally, fault tolerance is a problem derriving from a lack of trust - 
+Fundamentally, fault tolerance is a problem deriving from a lack of trust - 
 an inability to know how some process will behave.
 Formally, trust might be defined information theoretically as a means
 for reducing the entropy of one's model of the world - 
@@ -249,7 +249,7 @@ enabling more focused attention on higher order forms of organization.
 
 Cryptographic primitives are also fundamentally related to the problem of trust,
 and may similarly be defined as mechanisms which allow for a massive reduction in entropy -
-succesfully authenticating a cryptographic function collapses a distribution 
+successfully authenticating a cryptographic function collapses a distribution 
 over possible outcomes to a single, or in some cases a small number, of outcomes.
 
 It is well known that civilizations that have greater forms of institutional trust,
@@ -260,7 +260,7 @@ reduces the space of possible outcomes that need to be actively modelled,
 making it easier to co-ordinate.
 Unfortunately, it is becoming increasingly difficult to evaluate the trustworthiness 
 of modern institutions as their complexity has skyrocketed in recent decades,
-increasing the likelihood that the certainty they allegdly provide is an illusion.
+increasing the likelihood that the certainty they allegedly provide is an illusion.
 
 Fortunately, cryptography can form the basis for new institutions of trust in society 
 which may dramatically improve the capacity for human co-ordination at global scale on account
@@ -272,7 +272,7 @@ Most interestingly, economic mechanisms may also serve as means for reducing ent
 in so far as economic agents can be incentivized - 
 which is to say be made more likely to execute a particular behaviour.
 In fact, Bitcoin's great insight was that cryptographic primitives could be used in
-conjuction with economic incentives to sufficiently reduce the entropy of a public consensus network
+conjunction with economic incentives to sufficiently reduce the entropy of a public consensus network
 to achieve secure replication of state.
 
 A more formal investigation of the information theoretic grounds of trust, cryptography,
@@ -294,7 +294,7 @@ The first is that it groups transactions in blocks in order to amortize the high
 (on the order of ten minutes) over many transactions.
 The second is to link blocks via cryptographic hashes into an immutable chain,
 such that is easy to verify the historical record.
-Both optimizations are natural improvements to a naiive BFT-ABC,
+Both optimizations are natural improvements to a naive BFT-ABC,
 the former improving performance, the latter improving tolerance to certain kinds 
 of difficult to model Byzantine faults.
 
@@ -316,7 +316,7 @@ have been specifically developed with sequential computation in mind.
 
 Process calculi are a family of models introduced 
 to provide a formal basis for concurrent computation.
-The most popular calculus, the Comunicating Sequential Processes (CSP) \cite{csp}
+The most popular calculus, the Communicating Sequential Processes (CSP) \cite{csp}
 forms the theoretical foundation for many modern programming languages,
 such as Go, which include concurrency primitives in the language design \cite{csp_go}.
 
@@ -366,7 +366,7 @@ A process may be the empty process, $0$.
 It may be the parallel composition of two processes, $P \| P$,
 denoting two processes running concurrently.
 A guarded processes, $\alpha.P$, only allows process $P$ to execute after an action, $\alpha$,
-has occured.
+has occurred.
 The action can be a null action, $\tau$, or it can be the sending, $x!(y)$, 
 or receiving, $x?(y)$, of $y$ along $x$.
 Guarded choice injects non-determinism into the operation of the calculus, 
@@ -391,7 +391,7 @@ Effectively, the only relevant operation is communication, known as the \emph{co
 \begin{equation}
 ( x?(y).P | x!(z) )  \rightarrow P\{z/y\}
 \end{equation} 
-The notation $P\{z/y\}$ means that all occurences of $y$ in $P$ are replaced with $z$.
+The notation $P\{z/y\}$ means that all occurrences of $y$ in $P$ are replaced with $z$.
 In other words, $z$ was sent on $x$, received as $y$, and fed to $P$.
 
 Given a $\pi$-calculus process, we can follow its execution by applying the comm rule.
@@ -403,7 +403,7 @@ For instance,
 
 Now, we can use a formal logic to express properties a process might satisfy.
 For instance, the modal Hennessy–Milner logic can express that a process
-will satisfy some other logic expression after some or all forms of an action have occured \cite{milner1993modal}
+will satisfy some other logic expression after some or all forms of an action have occurred \cite{milner1993modal}
 By adding more complex operators to the logic, 
 formal systems can be built up which easily describe important properties of distributed systems,
 such as safety and liveness \cite{stirling1991local}, and localization \cite{caires2003spatial}.

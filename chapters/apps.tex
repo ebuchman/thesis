@@ -8,7 +8,7 @@ and have it automatically replicated via Tendermint's BFT algorithm.
 
 \section{Background}
 
-Applications on the internet can in general be characterized as containing two fundamental components:
+Applications on the Internet can in general be characterized as containing two fundamental components:
 
 \begin{itemize}
 \item{Engine: handles core security, networking, replication. 
@@ -161,12 +161,12 @@ The approach is discussed further in Chapter \ref{ch:related}.
 Adopting separation of concerns as a strategy in application design is generally considered wise practice \cite{hursch1995separation}.
 In particular, many large scale application deployments today adopt a microservice architecture,
 wherein each functional component is implemented as a standalone network service, 
-and typically encapsulated in a linux container (e.g.~using Docker) for efficient deployment, scalability, and upgradeability.
+and typically encapsulated in a Linux container (e.g.~using Docker) for efficient deployment, scalability, and upgradeability.
 
 Applications running above Tendermint consensus will often be decomposable into microservices.
 For instance, many applications will utilize a key-value store for storing state.
 Running the key-value store as an independent service is quite common, 
-in order to take advantage of the data store's specialized features, such as high-performance data types or Merklization.
+in order to take advantage of the data store's specialized features, such as high-performance data types or Merkle trees.
 
 Another important microservice for applications is a governance module, 
 which manages a certain subset of TMSP messages, enabling the application to control validator set changes.
@@ -193,7 +193,7 @@ That is, for the replicated state-machine to not compromise safety,
 every node must obtain the same result when executing the same transaction against the same state.
 
 This is not a unique requirement for Tendermint. Bitcoin, Raft, Ethereum, any other distributed consensus algorithm,
-and applications like lock-step multiplayer gaming must all be strictly deterministic, lest a consensus failure arise.
+and applications like lock-step multi-player gaming must all be strictly deterministic, lest a consensus failure arise.
 
 There are many sources of non-determinism in programming languages, most obviously via random numbers and time,
 but also, for instance, via the use of floating point precision, and by iteration over hash tables 
@@ -226,7 +226,7 @@ In essence, a validator cannot tell if an execution is in an infinite loop or is
 It may be possible to use the Tendermint consensus protocol to decide on transaction timeouts, 
 such that more than two-thirds of validators must agree that a transaction timed out and is thus considered invalid (ie. having no effect on the state).
 However, we do not pursue the idea further here, leaving it to future work. 
-In the meantime, it is expected that applications will undergo thorogh testing before being deployed in any consensus system,
+In the meantime, it is expected that applications will undergo thorough testing before being deployed in any consensus system,
 and that monitoring and governance mechanisms will be used to resurrect the system in the event of consensus failure.
 
 \section{Examples}
@@ -236,9 +236,9 @@ with particular focus on \emph{CheckTx} and managing the mempool.
 
 \subsection{Merkleeyes}
 
-A simple example of a TMSP application is a Merklized key-value store. 
+A simple example of a TMSP application is a Merkle tree based key-value store. 
 Tendermint provides Merkleeyes, a TMSP application which wraps a self-balancing, Merkle binary search tree.
-The first byte of a transaction determines if the transation is a get, set, or remove operation. 
+The first byte of a transaction determines if the transaction is a get, set, or remove operation. 
 For get and remove operations, the remaining bytes are the key. 
 For the set operation, the remaining bytes are a serialized list containing the key and value.
 Merkleeyes may utilize a simple implementation of \emph{CheckTx} that only decodes the transaction,
@@ -247,7 +247,7 @@ One could also make a more advanced \emph{CheckTx}, where get and remove operati
 Once Commit is called, the latest updates are added into the Merkle tree, all hashes are computed, 
 and the latest state of the tree is committed to disk.
 
-Note that Merkleeyes was designed to be a module used by other TMSP applications for a Merklized key-value store,
+Note that Merkleeyes was designed to be a module used by other TMSP applications for a Merkle tree based key-value store,
 rather than a stand alone TMSP application, though the simplicity of the TMSP interface makes it amenable to both.
 
 \subsection{Basecoin}

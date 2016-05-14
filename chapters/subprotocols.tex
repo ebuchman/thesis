@@ -54,10 +54,10 @@ in order to minimize the bandwidth wasted by transmitting the same chunk to a no
 
 Once all the chunks are received, the block is deserialized and validated to ensure it refers correctly to the previous 
 block, and that its various checksums, implemented as Merkle trees, are correct. 
-While it was previously assumed that a validator does not prevote until the proposal (including the block) is received,
-some performance benefit may be obtained by allowing validators to prevote after receiving a proposal, 
-but before receiving the full block. This would imply that it is okay to prevote for what turns out to be an invalid block.
-However, precommittng for an invalid block must always be considered Byzantine.
+While it was previously assumed that a validator does not pre-vote until the proposal (including the block) is received,
+some performance benefit may be obtained by allowing validators to pre-vote after receiving a proposal, 
+but before receiving the full block. This would imply that it is okay to pre-vote for what turns out to be an invalid block.
+However, pre-committing for an invalid block must always be considered Byzantine.
 
 Peers that are catching up (i.e.~are on an earlier height) are sent chunks for the height they are on,
 and progress one block at a time.
@@ -65,11 +65,11 @@ and progress one block at a time.
 \subsection{Votes}
 
 At each step in the consensus state machine, after the proposal, a node is waiting for votes (or a local timeout) to progress.
-If a peer has just entered a new height, it is sent precommits from the previous block,
-so it may include them in the next blocks \emph{LastValidation} if it's a proposer.
-If a peer has prevoted but has yet to precommit, or has precommitted, but has yet to go to the next round,
-it is sent prevotes or precommits, respectively.
-If a peer is catching up, it is sent the precommits for the committed block at its current height.
+If a peer has just entered a new height, it is sent pre-commits from the previous block,
+so it may include them in the next blocks \emph{LastCommit} if it's a proposer.
+If a peer has pre-voted but has yet to pre-commit, or has pre-committed, but has yet to go to the next round,
+it is sent pre-votes or pre-commits, respectively.
+If a peer is catching up, it is sent the pre-commits for the committed block at its current height.
 
 \section{Mempool}
 
@@ -105,9 +105,9 @@ The node will request blocks, in order, beginning with its current height,
 from all peers that self-reported higher heights, and download the blocks concurrently, adding them to the block pool.
 Another routine continuously attempts to remove blocks from the pool and add them to the blockchain by validating and executing them, 
 two blocks at a time, against the latest state of the blockchain.
-Blocks must be validated two blocks at a time because the commit for one block is included as the LastValidation data in the next one.
+Blocks must be validated two blocks at a time because the commit for one block is included as the LastCommit data in the next one.
 
 The node continuously queries its peers for their current height, 
-and continues to concurrently request blocks until it has caught up to the heighest height among its peers, 
+and continues to concurrently request blocks until it has caught up to the highest height among its peers, 
 at which point it stops making requests for peer heights and starts the consensus reactor.
 
