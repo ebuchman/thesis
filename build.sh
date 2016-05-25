@@ -16,6 +16,7 @@ if [[  "$CHAPTER" == "" ]]; then
 	bibtex main
 	pdflatex main.tex
 	pdflatex main.tex
+	cp main.pdf Buchman_Ethan_201605_MAsc.pdf
 else
 	pdflatex -jobname=chapBuild "\includeonly{$CHAPTER}\input{main.tex}"
 #	bibtex chapBuild
