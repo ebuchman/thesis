@@ -71,8 +71,8 @@ and skip a proposer's turn if they don't propose within the bounds of the synchr
 In asynchronous environments, where no such assumptions about network delays or processor speeds are warranted,
 the trade-off is much more difficult to manage.
 In fact, the so called FLP impossibility result demonstrates the 
-impossibility of distributed consensus among deterministic asynchronous processes 
-if even a single processes can crash\footnote{Prior to FLP, the distinction between sync/async wasn't as prominent}\cite{flp}.
+impossibility of distributed consensus among deterministic asynchronous\footnote{Prior to FLP, the distinction between sync/async wasn't as prominent} processes 
+if even a single processes can crash \cite{flp}.
 The proof amounts to showing that, because processes can fail, 
 there are valid executions of the protocol in which processes fail at the exact opportune times to prevent consensus.
 Hence, we have no guarantee of consensus.
@@ -85,7 +85,7 @@ The former case is usually considered more severe, as reconciling conflicting lo
 
 In practice, synchronous solutions are only used where the message latency is under 
 extremely well defined control, for instance between controllers on an airplane \cite{hoyme1993safebus},
-or between datacenters that utilizing synchronized atomic clocks \cite{corbett2013spanner}.
+or between datacenters utilizing synchronized atomic clocks \cite{corbett2013spanner}.
 Thus, while many efficient synchronous solutions exist,
 the general unreliability of computer networks is too great a risk for them to be used in practice
 without significant additional costs.
