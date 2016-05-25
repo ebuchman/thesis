@@ -22,6 +22,8 @@ and enables higher-order forms of organization to flourish.
 - communications channel, capacity as MI
 - crypto primitives are axes for high entropy systems with high MI 'paths' for 'correct' processes
 
+- crypto systems are stronger than purely info-theoretic ones \cite{ben1988completeness}
+
 
 
 Suppose we have agents Alice and Bob, represented by random variables $A$ and $B$, 
@@ -152,25 +154,32 @@ namely, that which is \emph{malicious}.
 Unlike FDs, BFDs are not unreliable - they can not mistakenly suspect other processes
 of being Byzantine, as triggering the BFD requires cryptographic proof.
 
-There are two forms of malicious behaviour, which we call divergent-broadcast (mDBC)
-and unjustified-broadcast (mUBC). In mDBC, a process sends conflicting messages to peers.
-Detecting mDBC simply requires receiving the conflicting messages.
-In mUBC, a process sends a message which claims something about its internal state which is untrue.
-To detect mUBC requires the use of functions from the particular consensus protocol itself,
+There are two forms of malicious behaviour, which we call divergent-broadcast (DBC)
+and unjustified-broadcast (UBC). In DBC, a process sends conflicting messages to peers.
+Detecting DBC simply requires receiving the conflicting messages.
+In UBC, a process sends a message which claims something about its internal state which is untrue.
+To detect UBC requires the use of functions from the particular consensus protocol itself,
 which must define a set of justification rules.
 Either form of malicious behaviour is sufficient to violate safety in a non-Byzantine protocol.
 
 We now define a BFD as satisfying the following property:
 
 \begin{itemize}
-\item{Eventually, every mDBC and mUBC is detected by at least one correct process}
+\item{Eventually, every DBC and UBC is detected by at least one correct process}
 \end{itemize}
 
 In practice, using a BFD requires a correct process to keep a list of all messages it has delivered,
 and to reliably broadcast those messages to all other correct processes.
-Further, the BFD must be informed by the rules of the consensus protocol as to what constitutes a mUBC.
+Further, the BFD must be informed by the rules of the consensus protocol as to what constitutes a UBC.
 
-Most BFT protocols are tolerant of Byzantine faults, but fail to detect them.
+Note that something which is a UBC in one protocol may not be in another.
+We are interested in this boundary, particularly the weakest UBCs necessary for consensus.
+Introduction of economics can weaken the UBCs necessary
+	- eg PoW: mining an alternate chain doesn't get detected and punished, but economics yeilds an op cost
+	- eg Casper: changing bets might incur small economic cost for larger reward of getting consensus sooner
+
+
+Many BFT protocols are tolerant of Byzantine faults, but don't emphasize detection.
 Thus, while a BFD is not necessary for Byzantine consensus, we show that, for some 
 forms of the justification function, it is sufficient,
 and that their use elucidates deeper structure in the BFT problem.
