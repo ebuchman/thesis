@@ -142,6 +142,27 @@ FDs enable processes to keep a list of other processes they suspect to have cras
 Though unreliable, in that they may be suspicious of correct processes,
 FDs can be constrained by abstract asymptotic properties ensuring that 
 eventually, crashed processes are suspect, and correct processes are not.
+Notably, the formalism of FDs enable refined investigation of consensus algorithms.
+
+Here, we extend the model the Byzantine case, yielding Byzantine Failure Detectors,
+and show how they can be used as building blocks for the construction of BFT algorithms.
+
+
+Notes
+- "correct" behaviour vs arbitrary behaviour
+- nodes keep state of other nodes in order to know what is "allowed" and detect variation
+- depending on the protocol, there may be a tradeoff between detection and asynchrony
+	- non-byz may be suspected as byz cuz of asynchrony
+	- conjecture: this only possible in non-strongly-consistent protocols
+- tendermint has perfect byz detection since no tradeoff against asynchrony!
+- what about pbft? need to review view change
+- pi calc allows us to describe many of the BFDs implicitly by whether or not
+we even listen for the message (eg. proposing when its not your turn)
+- economics as a modulator for moving to next proposer
+
+
+
+
 
 Byzantine Failure Detectors (BFDs) are a different breed.
 While Byzantine traditionally means "arbitrary", 
@@ -240,6 +261,8 @@ given finite critical resources and a driving energy source,
 the system must increase its efficiency (ie. innovate, build wealth, etc),
 to maintain liveness during growth.
 Integration with food systems, be an organism, etc.
+
+Note economics can also act as a weak/parametrized form of synchrony!
 
 \section{Residence Times}
 Drawing inspiration from ecology and biophysics, 
