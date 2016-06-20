@@ -1,5 +1,6 @@
 \chapter{Introduction}
 \label{ch:intro}
+\section{Fault Tolerance}
 
 The cold, hard truth about computer engineering today is that computers are faulty - 
 they crash, corrupt, slow down, perform voodoo. 
@@ -17,6 +18,8 @@ as have vast components of the world's finances.
 In response, there has been an explosion of cyber warfare and financial fraud,
 and a complete distortion of economic and political fundamentals.
 
+\section{Bitcoin}
+
 In 2009, an anonymous software developer known only as Satoshi Nakamoto introduced an approach to the resolution of these issues 
 that was simultaneously an experiment in computer science, economics, and politics. 
 It was a digital currency called Bitcoin \cite{bitcoin}.
@@ -32,8 +35,10 @@ in exchange for their doing such an expensive thing as solve partial hash collis
 In spirit, it might be assumed that the capacity to solve such problems would be distributed as computing power is, 
 such that anyone with a CPU could participate.
 Unfortunately, the reality is that the Bitcoin network has grown into the largest supercomputing entity on the planet, greater than all others combined,
-evaluating only a single function, distributed across a few large data centers running Application Specific Integrated Circuits (ASICs) produced by a small number of primarily Chinese companies, and costing on the order of two million USD per day in electricty \cite{blockchaininfo}.
-Not to mention it takes up to an hour to confirm transactions, is difficult to build applications on top of, and does not scale in a way which preserves its security guarantees.
+evaluating only a single function, distributed across a few large data centers running Application Specific Integrated Circuits (ASICs) 
+produced by a small number of primarily Chinese companies, 
+and costing on the order of two million USD per day in electricty \cite{blockchaininfo}.
+Further, it's technical design has limitations: it takes up to an hour to confirm transactions, is difficult to build applications on top of, and does not scale in a way which preserves its security guarantees.
 This is not to mention the internal bout of political struggles resulting from the immaturity of the Bitcoin community's governance mechanisms.
 
 Despite these troubles, Bitcoin, astonishingly, continues to churn,
@@ -43,6 +48,8 @@ continues to attract billions in investment capital,
 both in the form of new companies and new cryptocurrencies,
 each diverging from Bitcoin in its own unique way.
 
+\section{Tendermint}
+
 In 2014, Jae Kwon began the development of Tendermint, which sought to solve the consensus problem,
 of ordering and executing a set of transactions in an adversarial environment, 
 by modernizing solutions to the problem that have existed for decades,
@@ -51,41 +58,50 @@ but have lacked the social context to be deployed widely until now.
 In early 2015, in an effort led by Eris Industries to bring a practical blockchain solution to industry,
 the author joined Jae Kwon in the development of the Tendermint software and protocols.
 
-The result of that collaboration is the Tendermint platform, consisting of a consensus protocol, a high-performance implementation in golang, 
+The result of that collaboration is the Tendermint platform, consisting of a consensus protocol, a high-performance implementation in Go,
 a flexible interface for building arbitrary applications above the consensus, and a suite of tools for deployments and their management.
 We believe Tendermint achieves a superior design and implementation compared to previous approaches, 
 including that of the classical academic literature \cite{dls,pbft,raft} as well as Bitcoin \cite{bitcoin} and its derivatives \cite{ethereum,sidechains,peercoin}
 by combining the right elements of each to achieve a practical balance of security, performance, and simplicity.
-We have since started a company to pursue the deployment of the platform at an enterprise level, and have seen tremendous interest.
 
-The primary contributions of this thesis are as follows:
+The Tendermint platform is available open source at \url{https://github.com/tendermint/tendermint}, 
+and in associated repositories at \url{https://github.com/tendermint}.
+The core is licensed GPLv3 and most of the libraries are Apache 2.0.
 
+\section{Contributions}
 
+The primary contributions of this thesis can be found in Chapters \ref{ch:tendermint} and \ref{ch:performance}, 
+and in the many commits on \url{https://github.com/tendermint/tendermint} and related repositories.
+Of particular salience are:
 \begin{itemize}  
-
-    \item A complete description of the Tendermint consensus algorithm and platform architecture (Chapters \ref{ch:tendermint}-\ref{ch:apps}). Tendermint provides provably optimal Byzantine Fault Tolerant consensus, is easy to understand and reason about, flexible to build on top of, and provides a foundation for advanced and secure socio-political and economic systems. 
-
-    \item Significant contributions to a high performance implementation of the consensus algorithm in Go, most notably a refactor of the core consensus state machine to be more robust, deterministic, and understandable, as well as countless bug fixes and performance improvements.
-
-    \item Evaluation of the implementation's performance and characteristics in normal, faulty, and malicious conditions on large deployments (Chapter \ref{ch:performance}). Tendermint consensus is mostly asynchronous, with minimal dependence on synchronized clocks, and can tolerate up to a third of its nodes behaving arbitrarily. 
-
-    \item Contributions towards the design and implementation of many other elements necessary for a complete system, such as membership changes, crisis recovery, client design, and security (Chapters \ref{ch:governance} and \ref{ch:clients}).
-
     \item A formal specification of Tendermint in the $\pi$-calculus and 
 an informal proof of correctness of its safety and accountability (Chapter \ref{ch:tendermint}).
 
-    \item An explanation of blockchains and the Tendermint consensus algorithm in the context of classical academic consensus research (Chapter \ref{ch:related}).
+    \item A refactor of the core consensus state machine in the spirit of the formal specification to be more robust, deterministic, and understandable (\url{https://github.com/tendermint/tendermint/}).
+
+    \item Evaluation of the software's performance and characteristics in normal, faulty, and malicious conditions on large deployments (Chapter \ref{ch:performance}). 
+
+    \item Countless additional tests, leading to innumerable bug fixes and performance improvements (\url{https://github.com/tendermint/tendermint/}).
 \end{itemize}
 
-All code is available open source at \url{https://github.com/tendermint/tendermint}, and in associated repositories at \url{https://github.com/tendermint}.
-The core is licensed GPLv3 and most of the libraries are Apache 2.0.
+Chapters \ref{ch:subprotocols}-\ref{ch:implementation} describe the many other components of a complete system.
+Some of these, like the subprotocols used to gossip data (Chapter \ref{ch:subprotocols}) and the various low-level software libraries (Chapter \ref{ch:implementation}),
+were designed and implemented by Jae Kwon before being joined by the author. 
+The rest was designed and implemented with regular consultation and inspiration from the author.
+For a more direct accounting of contributions, please see the github repositories.
 
-The remainder of this thesis introduces the consensus problem, 
-classic solutions, and motivates Tendermint (Chapter \ref{ch:background});
-presents the Tendermint consensus algorithm, 
-the peer-to-peer network, 
-and the interface for building arbitrary applications on top 
-(Chapters \ref{ch:tendermint}-\ref{ch:apps});
-mechanisms for governance and membership changes, and how clients interact with Tendermint (Chapters \ref{ch:governance} and \ref{ch:clients});
-outlines the implementation in Go and evaluates its fault tolerance and performance (Chapters \ref{ch:implementation} and \ref{ch:performance});
-and discusses related work (Chapter \ref{ch:related}).
+Though not recounted in this thesis, the author made various contributions during this time to the Ethereum Project
+\footnote{Most notably tests, bug-fixes, and performance improvements in the Go implementation at \url{https://github.com/ethereum/go-ethereum}},
+an alternative to Bitcoin which generalizes the use of the technology from currency to arbitrary computations.
+In addition, the author has been invited on numerous occasions to speak privately and publicly about both Ethereum and Tendermint,
+including as an instructor 
+\footnote{Private instructor to a major financial institution, 2015} 
+\footnote{Blockchain University, 2015, \url{http://blockchainu.co}}, 
+ and a presenter 
+\footnote{Cryptoeconomicon, 2015} 
+\footnote{International Workshop on Technical Computing for Machine Learning and Mathematical Engineering, 2014, \url{http://www.esat.kuleuven.be/stadius/tcmm2014/}}
+\footnote{The Blockchain Workshops, 2016 \url{http://nyc.blockchainworkshops.org/}}.
+
+A final note on thesis structure. Despite being placed at the end, Chapter \ref{ch:related} provides significant context 
+and may enhance understanding of the thesis if read before Chapter \ref{ch:tendermint}. However, in order to not delay the reader's introduction to Tendermint,
+it is placed at the end.
