@@ -1,7 +1,7 @@
 		
 \begin{tabular}{l}
 		\hline \\
-		$PC_i^{r,p,v}:= precommit_i ! (p) \| (\nu \> c) ( \prod_{j=1}^n precommit_j ? (w) . c!(w)  \| PC1_i^{r,p,v}(c))$ \\\\
+		$PC_i^{r,p,v}:= precommit_i ! (p) \| (\nu \> c) ( \prod_{j=1}^n precommit_j ? (w) . c!(preccomit_j, w)  \| PC1_i^{r,p,v}(c))$ \\\\
 
 		\hline \\
 		{$\!\begin{aligned}
@@ -12,7 +12,7 @@
 				& \quad PR_i^{r+1,\emptyset,v} \\ 
 			& \text{else} \\
 				& \quad c?(pc, vote) .\text{ if } vote.round < r \text{ then} \\ 
-						& \quad  \quad	pc?(w).c!(pc, w) \\ 
+						& \quad  \quad	pc?(w).c!(pc, w) \| PC1_i^{r,p,v}(c) \\ 
 						& \quad  \text{else if } vote.round = r \text{ then} \\ 
 
 						& \quad  \quad	PC1_i^{r,p,vote::v}(c) \\

@@ -25,7 +25,7 @@
 				& \quad PC_i^{r,\emptyset,v} \\ 
 			& \text{else} \\
 				& \quad c?(pv, vote) . \text{ if } vote.round < r \text{ then} \\ 
-						& \quad  \quad	pv?(w).c!(pv, w) \\ 
+						& \quad  \quad	pv?(w).c!(pv, w) \| PV1_i^{r,p,v}(c)\\ 
 						& \quad  \text{else if } vote.round = r \text{ then} \\ 
 						& \quad  \quad	PV1_i^{r,p,vote::v}(c) \\
 						& \quad  \text{else } \\

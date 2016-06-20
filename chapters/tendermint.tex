@@ -23,10 +23,10 @@ such that a valid blockchain has only one valid block at each height.
 At each height, validators take turns proposing new blocks in \emph{rounds}, 
 such that for any given round there is at most one valid proposer.
 It may take multiple rounds to commit a block at a given height due to the asynchrony of the network,
-and the network may halt altogether if more than one-third of the validators are offline or partitioned.
+and the network may halt altogether if one-third or more of the validators are offline or partitioned.
 Validators engage in two phases of voting on a proposed block before it is committed, 
-and follow a simple locking mechanism which prevents any coalition of up to 
-one third malicious validators from compromising safety.
+and follow a simple locking mechanism which prevents any malicious coalition of less than
+one third of the validators from compromising safety.
 
 Note that the core round-based voting mechanism is the consensus algorithm, 
 which is strung together into blocks to yield atomic broadcast.
@@ -82,12 +82,12 @@ from algorithms with an explicit leader-election program.
 
 The beginning of each round has a weak dependence on synchrony as it utilizes local clocks to determine when to skip a proposer.
 That is, if a validator does not receive a proposal within a locally measured \emph{TimeoutPropose} of entering a new round, it can vote to skip the proposer.
-Inherent in this mechanism is the assumption that, at least eventually, the proposal will be delivered within \emph{TimeoutPropose}, which may itself increment with each round.
+Inherent in this mechanism is a weak synchrony assumption, namely, that the proposal will eventually be delivered within \emph{TimeoutPropose}, which may itself increment with each round.
 This assumption is discussed more fully in Chapter \ref{ch:related}.
 
-After the proposal, rounds proceed in a fully asynchronous manner - a validator makes progress only after hearing from more than two-thirds of the other validators.
+After the proposal, rounds proceed in a fully asynchronous manner - a validator makes progress only after hearing from at least two-thirds of the other validators.
 This relieves any sort of dependence on synchronized clocks or bounded network delays,
-but implies that the network will halt if one-third or more of the nodes become unresponsive.
+but implies that the network will halt if one-third or more of the validators become unresponsive.
 This circuit of weakly synchronous proposals, followed by asynchronous voting, 
 is depicted in Figure \ref{fig:consensus_logic}.
 
@@ -147,7 +147,7 @@ a rogue validator can co-ordinate some validators to commit a value
 while others, having not seen the commit, 
 go to a new round, within which they commit a different value.
 
-A single round of voting allows validators to tell each other what they know about the proposal.	
+A single stage of voting allows validators to tell each other what they know about the proposal.	
 But to tolerate Byzantine faults (which amounts, essentially to lies, fraud, deceit, etc.), 
 they must also tell each other what they know about what other validators have professed to know about the proposal.
 In other words, a second stage ensures that enough validators witnessed the result of the first stage.
@@ -156,7 +156,7 @@ A pre-vote for a block is thus a vote to prepare the network to commit the block
 A pre-vote for nil is a vote to prepare the network to move to the next round.
 In an ideal round with an online proposer, more than two-thirds of validators will pre-vote for the proposal.
 A set of more than two-thirds of pre-votes for a single block at a given round is known as a \emph{polka}\footnote{The original term used was PoL, or PoLC, for Proof-of-Lock or Proof-of-Lock-Change. The term evolved to polka as it was realized the validators are doing the polka.}.
-A set of more than two-thirds of pre-votes for nil is a \emph{nil-polka}
+A set of more than two-thirds of pre-votes for nil is a \emph{nil-polka}.
 
 When a validator receives a polka (read: more than two-thirds pre-votes for a single block), 
 it has received a signal that the network is prepared to commit the block,
@@ -178,8 +178,8 @@ it moves on to the next round.
 
 Ensuring safety across rounds can be tricky, 
 as circumstances must be avoided which would provide justification for two different blocks to be committed at two different rounds at the same height.
-In Tendermint, this problem is solved via a \emph{locking} mechanism.
-In essence, once a pre-commit is cast, a validator is \emph{locked} on the associated block, and must follow certain locking rules.
+In Tendermint, this problem is solved via a \emph{locking} mechanism which revolves around the polka (ie. more than two thirds pre-vote for the same block).
+In essence, a pre-commit must be justified by a polka, and a validator is considered \emph{locked} on the last block it pre-commit.
 There are two rules of locking:
 
 \begin{itemize}
@@ -189,7 +189,7 @@ There are two rules of locking:
 	and then contributing to a polka for a different block in the next round, 
 	thereby compromising safety.}
 \item{Unlock-on-Polka: a validator may only release a lock after seeing a polka 
-(more than two-thirds pre-voting for a single block) at a round greater than that at which it locked.
+	at a round greater than that at which it locked.
 	This allows validators to unlock if they pre-committed something the rest of the network doesn't want to commit,
 	thereby protecting liveness, but does it in a way that does not compromise safety,
 	by only allowing unlocking if there has been a polka in a round after that in which the validator became locked.}
@@ -242,10 +242,11 @@ we provide a formal specification in the $\pi$-calculus.
 
 %\begin{figure}[]
 \begin{figure}[]
+	\vspace*{-1cm}
     	\centering
 	\input{figures/descriptions/tendermint-pi1}
 	\caption[Formal specification of Tendermint consensus in the $\pi$-calculus, part I]{Formal specification of Tendermint consensus in the $\pi$-calculus, part I.
-$chooseProposal(p)$ must return $p$ if it is not $\emptyset$, and otherwise should gather transactions from the mempool as described in Chapter \ref{cite:subprotocols}. 
+$chooseProposal(p)$ must return $p$ if it is not $\emptyset$, and otherwise should gather transactions from the mempool as described in Chapter \ref{ch:subprotocols}. 
 After receiving a proposal or timing out, validators move onto prevote,
 where they broadcast their prevote and wait to receive prevotes from the others.
 If a vote is received for a later round, we skip ahead to that round.
@@ -262,7 +263,7 @@ If a vote is received for a later round, we skip ahead to that round.
 When more than two-thirds pre-commit for block $b$, we fire $b$ on channel $d_i$, signalling the commit,
 and terminating the protocol.
 }
-	\label{fig:tendermint_pi}
+	\label{fig:tendermint_pi2}
 \end{figure}
 
 
@@ -270,18 +271,19 @@ Let $Consensus := \prod_{i=1}^N Y_i $ represent a consensus protocol
 over a set of $N$ validators, each executing one of a mutually exclusive set of processes, $Y_i$.
 Internal state $s = \{r, p, v \}$ consists of a strictly increasing round, $r$,
 a proposal $p$, containing the proposed block for this round;
-and a set of votes, $v$, containing all votes at all rounds;
-We denote by $v_r^1$ and $v_r^2$ the set of prevotes and pre-commits, respectively, at round $r$.
+and a set of votes, $v$, containing all votes at all rounds.
+We denote by $v_r^1$ and $v_r^2$ the set of prevotes and pre-commits, respectively, at round $r$,
+and we let $vote::v$ denote the union of sets $\{vote\}$ and $v$ (ie. the addition of $vote$ to $v$).
 We define $proposer(r) = r \mod N$ to be the index of the proposer at round $r$.
 We represent a peer at a particular point in the protocol as $Y_i^{r, p, v}$.
 Processes $Y_i$ range over $PR_i$, $PV_i$, $PC_i$, 
 respectively abbreviating 
-\emph{propose}, \emph{prevote}, \emph{pre-commit}.
+\emph{propose}, \emph{prevote}, \emph{precommit}.
 We introduce additional sub-functions for $PV$ and $PC$ to capture the recursion,
 denoted $PV1$, $PV2$, etc.
 
 Peers are connected using broadcast channels for each message type,
-namely $propose_i$, $prevote_i$, and $pre-commit_i$,
+namely $propose_i$, $prevote_i$, and $precommit_i$,
 as well as a channel for deciding on, or committing, a value, $d_i$.
 Via an abuse of notation, a single send on a broadcast channel $xxx_i$ can be received by each process along
 $xxx_i$.
@@ -476,7 +478,7 @@ In the second, Byzantine validators violate locking rules after some validators 
 causing other validators to commit a different block in a later round.
 Note that it is not possible to cause a violation of safety with two-thirds or fewer
 Byzantine validators using only violations of Unlock-on-Polka - 
-more than a third must violate Prevote-the-Lock for their to be a polka justifying a commit 
+more than a third must violate Prevote-the-Lock for there to be a polka justifying a commit 
 for the remaining honest nodes.
 
 In the case of conflicting proposals and conflicting votes,

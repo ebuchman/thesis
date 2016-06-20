@@ -6,7 +6,7 @@
 Distributed consensus systems have become a critical component of modern Internet infrastructure, 
 powering every major Internet application at some level or another.
 This chapter introduces the necessary background material for understanding and discussing these systems.
-In addition, it introduces the pi-calculus, a formal language for describing concurrent processes,
+In addition, it introduces the $\pi$-calculus, a formal language for describing concurrent processes,
 which will be used to specify the Tendermint algorithm in Chapter \ref{ch:tendermint}.
 
 \section{Replicated State Machine}
@@ -155,7 +155,7 @@ the reduction of ABC to consensus remains an open topic of research.
 
 Historically, despite the fact that most use cases actually require ABC,
 the most widely adopted algorithm has been a consensus algorithm called Paxos, 
-introduced, and proven correct, by Leslie Lamport in the 90s.
+introduced, and proven correct, by Leslie Lamport in the 90s \cite{paxos}.
 Paxos simultaneously empowered and confused the discipline of consensus science,
 on the one hand by providing the first real-world, practical, fault-tolerant consensus algorithm,
 and on the other by being so difficult to understand and explain.
@@ -229,7 +229,7 @@ Thus, to tolerate a single Byzantine process, we require at least $N=4$.
 Then the faulty process can't split the vote the way it was able to when $N=3$.
 
 In 1999, Castro and Liskov published Practical Byzantine Fault Tolerance \cite{pbft}, or \emph{PBFT}, 
-which provided the first optimal Byzantine fault tolerant algorithm in asynchronous networks.
+which provided the first optimal Byzantine fault tolerant algorithm for practical use.
 It set a new precedent for the practicality of Byzantine fault tolerance in industrial systems by being capable 
 of processing tens of thousands of transactions per second.
 Despite this success, Byzantine fault tolerance was still considered expensive and largely unnecessary, 
@@ -384,6 +384,8 @@ in other words, after some timeout.
 
 Note that we may use $\sum P$ to denote guarded-choice over more than two processes,
 and $\prod P$ to denote the parallel composition of more than two processes.
+We also admit a polyadic form of send and receive, for instance the process $x?(v,w) \| x!(y,z)$ is equivalent to
+$x?(d).d?(v).d?(w) \| (\nu c) x!(c).c!(y).c!(z)$.
 
 An operational semantics defines the actual non-reversible computational steps that a process may execute.
 Effectively, the only relevant operation is communication, known as the \emph{comm} rule:
@@ -403,12 +405,12 @@ For instance,
 
 Now, we can use a formal logic to express properties a process might satisfy.
 For instance, the modal Hennessy–Milner logic can express that a process
-will satisfy some other logic expression after some or all forms of an action have occurred \cite{milner1993modal}
+will satisfy some other logic expression after some or all forms of an action have occurred \cite{milner1993modal}.
 By adding more complex operators to the logic, 
 formal systems can be built up which easily describe important properties of distributed systems,
 such as safety and liveness \cite{stirling1991local}, and localization \cite{caires2003spatial}.
 Systems written in the $\pi$-calculus can then be formally verified to satisfy 
-the relevant properties by model checking software \cite{vieira2004spatial}.
+the relevant properties using model checking software \cite{vieira2004spatial}.
 
 While we use the $\pi$-calculus to specify the Tendermint algorithm, 
 we leave use of an associated formal logic, 
@@ -416,7 +418,7 @@ and the corresponding verification of properties, to future work.
 
 \section{The Need For Tendermint}
 
-The success of Bitcoin and its derivatives, especially Ethereum, and their promise of secure, autonomous, distributed, fault-tolerant execution of arbitrary code has caused virtually every major financial institution on the planet to become interested in the blockchain phenomenon. 
+The success of Bitcoin and its derivatives, especially Ethereum \cite{ethereum}, and their promise of secure, autonomous, distributed, fault-tolerant execution of arbitrary code has caused virtually every major financial institution on the planet to become interested in the blockchain phenomenon. 
 In particular, there has emerged an understanding of two forms of the technology:
 On the one hand are the public blockchains, known affectionately as the Big Bad Public Blockchains or BBPBs, 
 whose protocols are dominated by in-built economic incentives bootstrapped by a native currency.
