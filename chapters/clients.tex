@@ -98,4 +98,9 @@ The state's Merkle root hash is included in the block header, such that it is su
 Of course, to know that the header itself is valid, they must have either validated the whole chain, 
 or kept up-to-date with validator set changes only and rely on economic guarantees that the state transitions were correct.
 
+\section{Conclusion}
 
+Clients of a Tendermint network function similarly to those of any other distributed database,
+though considerations must be made for the block-based nature of commits and the behaviour of the mempool.
+Additionally, clients must be designed with a particular application in mind. 
+Though this adds some complexity, it enables tremendous flexibility.

@@ -166,7 +166,7 @@ How can the generals agree on a common plan of action if one or some of the gene
 
 The original paper provides the first proof that to tolerate $f$ Byzantine faults,
 a system must have at least $3f+1$ nodes. 
-The intuition behind this result was depicted in \ref{fig:byzantine} and discussed 
+The intuition behind this result was depicted in Figure \ref{fig:byzantine} and discussed 
 throughout Chapters \ref{ch:background} and \ref{ch:tendermint}.
 A number of algorithms are provided in both papers as the first solutions to the problem,
 though they are designed to work only in the synchronous case, where the absence of a message can be detected.
@@ -184,9 +184,6 @@ The solution was iteratively improved to achieve optimal Byzantine agreement wit
 The next major advancement in BFT came in the form of the so called \emph{DLS} consensus algorithms,
 named after the authors Dwork, Lynch, and Stockmeyer \cite{dls}.
 The innovation of DLS was to define a middle ground between synchrony and asynchrony called \emph{partial synchrony}.
-Recall from Chapter \ref{ch:background} that a synchrony assumption is one which states that messages 
-are received within some known, finite amount of time, 
-or that processor clocks only deviate from each other by some finite number of ticks.
 The secret to partial synchrony is to suppose one of the following:
 
 \begin{itemize}
@@ -237,7 +234,7 @@ messages for that request, with the same view and sequence number.
 The combination of \emph{pre-prepare} and \emph{prepare} ensure a total order on the requests in a single view,
 according to their sequence number. 
 Once a replica is prepared, it broadcasts a signed \emph{commit} message,
-which is accepted so long as its properly signed and the view is correct.
+which is accepted so long as it's properly signed and the view is correct.
 When a replica accepts a \emph{commit} message, it runs the client request against the state machine and returns the result to the client.
 
 PBFT employs an additional mechanism to facilitate view changes in the event the primary is faulty.
@@ -260,9 +257,9 @@ where transactions are executed before they are committed in order to provide a 
 optimistic reply to clients \cite{kotla2007zyzzyva,garcia2011efficient}.
 The trouble with these approaches is that the responsibility of managing inconsistency is relegated to the client,
 while presumably the reason they used a consistent consensus protocol in the first place was to avoid that responsibility.
-Alternatively, this may be a useful approach in low-fault circumstance.
+Alternatively, this may be a useful approach in low-fault circumstances.
 The phenomenon is referred to as \emph{zero-conf transactions} in Bitcoin and is widely warned against,
-given Bitcoin's weak consistency guarantees.
+given the insecurity of accepting transactions before sufficient work has been committed on top of them.
 
 Others have focused on the possibility of running independent transactions concurrently to achieve higher throughputs \cite{kotla2004high}.
 This is the approach that has begun to be researched in the blockchain community, especially by Ethereum, in order to produce a scalable blockchain architecture.
@@ -318,7 +315,7 @@ where the data being hashed is the block of transactions.
 Since computing partial hash collisions is expensive, requiring brute force search in a large space,
 the effort is subsidized by the issuance of a currency, known as bitcoins, with every block.
 The protocol has been wildly successful, with the currency achieving a market capitalization
-of roughly five billion dollars (USD), and with many clones of the original that have market capitalizations in the millions.
+in the billions of dollars (USD), and with many clones of the original that have market capitalizations in the millions.
 
 However, Bitcoin is not without its issues. A number of design flaws make the protocol cumbersome and difficult 
 for application developers to work with it.
@@ -371,11 +368,11 @@ The success of Bitcoin, Ethereum, and other cryptocurrencies has inspired an inc
 including regulators, bankers, business executives, auditors, account managers, logisticians, and more.
 In particular, a recent project under the Linux Foundation, spearheaded by IBM and a new blockchain-based company called Digital Asset Holdings (DAH), 
 seeks to provide a unified blockchain architecture for industrial applications. The project is called HyperLedger,
-after a company with the same name, providing a rudimentary implementation of a PBFT-based blockchain, was acquired by DAH.
+after a company with the same name, which provided a rudimentary implementation of a PBFT-based blockchain, was acquired by DAH.
 
 Two contributions to the HyperLedger initiative are particularly relevant.
 The first is the combination of Juno and Hopper by the team at JP Morgan.
-Juno is an implementation of Tangaroa, a BFT version of Raft \cite{tangaroa},
+Juno is an implementation of Tangaroa, a BFT version of Raft \cite{tangaroa}.
 Hopper is a new virtual machine design,
 based on linear logic \cite{girard1987linear} and dependent type systems \cite{bove2009dependent},
 that aims to provide an execution environment for smart contract systems equipped with a formal logic

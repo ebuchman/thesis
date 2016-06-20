@@ -74,8 +74,7 @@ If a peer is catching up, it is sent the pre-commits for the committed block at 
 \section{Mempool}
 
 Chapter \ref{ch:tendermint} made little mention of transactions, 
-despite the purpose of a consensus algorithm being to order and execute transactions,
-as Tendermint operates on blocks on a time, and has no concern for individual transactions,
+as Tendermint operates on blocks of transactions at a time, and has no concern for individual transactions,
 so long as their checksum in the block is correct.
 
 Transactions are managed independently in an in-memory cache, 
@@ -111,3 +110,8 @@ The node continuously queries its peers for their current height,
 and continues to concurrently request blocks until it has caught up to the highest height among its peers, 
 at which point it stops making requests for peer heights and starts the consensus reactor.
 
+\section{Conclusion}
+
+A number of subprotocols are required for a practical implementation of the Tendermint blockchain.
+These include the gossipping of consensus data (votes and proposals), of block data, and of transactions,
+and some means for new peers to quickly catch up with the latest state of the blockchain.

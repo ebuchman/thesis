@@ -19,11 +19,10 @@ where the number of validators ranges, in multiples of 2, from 2 to 64.
 \section{Overview}
 
 The experiments in this chapter can be reproduced using the repository at \url{https://github.com/tendermint/network\_testing}.
-All experiments except one take place in docker containers 
-running on \emph{Amazon EC2} instances of type \emph{t2.medium}.
-The \emph{t2.medium} has 2 vCPU and 4 GB of RAM.
-One experiment tests the throughput on larger instances, the \emph{c3.8xlarge}, 
-which has 32 vCPUs and 60 GB of RAM.
+All experiments take place in docker containers 
+running on \emph{Amazon EC2} instances of type \emph{t2.medium} or \emph{c3.8xlarge}.
+The \emph{t2.medium} has 2 vCPU and 4 GB of RAM,
+and the \emph{c3.8xlarge}, has 32 vCPUs and 60 GB of RAM.
 Instances are distributed across seven datacenters, spanning five continents.
 A second docker container, responsible for generating transactions, is run on each instance.
 Transactions are 250 bytes in size (a reasonable size for including a few 32 or 64 byte hashes and signatures),
@@ -160,7 +159,7 @@ ease the probability of such extreme latencies.
 
 \section{Random Network Delay}
 
-Another form of fault, which may attributed either to Byzantine behaviour or to network asynchrony,
+Another form of fault, which may be attributed either to Byzantine behaviour or to network asynchrony,
 is to inject random delays into every read and write to a network connection.
 In this experiment, before every read and write on every network connection,
 $N_{fault}$ of the validators slept for $X$ milliseconds, 
@@ -173,7 +172,7 @@ small values of TimeoutPropose allow faulty validators to be skipped quickly.
 If all validators were subject to the network delays, 
 larger TimeoutPropose values would be expected to reduce latency
 since there would be no non-faulty validators to skip to,
-and more time would be provided to received delayed messages.
+and more time would be provided to receive delayed messages.
 
 \begin{table}[]
 	\input{figures/throughput/delay_tables}

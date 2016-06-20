@@ -126,7 +126,7 @@ There are many reasons to take the latter stance,
 given the overwhelming government corruption apparent in the world today.
 Still, cryptography and distributed consensus provide a new set of tools that enables a degree
 of transparency and accountability otherwise not imaginable in the paper-pen-handshake world of modern governments,
-nor even the digital world of the traditional web, which suffers tremendously from sufficiently robust authentication systems.
+nor even the digital world of the traditional web, which suffers tremendously from a lack of sufficiently robust authentication systems.
 
 In a system using Governmint, developers would be identifiable entities on the blockchain,
 and may submit proposals for software upgrades. 
@@ -155,7 +155,6 @@ For instance, suppose a third or more validators violate locking rules,
 causing two blocks to be committed at height $H$.
 The honest validators can determine who double-signed by gossipping all the votes.
 At this point, they cannot use the consensus protocol, because the basic fault assumptions have been violated.
-One approach is for each validator to wait until they have all 
 Note that being able to at this point accumulate all votes for $H$ 
 implies strong assumptions about network connectivity and availability during the crisis,
 which, if it cannot be provided by the p2p network, may require validators use alternative means, 
