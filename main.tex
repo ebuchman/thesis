@@ -1,17 +1,18 @@
 
 \documentclass[12pt]{report}
 \usepackage[utf8]{inputenc}
-\usepackage{graphicx}
-\usepackage{listings}
-\usepackage{lstautogobble}
+\usepackage{graphicx} 
+\usepackage{listings} % code listings
 \usepackage{subcaption}
 \usepackage{amsmath} 
-\usepackage[backend=bibtex,block=ragged]{biblatex}
+\usepackage[backend=bibtex,block=ragged]{biblatex} % block=ragged wraps lines in the bib
 \graphicspath{ {images/} }
 \usepackage{float}
 %\floatstyle{boxed} 
 \restylefloat{figure}
 
+
+\pagenumbering{gobble}
 
 \usepackage{hyperref}
 \hypersetup{
@@ -44,9 +45,14 @@
 \newcommand\isFootnote{%
     \ifx\footnote\nextToken\textsuperscript{,}\fi}
 
-\begin{document}
 
+\begin{document}
+\include{chapters/title}
+\include{chapters/abstract}
+\pagenumbering{roman}
+\setcounter{page}{3}
 \include{chapters/frontmatter}
+\pagenumbering{arabic}
 \include{chapters/introduction}
 \include{chapters/background}
 \include{chapters/tendermint}

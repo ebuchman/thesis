@@ -49,7 +49,7 @@ and an overview of the architecture and message flow is shown in Figure \ref{fig
 \begin{figure}[]
 \vspace*{-1.5in}
     	\centering
-\begin{verbatim}
+\begin{lstlisting}
 
 type Application interface {
 	// Return application info
@@ -90,7 +90,7 @@ type Validator struct {
 	PubKey []byte 
 	Power  uint64 
 }
-\end{verbatim}
+\end{lstlisting}
 	\caption[TMSP Message Types]{
 The TMSP application interface as defined in Go.
 TMSP messages are defined using Google's Protocol Buffers, and their serialized form is length prefixed before 
