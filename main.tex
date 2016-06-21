@@ -3,13 +3,30 @@
 \usepackage[utf8]{inputenc}
 \usepackage{graphicx} 
 \usepackage{listings} % code listings
+\usepackage{listings-golang}
 \usepackage{subcaption}
 \usepackage{amsmath} 
 \usepackage[backend=bibtex,block=ragged]{biblatex} % block=ragged wraps lines in the bib
 \graphicspath{ {images/} }
 \usepackage{float}
+\usepackage{xcolor}
+
 %\floatstyle{boxed} 
 \restylefloat{figure}
+
+
+% color not working :(
+\lstset{ % add your own preferences
+    frame=single,
+    basicstyle=\footnotesize,
+    keywordstyle=\color{red},
+    numbers=left,
+    numbersep=5pt,
+    showstringspaces=false, 
+    stringstyle=\color{blue},
+    tabsize=4,
+    language=Golang % this is it !
+}
 
 
 \pagenumbering{gobble}
