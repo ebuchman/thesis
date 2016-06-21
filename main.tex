@@ -30,6 +30,21 @@
   \clearfield{note}%
 }
 
+% Fix to put commas between multiple footnotes (e.g. in Chapter 1)
+% Normal solution is to use:
+%   \usepackage[multiple]{footmisc}  
+% However, this is incompatible with hyperref
+% Suggested solution here:
+% http://tex.stackexchange.com/a/62091
+\let\oldFootnote\footnote
+\newcommand\nextToken\relax
+
+\renewcommand\footnote[1]{%
+    \oldFootnote{#1}\futurelet\nextToken\isFootnote}
+
+\newcommand\isFootnote{%
+    \ifx\footnote\nextToken\textsuperscript{,}\fi}
+
 \begin{document}
 
 \include{chapters/frontmatter}

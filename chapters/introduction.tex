@@ -31,14 +31,14 @@ in such a way that the correct ordering is the one where the collisions have the
 The solution was dubbed Proof-of-Work (PoW).
 
 Bitcoin's subtle brilliance was to invent a currency, a cryptocurrency, and to issue it to those solving the hash collisions, 
-in exchange for their doing such an expensive thing as solve partial hash collisions.
+in exchange for their doing such an expensive thing as solving partial hash collisions.
 In spirit, it might be assumed that the capacity to solve such problems would be distributed as computing power is, 
 such that anyone with a CPU could participate.
 Unfortunately, the reality is that the Bitcoin network has grown into the largest supercomputing entity on the planet, greater than all others combined,
 evaluating only a single function, distributed across a few large data centers running Application Specific Integrated Circuits (ASICs) 
 produced by a small number of primarily Chinese companies, 
 and costing on the order of two million USD per day in electricty \cite{blockchaininfo}.
-Further, it's technical design has limitations: it takes up to an hour to confirm transactions, is difficult to build applications on top of, and does not scale in a way which preserves its security guarantees.
+Further, its technical design has limitations: it takes up to an hour to confirm transactions, is difficult to build applications on top of, and does not scale in a way which preserves its security guarantees.
 This is not to mention the internal bout of political struggles resulting from the immaturity of the Bitcoin community's governance mechanisms.
 
 Despite these troubles, Bitcoin, astonishingly, continues to churn,
@@ -72,7 +72,7 @@ The core is licensed GPLv3 and most of the libraries are Apache 2.0.
 
 The primary contributions of this thesis can be found in Chapters \ref{ch:tendermint} and \ref{ch:performance}, 
 and in the many commits on \url{https://github.com/tendermint/tendermint} and related repositories.
-Of particular salience are:
+Of particular significance are:
 \begin{itemize}  
     \item A formal specification of Tendermint in the $\pi$-calculus and 
 an informal proof of correctness of its safety and accountability (Chapter \ref{ch:tendermint}).
@@ -88,20 +88,20 @@ Chapters \ref{ch:subprotocols}-\ref{ch:implementation} describe the many other c
 Some of these, like the subprotocols used to gossip data (Chapter \ref{ch:subprotocols}) and the various low-level software libraries (Chapter \ref{ch:implementation}),
 were designed and implemented by Jae Kwon before being joined by the author. 
 The rest was designed and implemented with regular consultation and inspiration from the author.
-For a more direct accounting of contributions, please see the github repositories.
+For a more direct accounting of contributions, please see the Github repositories.
 
-Though not recounted in this thesis, the author made various contributions during this time to the Ethereum Project
+Though not recounted in this thesis, the author made various contributions during this time to the Ethereum Project%
 \footnote{Most notably tests, bug-fixes, and performance improvements in the Go implementation at \url{https://github.com/ethereum/go-ethereum}},
 an alternative to Bitcoin which generalizes the use of the technology from currency to arbitrary computations.
 In addition, the author has been invited on numerous occasions to speak privately and publicly about both Ethereum and Tendermint,
-including as an instructor 
-\footnote{Private instructor to a major financial institution, 2015} 
+including as an instructor%
+\footnote{Private instructor to a major financial institution, 2015}%
 \footnote{Blockchain University, 2015, \url{http://blockchainu.co}}, 
- and a presenter 
-\footnote{Cryptoeconomicon, 2015} 
-\footnote{International Workshop on Technical Computing for Machine Learning and Mathematical Engineering, 2014, \url{http://www.esat.kuleuven.be/stadius/tcmm2014/}}
+ and a presenter%
+\footnote{Cryptoeconomicon, 2015}%
+\footnote{International Workshop on Technical Computing for Machine Learning and Mathematical Engineering, 2014, \url{http://www.esat.kuleuven.be/stadius/tcmm2014/}}%
 \footnote{The Blockchain Workshops, 2016 \url{http://nyc.blockchainworkshops.org/}}.
 
-A final note on thesis structure. Despite being placed at the end, Chapter \ref{ch:related} provides significant context 
+A final note on thesis structure: Despite being placed at the end, Chapter \ref{ch:related} provides significant context 
 and may enhance understanding of the thesis if read before Chapter \ref{ch:tendermint}. However, in order to not delay the reader's introduction to Tendermint,
 it is placed at the end.
